@@ -230,5 +230,6 @@ export const copy = {
     contact: 'تواصل معنا',
     hours: 'ساعات العمل',
     rights: 'جميع الحقوق محفوظة',
+    tagline: 'الافضل في مجال تأجير السيارات',
   },
 } as const

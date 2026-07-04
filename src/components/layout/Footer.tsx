@@ -164,6 +164,7 @@ export function Footer() {
           <Link to="/admin" className="text-slate-600 hover:text-brand-gold transition-colors">
             {copy.nav.admin}
           </Link>
+          <p className="text-[10px] sm:text-xs text-slate-600 pt-1">{copy.footer.tagline}</p>
         </div>
       </div>
     </footer>
