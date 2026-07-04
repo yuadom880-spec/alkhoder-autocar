@@ -1,0 +1,204 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import { AlertCircle, Calendar, Car, Check, Clock, TrendingUp, X } from 'lucide-react'
+import { AdminTopBar } from '../../components/admin/AdminTopBar'
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
+import { Button } from '../../components/ui/Button'
+import { Badge } from '../../components/ui/Badge'
+import { BOOKING_STATUS_LABELS } from '../../lib/constants'
+import { handleBookingStatusNotification } from '../../lib/bookingWhatsApp'
+import { fetchBookings, fetchCars, updateBookingStatus } from '../../lib/supabase'
+import type { Booking } from '../../lib/types'
+import { formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
+
+export function AdminDashboardPage() {
+  const [carsCount, setCarsCount] = useState(0)
+  const [availableCount, setAvailableCount] = useState(0)
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState<string | null>(null)
+
+  const load = () => {
+    setLoading(true)
+    Promise.all([fetchCars(), fetchBookings()])
+      .then(([cars, bks]) => {
+        setCarsCount(cars.length)
+        setAvailableCount(cars.filter((c) => c.is_available).length)
+        setBookings(bks)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(load, [])
+
+  const pending = bookings.filter((b) => b.status === 'pending')
+  const confirmed = bookings.filter((b) => b.status === 'confirmed')
+
+  const handleQuickAction = async (id: string, status: 'confirmed' | 'rejected') => {
+    setUpdating(id)
+    const previous = bookings.find((b) => b.id === id)
+    try {
+      const updated = await updateBookingStatus(id, status)
+      setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)))
+      await handleBookingStatusNotification(updated, status, previous?.status)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'فشل التحديث')
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  if (loading) return <><AdminTopBar /><LoadingSpinner /></>
+
+  const stats = [
+    { label: 'إجمالي السيارات', value: carsCount, icon: Car, color: 'text-brand-green', link: '/admin/cars' },
+    { label: 'سيارات متاحة', value: availableCount, icon: TrendingUp, color: 'text-blue-600', link: '/admin/cars' },
+    { label: 'إجمالي الحجوزات', value: bookings.length, icon: Calendar, color: 'text-brand-gold', link: '/admin/bookings' },
+    { label: 'بانتظار المراجعة', value: pending.length, icon: Clock, color: 'text-amber-600', link: '/admin/bookings' },
+  ]
+
+  return (
+    <>
+      <AdminTopBar title="لوحة التحكم" />
+
+      <div className="p-4 sm:p-6 lg:p-8">
+        {/* تنبيه الحجوزات الجديدة */}
+        {pending.length > 0 && (
+          <div className="mb-6 flex items-start gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-bold text-amber-800">
+                عندك {pending.length} طلب حجز جديد بانتظار المراجعة!
+              </p>
+              <p className="text-sm text-amber-700 mt-1">راجع الطلبات وتواصل مع الزبائن من صفحة الحجوزات</p>
+            </div>
+            <Link to="/admin/bookings">
+              <Button size="sm" variant="secondary">عرض الطلبات</Button>
+            </Link>
+          </div>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
+          {stats.map((s) => (
+            <Link key={s.label} to={s.link} className="rounded-2xl bg-white p-5 shadow-sm card-hover block">
+              <div className="flex items-center justify-between mb-3">
+                <s.icon className={`h-8 w-8 ${s.color}`} />
+                <span className="text-3xl font-bold text-brand-dark">{s.value}</span>
+              </div>
+              <p className="text-sm text-slate-500">{s.label}</p>
+            </Link>
+          ))}
+        </div>
+
+        {/* طلبات بانتظار المراجعة */}
+        {pending.length > 0 && (
+          <div className="rounded-2xl bg-white shadow-sm overflow-hidden mb-8">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <h2 className="font-bold text-brand-dark flex items-center gap-2">
+                <Clock className="h-5 w-5 text-amber-500" />
+                طلبات تحتاج مراجعة ({pending.length})
+              </h2>
+              <Link to="/admin/bookings" className="text-sm text-brand-green hover:underline">
+                عرض الكل
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {pending.map((b) => (
+                <div key={b.id} className="flex flex-wrap items-center gap-4 px-5 py-4 hover:bg-slate-50">
+                  <div className="flex-1 min-w-[200px]">
+                    <p className="font-bold text-brand-dark">{b.customer_name}</p>
+                    <p className="text-xs text-slate-500">{b.car?.name} · {formatPrice(b.total_price)}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {formatDate(b.start_date)} — {formatDate(b.end_date)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <a href={toPhoneLink(b.customer_phone)}>
+                      <Button size="sm" variant="outline">اتصال</Button>
+                    </a>
+                    <a href={toWhatsAppLink(b.customer_phone)} target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" className="bg-[#25D366]">واتساب</Button>
+                    </a>
+                    <Button
+                      size="sm"
+                      disabled={updating === b.id}
+                      onClick={() => handleQuickAction(b.id, 'confirmed')}
+                    >
+                      <Check className="h-4 w-4" /> تأكيد
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      disabled={updating === b.id}
+                      onClick={() => handleQuickAction(b.id, 'rejected')}
+                    >
+                      <X className="h-4 w-4" /> رفض
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* آخر الحجوزات */}
+        <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <h2 className="font-bold text-brand-dark">آخر الحجوزات</h2>
+            <Link to="/admin/bookings" className="text-sm text-brand-green hover:underline">
+              إدارة الحجوزات
+            </Link>
+          </div>
+
+          {bookings.length === 0 ? (
+            <p className="p-6 text-sm text-slate-500 text-center">ما فيه حجوزات لحد الحين</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-slate-500">
+                  <tr>
+                    <th className="px-5 py-3 text-right font-medium">الزبون</th>
+                    <th className="px-5 py-3 text-right font-medium">التواصل</th>
+                    <th className="px-5 py-3 text-right font-medium">السيارة</th>
+                    <th className="px-5 py-3 text-right font-medium">الفترة</th>
+                    <th className="px-5 py-3 text-right font-medium">المبلغ</th>
+                    <th className="px-5 py-3 text-right font-medium">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {bookings.slice(0, 10).map((b) => (
+                    <tr key={b.id} className="hover:bg-slate-50">
+                      <td className="px-5 py-3 font-medium">{b.customer_name}</td>
+                      <td className="px-5 py-3">
+                        <a href={toPhoneLink(b.customer_phone)} dir="ltr" className="text-brand-green hover:underline text-xs">
+                          {b.customer_phone}
+                        </a>
+                      </td>
+                      <td className="px-5 py-3">{b.car?.name ?? '—'}</td>
+                      <td className="px-5 py-3 text-xs whitespace-nowrap">
+                        {formatDate(b.start_date)} — {formatDate(b.end_date)}
+                      </td>
+                      <td className="px-5 py-3 font-medium">{formatPrice(b.total_price)}</td>
+                      <td className="px-5 py-3">
+                        <Badge variant={b.status === 'pending' ? 'warning' : b.status === 'confirmed' ? 'success' : 'default'}>
+                          {BOOKING_STATUS_LABELS[b.status]}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {confirmed.length > 0 && (
+          <p className="mt-4 text-xs text-slate-400 text-center">
+            {confirmed.length} حجز مؤكد · {bookings.length} إجمالي
+          </p>
+        )}
+      </div>
+    </>
+  )
+}

@@ -1,0 +1,39 @@
+{
+  "name": "alkhoder-autocar",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build && node scripts/generate-seo-files.mjs",
+    "seo:generate": "node scripts/generate-seo-files.mjs",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "db:check": "node scripts/check-supabase.mjs",
+    "db:setup": "node scripts/setup-database.mjs",
+    "db:admin": "node scripts/create-admin.mjs",
+    "portfolio:pdf": "node scripts/generate-portfolio-pdf.mjs",
+    "report:pdf": "node scripts/generate-report-pdf.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "framer-motion": "^12.42.0",
+    "lucide-react": "^1.22.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "autoprefixer": "^10.5.2",
+    "oxlint": "^1.69.0",
+    "pg": "^8.16.3",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.0"
+  }
+}

@@ -1,0 +1,419 @@
+import { asset } from './assets'
+import logoUrl from '../assets/logo.png'
+import type { Car, CarCategory, CarOffer } from './types'
+
+const summerOffer = (badge: string): CarOffer => ({
+  active: true,
+  title: 'عروض إجازة الصيف',
+  badge_text: badge,
+  discount_type: 'percent',
+  discount_value: 15,
+  valid_until: '2026-09-30',
+  description: 'عرض الصيف — لفترة محدودة',
+})
+
+export const SITE_NAME = 'عبدالمجيد الخضر لتأجير السيارات'
+export const SITE_NAME_SHORT = 'عبدالمجيد الخضر'
+export const SITE_NAME_EN = 'Abdulmjeed Alkhoder Car Rental'
+export const LOGO_URL = logoUrl
+export const PHONE = '050 459 0002'
+export const PHONE_LINK = 'tel:+966504590002'
+export const WHATSAPP_LINK = 'https://wa.me/966504590002'
+export const TOLL_FREE = '920018216'
+export const TOLL_FREE_LINK = 'tel:920018216'
+export const EMAIL_QA = 'Alkhedr.qa@alkhedrcars.com'
+export const EMAIL_OSAMA = 'M.osama@alkhedrcars.com'
+
+const BRANCH_HOURS = 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م'
+
+export type Branch = {
+  name: string
+  address: string
+  city: string
+  phone?: string
+  hours: string
+  mapUrl: string
+  isMain?: boolean
+}
+
+export const MAIN_BRANCH: Branch = {
+  name: 'الفرع الرئيسي',
+  address: 'طريق المطار',
+  city: 'المدينة المنورة',
+  phone: PHONE,
+  hours: BRANCH_HOURS,
+  mapUrl: 'https://maps.app.goo.gl/JJNXk515GhDxqu889?g_st=iw',
+  isMain: true,
+}
+
+export const BRANCHES: Branch[] = [
+  MAIN_BRANCH,
+  {
+    name: 'فرع طريق المطار 2',
+    address: 'طريق المطار',
+    city: 'المدينة المنورة',
+    phone: '055 588 7324',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.google.com/?q=24.482824,39.630497',
+  },
+  {
+    name: 'فرع طريق سلطانه',
+    address: 'طريق سلطانه',
+    city: 'المدينة المنورة',
+    phone: '053 118 8874',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.app.goo.gl/GXRSGgLgdAj6gvJi6?g_st=iw',
+  },
+  {
+    name: 'فرع العالية',
+    address: 'العالية',
+    city: 'المدينة المنورة',
+    phone: '055 666 3589',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.google.com/?q=24.419773,39.620392',
+  },
+  {
+    name: 'فرع العزيزية',
+    address: 'العزيزية',
+    city: 'المدينة المنورة',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.app.goo.gl/agZ4fhN7CEykbHva8?g_st=iw',
+  },
+  {
+    name: 'فرع ينبع',
+    address: 'ينبع',
+    city: 'ينبع',
+    phone: '055 335 7178',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.google.com/?q=24.086933,38.064159',
+  },
+  {
+    name: 'فرع ضباء',
+    address: 'ضباء',
+    city: 'ضباء',
+    phone: '055 588 6210',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.app.goo.gl/VAahiHjbq2Hr49ch7?g_st=iw',
+  },
+  {
+    name: 'فرع تبوك',
+    address: 'تبوك',
+    city: 'تبوك',
+    phone: '055 588 6412',
+    hours: BRANCH_HOURS,
+    mapUrl: 'https://maps.google.com/?q=28.399940,36.530735',
+  },
+]
+
+export const NAV_LINKS = [
+  { path: '/', label: 'الرئيسية' },
+  { path: '/cars', label: 'السيارات' },
+  { path: '/offers', label: 'العروض' },
+  { path: '/about', label: 'من نحن' },
+  { path: '/branches', label: 'فروعنا' },
+]
+
+export const CATEGORY_LABELS: Record<CarCategory, string> = {
+  sedan: 'سيدان',
+  suv: 'دفع رباعي',
+  luxury: 'فاخرة',
+  economy: 'اقتصادية',
+  van: 'عائلية',
+}
+
+export const BOOKING_STATUS_LABELS = {
+  pending: 'قيد المراجعة',
+  confirmed: 'مؤكد',
+  rejected: 'مرفوض',
+  completed: 'مكتمل',
+  cancelled: 'ملغي',
+} as const
+
+export const DEMO_CARS: Car[] = [
+  {
+    id: '1',
+    name: 'نيسان كيكس 2025',
+    brand: 'نيسان',
+    model: 'كيكس',
+    year: 2025,
+    category: 'suv',
+    price_per_day: 160,
+    image_url: asset('نيسان-كيكس-٢٠٢٥-ابيض-ستوري.jpg.jpeg'),
+    images: [
+      asset('نيسان-كيكس-٢٠٢٥-ابيض-ستوري.jpg.jpeg'),
+      asset('نيسان-كيكس-٢٠٢٥-مواصفات.jpg.jpeg'),
+    ],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'كروس أوفر عصرية واقتصادية، مثالية للتنقل اليومي والرحلات القصيرة.',
+    is_available: true,
+    is_featured: true,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    name: 'هوندا سيتي 2024',
+    brand: 'هوندا',
+    model: 'سيتي',
+    year: 2024,
+    category: 'sedan',
+    price_per_day: 120,
+    image_url: asset('هوندا-سيتي-٢٠٢٤-رمادي.jpg.jpeg'),
+    images: [
+      asset('هوندا-سيتي-٢٠٢٤-رمادي.jpg.jpeg'),
+      asset('هوندا-سيتي-٢٠٢٤-اسود.jpg.jpeg'),
+    ],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'سيدان اقتصادية موفرة للوقود، خيار ممتاز للاستخدام اليومي.',
+    is_available: true,
+    is_featured: true,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    name: 'شيري أريزو 5 2024',
+    brand: 'شيري',
+    model: 'أريزو 5',
+    year: 2024,
+    category: 'economy',
+    price_per_day: 95,
+    image_url: asset('اريزو ٥ ابيض ٢٠٢٤.jpg.jpeg'),
+    images: [asset('اريزو ٥ ابيض ٢٠٢٤.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'سيدان اقتصادية بسعر منافس، مناسبة للموظفين والطلاب.',
+    is_available: true,
+    is_featured: false,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    name: 'كيا بيقاس 2025',
+    brand: 'كيا',
+    model: 'بيقاس',
+    year: 2025,
+    category: 'sedan',
+    price_per_day: 110,
+    image_url: asset('كيا-بيقاس-٢٠٢٥-ابيض.jpg.jpeg'),
+    images: [asset('كيا-بيقاس-٢٠٢٥-ابيض.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'سيدان عائلية مريحة بمواصفات حديثة واستهلاك وقود معقول.',
+    is_available: true,
+    is_featured: false,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '5',
+    name: 'شيفرولية كابتيفا 2026',
+    brand: 'شيفرولية',
+    model: 'كابتيفا',
+    year: 2026,
+    category: 'suv',
+    price_per_day: 180,
+    image_url: asset('شيفرولية-كابتيفا٢٠٢٦.jpg.jpeg'),
+    images: [
+      asset('شيفرولية-كابتيفا٢٠٢٦.jpg.jpeg'),
+      asset('شيفرولية-كابتيفا-٢٠٢٦-رمادي.jpg.jpeg'),
+    ],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 7, doors: 4, ac: true },
+    description: 'دفع رباعي عائلية بـ 7 مقاعد، مثالية للعائلات والرحلات.',
+    is_available: true,
+    is_featured: true,
+    offer: summerOffer('خصم 15%'),
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '6',
+    name: 'فوتون غمارة 2026',
+    brand: 'فوتون',
+    model: 'غمارة',
+    year: 2026,
+    category: 'van',
+    price_per_day: 220,
+    image_url: asset('فوتون-غمارة-٢٠٢٦.jpg.jpeg'),
+    images: [asset('فوتون-غمارة-٢٠٢٦.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'ديزل', seats: 5, doors: 4, ac: true },
+    description: 'بيك أب غمارتين قوية للأعمال والطرق الوعرة.',
+    is_available: true,
+    is_featured: false,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '7',
+    name: 'لينك آند كو 03 2024',
+    brand: 'لينك آند كو',
+    model: '03',
+    year: 2024,
+    category: 'suv',
+    price_per_day: 200,
+    image_url: asset('لينك-اند-كو-03-ابيض2024.jpg.jpeg'),
+    images: [
+      asset('لينك-اند-كو-03-ابيض2024.jpg.jpeg'),
+      asset('لينك-اند-كو-٠٣-رمادي٢٠٢٤.jpg.jpeg'),
+    ],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'كروس أوفر فاخرة بتصميم عصري وتجهيزات متقدمة.',
+    is_available: true,
+    is_featured: true,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '8',
+    name: 'شيفرولية تاهو 2023',
+    brand: 'شيفرولية',
+    model: 'تاهو',
+    year: 2023,
+    category: 'luxury',
+    price_per_day: 450,
+    image_url: asset('تاهو-٢٠٢٣-بني-غامق.jpg.jpeg'),
+    images: [asset('تاهو-٢٠٢٣-بني-غامق.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 7, doors: 4, ac: true },
+    description: 'دفع رباعي فاخرة واسعة، مثالية للمناسبات والرحلات العائلية الكبيرة.',
+    is_available: true,
+    is_featured: true,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '9',
+    name: 'جيلي ازكارا 2023',
+    brand: 'جيلي',
+    model: 'ازكارا',
+    year: 2023,
+    category: 'suv',
+    price_per_day: 210,
+    image_url: asset('جيلي-ازكارا-٢٠٢٣-رمادي.jpg.jpeg'),
+    images: [
+      asset('جيلي-ازكارا-٢٠٢٣-رمادي.jpg.jpeg'),
+      asset('جيلي-ازكارا-اسود-٢٠٢٣.jpg.jpeg'),
+      asset('جيليي-ازكارا-فل-كامل-٢٠٢٣-اسود.jpg.jpeg'),
+    ],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'دفع رباعي فل كامل بتجهيزات عالية وراحة ممتازة.',
+    is_available: true,
+    is_featured: true,
+    offer: summerOffer('دبل العرض'),
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '10',
+    name: 'أومودا C5 2026',
+    brand: 'أومودا',
+    model: 'C5',
+    year: 2026,
+    category: 'suv',
+    price_per_day: 190,
+    image_url: asset('امودا-سي-٥-ابيض-٢٠٢٦.jpg.jpeg'),
+    images: [asset('امودا-سي-٥-ابيض-٢٠٢٦.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'كروس أوفر حديثة بتصميم رياضي وتقنيات ذكية.',
+    is_available: true,
+    is_featured: true,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '11',
+    name: 'رينو داستر 2024',
+    brand: 'رينو',
+    model: 'داستر',
+    year: 2024,
+    category: 'suv',
+    price_per_day: 140,
+    image_url: asset('رينو-داستر-٢٠٢٤-ابيض.jpg.jpeg'),
+    images: [asset('رينو-داستر-٢٠٢٤-ابيض.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'دفع رباعي اقتصادية عملية، مناسبة للعائلات والمغامرات الخفيفة.',
+    is_available: true,
+    is_featured: false,
+    offer: null,
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '12',
+    name: 'تويوتا يارس 2024',
+    brand: 'تويوتا',
+    model: 'يارس',
+    year: 2024,
+    category: 'economy',
+    price_per_day: 100,
+    image_url: asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg'),
+    images: [asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg')],
+    specs: { transmission: 'أوتوماتيك', fuel: 'بنزين', seats: 5, doors: 4, ac: true },
+    description: 'سيدان اقتصادية مثالية للتنقل اليومي والرحلات القصيرة — عرض الصيف متاح.',
+    is_available: true,
+    is_featured: true,
+    offer: summerOffer('يبدأ 85 ر.س'),
+    branch_ids: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+]
+
+export const PROMO_BANNERS = [
+  {
+    src: asset('عروض-التوفير.jpg.jpeg'),
+    alt: 'عروض التوفير',
+    link: '/offers',
+  },
+  {
+    src: asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg'),
+    alt: 'عروض الصيف — تويوتا يارس',
+    link: '/book/12?promo=offer-5',
+  },
+  {
+    src: asset('شيفرولية-كابتيفا-عروض-الصيف.jpg.jpeg'),
+    alt: 'عروض الصيف — شيفرولية كابتيفا',
+    link: '/cars/5',
+  },
+  {
+    src: asset('جيلي-ازكارا-دبل-عروض-الصيف.jpg.jpeg'),
+    alt: 'عروض الصيف — جيلي ازكارا',
+    link: '/cars/9',
+  },
+  {
+    src: asset('بوست-لينك-اند-كو-٠٣.jpg.jpeg'),
+    alt: 'عرض لينك آند كو 03',
+    link: '/cars/7',
+  },
+  {
+    src: asset('تمارا١.jpg.jpeg'),
+    alt: 'قسّط مع تمارا',
+    link: '/cars',
+  },
+  {
+    src: asset('تمارا٢.jpg.jpeg'),
+    alt: 'قسّط مع تمارا',
+    link: '/cars',
+  },
+] as const
+
+export const SUMMER_VIDEO = asset('فيديو اجازة الصيف (1).mp4')
+export const NEW_PATROL_VIDEO = asset('جديدنا.mp4')
+export const SAVINGS_OFFER_IMAGE = asset('عروض-التوفير.jpg.jpeg')

@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply font-arabic bg-slate-50 text-brand-dark antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@layer components {
+  .container-main {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .page-shell {
+    @apply py-8 sm:py-10 lg:py-14;
+  }
+
+  .section-title {
+    @apply text-xl sm:text-3xl lg:text-4xl font-bold text-brand-dark leading-snug;
+  }
+
+  .section-subtitle {
+    @apply text-slate-500 text-sm sm:text-base mt-1.5 sm:mt-2 leading-relaxed;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card-hover:hover {
+      @apply shadow-xl -translate-y-1;
+    }
+  }
+
+  .input-field {
+    @apply w-full min-h-[48px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-base sm:text-sm text-black
+      focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition;
+    color-scheme: light;
+  }
+
+  .safe-bottom {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .input-field::placeholder {
+    @apply text-slate-500;
+  }
+
+  select.input-field,
+  select.input-field option {
+    @apply text-black;
+  }
+
+  .input-field[type='date'] {
+    @apply text-black;
+  }
+
+  .input-field[type='date']::-webkit-datetime-edit,
+  .input-field[type='date']::-webkit-datetime-edit-fields-wrapper,
+  .input-field[type='date']::-webkit-datetime-edit-text,
+  .input-field[type='date']::-webkit-datetime-edit-month-field,
+  .input-field[type='date']::-webkit-datetime-edit-day-field,
+  .input-field[type='date']::-webkit-datetime-edit-year-field {
+    @apply text-black;
+  }
+
+  .label-field {
+    @apply block text-sm font-medium text-black mb-1.5;
+  }
+}

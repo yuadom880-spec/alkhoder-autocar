@@ -1,0 +1,255 @@
+-- الخضر للسيارات - Alkhoder AutoCar Schema
+-- نفّذ هذا الملف في Supabase SQL Editor أو: npm run db:setup
+
+-- جدول السيارات
+CREATE TABLE IF NOT EXISTS cars (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  brand TEXT NOT NULL,
+  model TEXT NOT NULL,
+  year INTEGER NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('sedan', 'suv', 'luxury', 'economy', 'van')),
+  price_per_day NUMERIC(10,2) NOT NULL,
+  image_url TEXT NOT NULL,
+  images JSONB DEFAULT '[]'::jsonb,
+  specs JSONB NOT NULL DEFAULT '{}'::jsonb,
+  description TEXT DEFAULT '',
+  is_available BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  offer JSONB DEFAULT NULL,
+  branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- جدول الحجوزات
+CREATE TABLE IF NOT EXISTS bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  car_id UUID NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_email TEXT,
+  customer_id_number TEXT,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  total_days INTEGER NOT NULL,
+  price_per_day NUMERIC(10,2) NOT NULL,
+  total_price NUMERIC(10,2) NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'rejected', 'completed', 'cancelled')),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- إضافة عمود العروض إذا الجدول موجود مسبقاً
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS offer JSONB DEFAULT NULL;
+
+-- حقول إضافية للحجز
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_time TEXT DEFAULT NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_offer_id TEXT DEFAULT NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_title TEXT DEFAULT NULL;
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+-- جدول العروض المميزة (يومي / شهري)
+CREATE TABLE IF NOT EXISTS featured_offers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  rental_type TEXT NOT NULL CHECK (rental_type IN ('daily', 'monthly')),
+  image_url TEXT NOT NULL,
+  badge_text TEXT DEFAULT '',
+  price NUMERIC(10,2) NOT NULL DEFAULT 0,
+  original_price NUMERIC(10,2) DEFAULT NULL,
+  car_id UUID REFERENCES cars(id) ON DELETE SET NULL,
+  link_url TEXT DEFAULT NULL,
+  is_active BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  valid_until DATE DEFAULT NULL,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+DROP TRIGGER IF EXISTS featured_offers_updated_at ON featured_offers;
+CREATE TRIGGER featured_offers_updated_at
+  BEFORE UPDATE ON featured_offers
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- تحديث updated_at تلقائياً
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS cars_updated_at ON cars;
+CREATE TRIGGER cars_updated_at
+  BEFORE UPDATE ON cars
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS bookings_updated_at ON bookings;
+CREATE TRIGGER bookings_updated_at
+  BEFORE UPDATE ON bookings
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- دالة قراءة فترات الحجز للتحقق من التوفر (بدون بيانات العملاء)
+CREATE OR REPLACE FUNCTION public.get_booking_blocks(p_car_id UUID DEFAULT NULL)
+RETURNS TABLE (
+  id UUID,
+  car_id UUID,
+  start_date DATE,
+  end_date DATE,
+  status TEXT
+)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT b.id, b.car_id, b.start_date, b.end_date, b.status
+  FROM bookings b
+  WHERE b.status IN ('pending', 'confirmed')
+    AND (p_car_id IS NULL OR b.car_id = p_car_id);
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_booking_blocks(UUID) TO anon, authenticated;
+
+-- جدول الفروع
+CREATE TABLE IF NOT EXISTS branches (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  city TEXT NOT NULL,
+  phone TEXT DEFAULT NULL,
+  hours TEXT DEFAULT 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م',
+  map_url TEXT DEFAULT '#',
+  image_url TEXT DEFAULT NULL,
+  is_main BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+DROP TRIGGER IF EXISTS branches_updated_at ON branches;
+CREATE TRIGGER branches_updated_at
+  BEFORE UPDATE ON branches
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_id UUID REFERENCES branches(id) ON DELETE SET NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_name TEXT DEFAULT NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
+
+-- RLS
+ALTER TABLE cars ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE featured_offers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE branches ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "featured_offers_public_read" ON featured_offers;
+CREATE POLICY "featured_offers_public_read" ON featured_offers
+  FOR SELECT USING (is_active = true);
+
+DROP POLICY IF EXISTS "featured_offers_admin_all" ON featured_offers;
+CREATE POLICY "featured_offers_admin_all" ON featured_offers
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "cars_public_read" ON cars;
+CREATE POLICY "cars_public_read" ON cars FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "cars_admin_insert" ON cars;
+CREATE POLICY "cars_admin_insert" ON cars FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "cars_admin_update" ON cars;
+CREATE POLICY "cars_admin_update" ON cars FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "cars_admin_delete" ON cars;
+CREATE POLICY "cars_admin_delete" ON cars FOR DELETE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "bookings_public_insert" ON bookings;
+CREATE POLICY "bookings_public_insert" ON bookings FOR INSERT WITH CHECK (true);
+
+-- قراءة الحجوزات للوحة الإدارة (الحماية عبر واجهة الأدمن)
+DROP POLICY IF EXISTS "bookings_public_select" ON bookings;
+CREATE POLICY "bookings_public_select" ON bookings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "bookings_admin_select" ON bookings;
+CREATE POLICY "bookings_admin_select" ON bookings FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "bookings_admin_update" ON bookings;
+CREATE POLICY "bookings_admin_update" ON bookings FOR UPDATE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "bookings_admin_delete" ON bookings;
+CREATE POLICY "bookings_admin_delete" ON bookings FOR DELETE TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "branches_public_read" ON branches;
+CREATE POLICY "branches_public_read" ON branches
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "branches_public_insert" ON branches;
+CREATE POLICY "branches_public_insert" ON branches
+  FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "branches_public_update" ON branches;
+CREATE POLICY "branches_public_update" ON branches
+  FOR UPDATE USING (true);
+
+DROP POLICY IF EXISTS "branches_public_delete" ON branches;
+CREATE POLICY "branches_public_delete" ON branches
+  FOR DELETE USING (true);
+
+DROP POLICY IF EXISTS "branches_admin_all" ON branches;
+CREATE POLICY "branches_admin_all" ON branches
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Storage bucket للصور
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('car-images', 'car-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "car_images_public_read" ON storage.objects;
+CREATE POLICY "car_images_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'car-images');
+
+DROP POLICY IF EXISTS "car_images_public_upload" ON storage.objects;
+CREATE POLICY "car_images_public_upload" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'car-images');
+
+DROP POLICY IF EXISTS "car_images_admin_upload" ON storage.objects;
+CREATE POLICY "car_images_admin_upload" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'car-images');
+
+DROP POLICY IF EXISTS "car_images_public_update" ON storage.objects;
+CREATE POLICY "car_images_public_update" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'car-images');
+
+DROP POLICY IF EXISTS "car_images_public_delete" ON storage.objects;
+CREATE POLICY "car_images_public_delete" ON storage.objects
+  FOR DELETE USING (bucket_id = 'car-images');
+
+DROP POLICY IF EXISTS "car_images_admin_delete" ON storage.objects;
+CREATE POLICY "car_images_admin_delete" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'car-images');
+
+-- بيانات تجريبية (فقط إذا الجدول فاضي)
+INSERT INTO cars (name, brand, model, year, category, price_per_day, image_url, images, specs, description, is_available, is_featured)
+SELECT * FROM (VALUES
+  ('تويوتا كامري 2024', 'تويوتا', 'كامري', 2024, 'sedan', 150,
+   'https://images.unsplash.com/photo-1621007947382-bcb3e395748f?w=800&q=80',
+   '["https://images.unsplash.com/photo-1621007947382-bcb3e395748f?w=800&q=80"]'::jsonb,
+   '{"transmission":"أوتوماتيك","fuel":"بنزين","seats":5,"doors":4,"ac":true}'::jsonb,
+   'سيارة سيدان مريحة واقتصادية', true, true),
+  ('هيونداي توسان 2023', 'هيونداي', 'توسان', 2023, 'suv', 200,
+   'https://images.unsplash.com/photo-1519641471654-76cefd7816fa?w=800&q=80',
+   '["https://images.unsplash.com/photo-1519641471654-76cefd7816fa?w=800&q=80"]'::jsonb,
+   '{"transmission":"أوتوماتيك","fuel":"بنزين","seats":5,"doors":4,"ac":true}'::jsonb,
+   'دفع رباعي عائلية واسعة', true, true),
+  ('مرسيدس E-Class 2024', 'مرسيدس', 'E-Class', 2024, 'luxury', 450,
+   'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80',
+   '["https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&q=80"]'::jsonb,
+   '{"transmission":"أوتوماتيك","fuel":"بنزين","seats":5,"doors":4,"ac":true}'::jsonb,
+   'سيارة فاخرة للمناسبات', true, true)
+) AS v(name, brand, model, year, category, price_per_day, image_url, images, specs, description, is_available, is_featured)
+WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
