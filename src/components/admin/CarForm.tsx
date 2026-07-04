@@ -34,7 +34,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     specs: initial?.specs ?? defaultSpecs,
     description: initial?.description ?? '',
     is_available: initial?.is_available ?? true,
-    is_featured: initial?.is_featured ?? false,
+    is_featured: true,
     offer: initial?.offer ?? null,
     branch_ids: initial?.branch_ids ?? [],
   })
@@ -64,7 +64,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     }
     setLoading(true)
     try {
-      await onSubmit(form)
+      await onSubmit({ ...form, is_featured: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل الحفظ')
     } finally {
@@ -225,15 +225,6 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             className="rounded border-slate-300 text-brand-green focus:ring-brand-green"
           />
           متاحة للحجز
-        </label>
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.is_featured}
-            onChange={(e) => update('is_featured', e.target.checked)}
-            className="rounded border-slate-300 text-brand-green focus:ring-brand-green"
-          />
-          سيارة مميزة
         </label>
       </div>
 

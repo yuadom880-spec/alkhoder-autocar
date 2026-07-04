@@ -141,7 +141,6 @@ export function CarDetailPage() {
               <div className="mb-4 flex flex-wrap gap-2">
                 <OfferBadge car={car} />
                 <Badge>{CATEGORY_LABELS[car.category]}</Badge>
-                {car.is_featured && <Badge variant="warning">{copy.detail.featured}</Badge>}
                 {availability && (
                   <CarAvailabilityBadge availability={availability} showDatesHint={Boolean(start && end)} />
                 )}

@@ -45,7 +45,6 @@ export function CarCard({ car, index = 0, startDate, endDate, branchId, availabi
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
             <OfferBadge car={car} />
             <Badge>{CATEGORY_LABELS[car.category]}</Badge>
-            {car.is_featured && <Badge variant="warning">{copy.detail.featured}</Badge>}
             {availability && (
               <CarAvailabilityBadge
                 availability={availability}

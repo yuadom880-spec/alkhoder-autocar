@@ -154,7 +154,7 @@ export function AdminCarsPage() {
                             </Badge>
                             {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
                             {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
-                            {car.is_featured && <Badge variant="warning">مميزة</Badge>}
+
                             {isOfferActive(car) && (
                               <Badge variant="danger">{getOfferBadge(car)}</Badge>
                             )}

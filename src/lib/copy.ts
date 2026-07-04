@@ -20,8 +20,8 @@ export const copy = {
   home: {
     whyUs: 'ليش تختار الخضر؟',
     whyUsSub: 'تجربة Car Rental سهلة ومريحة',
-    featured: 'أفضل السيارات',
-    featuredSub: 'مختاراتنا لك — Featured Cars',
+    featured: 'أسطول السيارات',
+    featuredSub: 'كل سياراتنا المتاحة للإيجار — احجز اليوم',
     viewAll: 'عرض الكل',
     promos: 'عروضنا الحالية',
     promosSub: 'عروض الصيف والتوفير — لفترة محدودة',

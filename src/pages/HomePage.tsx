@@ -28,7 +28,7 @@ export function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      fetchCars({ featuredOnly: true, availableOnly: false }),
+      fetchCars({ availableOnly: false }),
       fetchBookingBlocks(),
     ])
       .then(([carsData, blocksData]) => {
