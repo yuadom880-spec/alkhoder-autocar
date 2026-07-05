@@ -10,6 +10,7 @@ import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
 import { QuickSearch } from '../components/home/QuickSearch'
 import { SummerPromoBlock } from '../components/home/SummerPromoBlock'
+import { SeoBrandSection } from '../components/seo/SeoBrandSection'
 import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -212,6 +213,8 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <SeoBrandSection />
 
       <SeoCitiesSection />
 

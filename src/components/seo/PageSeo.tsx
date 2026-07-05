@@ -3,6 +3,7 @@ import { useLocation } from 'react-router'
 import {
   buildBreadcrumbJsonLd,
   buildLocalBusinessJsonLd,
+  buildOrganizationJsonLd,
   buildWebSiteJsonLd,
   getCanonicalUrl,
   getCityBySlug,
@@ -71,6 +72,7 @@ export function PageSeo() {
     upsertMeta('twitter:title', seo.title)
     upsertMeta('twitter:description', seo.description)
     upsertMeta('twitter:image', `${origin}/logo.png`)
+    upsertMeta('application-name', 'الخضر لتأجير السيارات')
 
     const breadcrumbs = [{ name: 'الرئيسية', path: '/' }]
     if (pathname.startsWith('/locations/')) {
@@ -89,11 +91,11 @@ export function PageSeo() {
       if (label) breadcrumbs.push({ name: label, path: pathname })
     }
 
-    const jsonLd = [
+    const jsonLdGraph = [
       buildWebSiteJsonLd(origin),
-      ...(seo.noindex ? [] : [buildLocalBusinessJsonLd(origin)]),
+      ...(seo.noindex ? [] : [buildOrganizationJsonLd(origin), buildLocalBusinessJsonLd(origin)]),
       ...(breadcrumbs.length > 1 ? [buildBreadcrumbJsonLd(breadcrumbs, origin)] : []),
-    ]
+    ].map(({ '@context': _ctx, ...item }) => item)
 
     let script = document.getElementById(JSON_LD_ID) as HTMLScriptElement | null
     if (!script) {
@@ -102,11 +104,10 @@ export function PageSeo() {
       script.type = 'application/ld+json'
       document.head.appendChild(script)
     }
-    script.textContent = JSON.stringify(
-      jsonLd.length === 1
-        ? jsonLd[0]
-        : { '@context': 'https://schema.org', '@graph': jsonLd.map((item) => ({ ...item, '@context': undefined })) },
-    )
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': jsonLdGraph,
+    })
   }, [pathname])
 
   return null

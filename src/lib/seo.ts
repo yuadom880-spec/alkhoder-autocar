@@ -16,7 +16,31 @@ export function getSiteOrigin(): string {
   return getSiteUrl()
 }
 
+export const SEO_BRAND_NAMES = [
+  'عبدالمجيد الخضر لتأجير السيارات',
+  'شبكة عبدالمجيد الخضر لتأجير السيارات',
+  'الخضر لتأجير السيارات',
+  'تأجير سيارات الخضر',
+  'ايجار سيارات الخضر',
+  'شركة الخضر لتأجير السيارات',
+  'مكتب الخضر لتأجير السيارات',
+  'الخضر ايجار سيارات',
+  'الخضر تأجير سيارات',
+  'alkhodercar',
+  'alkhoder car rental',
+] as const
+
+export const SEO_BRAND_INTRO = {
+  heading: 'شبكة عبدالمجيد الخضر لتأجير السيارات',
+  paragraphs: [
+    'الخضر لتأجير السيارات — شبكة سعودية موثوقة لـ تأجير سيارات الخضر وايجار السيارات يومي وشهري في أكثر من 35 فرعاً بالمملكة.',
+    'سواء كنت تبحث عن شركة تأجير سيارات في جدة أو الرياض أو مكة أو المدينة المنورة أو ينبع أو تبوك — نوفر لك أسطولاً حديثاً، أسعاراً واضحة، وحجزاً أونلاين سهلاً.',
+    'احجز الآن من موقع عبدالمجيد الخضر لتأجير السيارات واستمتع بتجربة تأجير سيارات مريحة وآمنة.',
+  ],
+} as const
+
 export const SEO_KEYWORDS = [
+  ...SEO_BRAND_NAMES,
   'تأجير سيارات',
   'تاجير سيارات',
   'ايجار سيارات',
@@ -28,10 +52,7 @@ export const SEO_KEYWORDS = [
   'ايجار سيارات شهري',
   'ايجار سيارة شهري',
   'تأجير سيارات شهري',
-  'ايجار سيارات الخضر',
   'ايجار سيارات عبدالمجيد الخضر',
-  'الخضر لتأجير السيارات',
-  'عبدالمجيد الخضر لتأجير السيارات',
   'شركة تأجير سيارات',
   'شركة ايجار سيارات',
   'مكتب تأجير سيارات',
@@ -78,10 +99,10 @@ export const SEO_KEYWORDS_TEXT = SEO_KEYWORDS.join(', ')
 export const SEO_KEYWORDS_FOOTER_TEXT = SEO_KEYWORDS.join(' · ')
 
 export const SEO_TITLE =
-  'عبدالمجيد الخضر لتأجير السيارات | ايجار سيارات يومي وشهري في السعودية'
+  'الخضر لتأجير السيارات | شبكة عبدالمجيد الخضر — ايجار وتأجير سيارات يومي وشهري'
 
 export const SEO_DESCRIPTION =
-  'عبدالمجيد الخضر لتأجير السيارات — تاجير وايجار سيارات يومي وشهري في جدة والرياض ومكة والمدينة وكل المملكة. أسطول حديث، أسعار واضحة، حجز اونلاين سهل.'
+  'شبكة عبدالمجيد الخضر لتأجير السيارات — الخضر لتأجير السيارات وتأجير سيارات الخضر في السعودية. ايجار سيارات يومي وشهري في جدة والرياض ومكة والمدينة وينبع وتبوك. احجز أونلاين.'
 
 export interface SeoCity {
   slug: string
@@ -203,10 +224,15 @@ export const STATIC_PAGE_SEO: Record<string, PageSeoConfig> = {
     keywords: ['عروض ايجار سيارات', 'تأجير سيارات رخيص', 'ايجار سيارات يومي'],
   },
   '/about': {
-    title: 'من نحن | عبدالمجيد الخضر لتأجير السيارات',
+    title: 'من نحن | شبكة عبدالمجيد الخضر لتأجير السيارات',
     description:
-      'شركة سعودية متخصصة في تأجير وايجار السيارات — أكثر من 35 فرعاً وأسطول حديث في أنحاء المملكة.',
-    keywords: ['شركة تأجير سيارات', 'الخضر لتأجير السيارات', 'عبدالمجيد الخضر'],
+      'تعرف على شبكة عبدالمجيد الخضر لتأجير السيارات — الخضر لتأجير السيارات وتأجير سيارات الخضر في أكثر من 35 فرعاً بالمملكة.',
+    keywords: [
+      'شبكة عبدالمجيد الخضر لتأجير السيارات',
+      'الخضر لتأجير السيارات',
+      'تأجير سيارات الخضر',
+      'شركة تأجير سيارات',
+    ],
   },
   '/branches': {
     title: 'فروعنا | ايجار سيارات في السعودية — الخضر',
@@ -283,7 +309,7 @@ export function buildWebSiteJsonLd(origin = getSiteUrl()) {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
-    alternateName: [SITE_NAME_EN, 'الخضر لتأجير السيارات', 'ايجار سيارات الخضر'],
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME_EN],
     url: origin,
     inLanguage: 'ar-SA',
     description: SEO_DESCRIPTION,
@@ -295,12 +321,39 @@ export function buildWebSiteJsonLd(origin = getSiteUrl()) {
   }
 }
 
+export function buildOrganizationJsonLd(origin = getSiteUrl()) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    alternateName: [...SEO_BRAND_NAMES],
+    url: origin,
+    logo: `${origin}/logo.png`,
+    description: SEO_DESCRIPTION,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: TOLL_FREE,
+      contactType: 'customer service',
+      areaServed: 'SA',
+      availableLanguage: ['ar', 'en'],
+    },
+    sameAs: [WHATSAPP_LINK, origin],
+    knowsAbout: [
+      'تأجير سيارات',
+      'ايجار سيارات',
+      'Car Rental Saudi Arabia',
+      'تأجير سيارات يومي',
+      'تأجير سيارات شهري',
+    ],
+  }
+}
+
 export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'CarRental',
     name: SITE_NAME,
-    alternateName: [SITE_NAME_EN, 'الخضر لتأجير السيارات', 'Alkhoder AutoCar', 'ايجار سيارات الخضر'],
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
     url: origin,
     telephone: TOLL_FREE_LINK.replace('tel:', ''),
