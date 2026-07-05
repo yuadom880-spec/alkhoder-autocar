@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react'
-import { uploadCarImageFile } from '../../lib/imageUpload'
+import { uploadBranchImageFile } from '../../lib/imageUpload'
+import { isDataImageUrl } from '../../lib/imageUrl'
+import { isSupabaseConfigured } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
 
 interface BranchImageUploaderProps {
@@ -18,10 +20,18 @@ export function BranchImageUploader({ imageUrl, onChange, onError }: BranchImage
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (!isSupabaseConfigured) {
+      onError(
+        'قاعدة البيانات غير مُعدّة — أضف متغيرات Supabase في Vercel (VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY) ثم أعد النشر',
+      )
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
+
     setUploading(true)
     onError('')
     try {
-      const url = await uploadCarImageFile(file)
+      const url = await uploadBranchImageFile(file)
       onChange(url)
     } catch (err) {
       onError(err instanceof Error ? err.message : 'فشل رفع الصورة')
@@ -34,6 +44,11 @@ export function BranchImageUploader({ imageUrl, onChange, onError }: BranchImage
   return (
     <div className="space-y-3">
       <label className="label-field">صورة الفرع</label>
+      {isSupabaseConfigured && isDataImageUrl(imageUrl) && (
+        <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+          الصورة الحالية محفوظة محلياً ولا تظهر على الجوال — اضغط «تغيير الصورة» وارفعها من جديد.
+        </p>
+      )}
 
       {imageUrl ? (
         <div className="relative overflow-hidden rounded-xl border border-slate-200">

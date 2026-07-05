@@ -4,6 +4,7 @@ import { DEMO_CARS } from './constants'
 import { DEMO_BRANCHES } from './branchesData'
 import { DEMO_FEATURED_OFFERS } from './featuredOffersData'
 import { formatError } from './errors'
+import { isDataImageUrl, isPersistedImageUrl } from './imageUrl'
 import { getSupabaseEnv } from './env'
 import { carMatchesBranch } from './branchFilter'
 import { canBookCar, isBlockingStatus } from './availability'
@@ -304,18 +305,26 @@ export async function deleteCar(id: string): Promise<void> {
   if (error) throw new Error(formatError(error))
 }
 
-export async function uploadCarImage(file: File): Promise<string> {
+export async function uploadCarImage(file: File, folder = 'cars'): Promise<string> {
   await requireSupabaseAdminAuth()
 
   const client = requireSupabase()
-  const ext = file.name.split('.').pop() ?? 'jpg'
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const rawExt = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const ext = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(rawExt) ? rawExt : 'jpg'
+  const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-  const { error } = await client.storage
-    .from(STORAGE_BUCKET)
-    .upload(fileName, file, { upsert: false, contentType: file.type })
+  const { error } = await client.storage.from(STORAGE_BUCKET).upload(fileName, file, {
+    upsert: false,
+    contentType: file.type,
+    cacheControl: '31536000',
+  })
 
-  if (error) throw new Error(formatError(error))
+  if (error) {
+    throw new Error(
+      `فشل رفع الصورة على السيرفر — تأكد من إعداد Supabase Storage. ${formatError(error)}`,
+    )
+  }
+
   const { data } = client.storage.from(STORAGE_BUCKET).getPublicUrl(fileName)
   return data.publicUrl
 }
@@ -707,6 +716,18 @@ function saveDemoBranches(branches: BranchRecord[]) {
 }
 
 function prepareBranchForm(form: BranchFormData) {
+  const imageUrl = form.image_url.trim() || null
+
+  if (imageUrl && isDataImageUrl(imageUrl)) {
+    throw new Error(
+      'صورة الفرع لم تُرفع على السيرفر — ارفعها من جديد. تأكد من إعداد Supabase على Vercel.',
+    )
+  }
+
+  if (imageUrl && isSupabaseConfigured && !isPersistedImageUrl(imageUrl)) {
+    throw new Error('رابط صورة الفرع غير صالح — ارفع الصورة من جديد')
+  }
+
   return {
     name: form.name.trim(),
     address: form.address.trim(),
@@ -714,7 +735,7 @@ function prepareBranchForm(form: BranchFormData) {
     phone: form.phone.trim() || null,
     hours: form.hours.trim(),
     map_url: form.map_url.trim() || '#',
-    image_url: form.image_url.trim() || null,
+    image_url: imageUrl,
     is_main: form.is_main,
     is_active: form.is_active,
     sort_order: form.sort_order,

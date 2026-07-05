@@ -43,6 +43,32 @@ if (carsErr) {
 console.log(`✅ جدول cars: ${cars?.length ?? 0} سيارات`)
 cars?.forEach((c) => console.log(`   - ${c.name}`))
 
+const { data: branches, error: branchesErr } = await supabase
+  .from('branches')
+  .select('id, name, image_url')
+  .limit(10)
+if (branchesErr) {
+  console.error('❌ جدول branches:', branchesErr.message)
+} else {
+  console.log(`\n✅ جدول branches: ${branches?.length ?? 0} فروع`)
+  for (const b of branches ?? []) {
+    const img = b.image_url
+    const kind = !img ? 'بدون صورة' : img.startsWith('data:') ? '⚠️ base64 (لن تظهر للزوار)' : '✅ رابط'
+    console.log(`   - ${b.name}: ${kind}`)
+  }
+}
+
+const testName = `branches/healthcheck-${Date.now()}.txt`
+const { error: uploadErr } = await supabase.storage
+  .from('car-images')
+  .upload(testName, Buffer.from('ok'), { contentType: 'text/plain' })
+if (uploadErr) {
+  console.error('\n❌ رفع Storage:', uploadErr.message)
+} else {
+  await supabase.storage.from('car-images').remove([testName])
+  console.log('\n✅ رفع Storage يعمل')
+}
+
 const { error: authErr } = await supabase.auth.signInWithPassword({
   email: 'yuadom880@gmail.com',
   password: '090909',

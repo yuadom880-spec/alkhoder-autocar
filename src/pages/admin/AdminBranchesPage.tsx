@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { Edit, MapPin, Plus, Trash2 } from 'lucide-react'
+import { Edit, Plus, Trash2 } from 'lucide-react'
+import { BranchImage } from '../../components/branches/BranchImage'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -66,18 +67,13 @@ export function AdminBranchesPage() {
                 key={branch.id}
                 className="overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100"
               >
-                <div className="relative bg-slate-100">
-                  {branch.image_url ? (
-                    <img
-                      src={branch.image_url}
-                      alt={branch.name}
-                      className="block w-full h-auto max-h-48 object-contain"
-                    />
-                  ) : (
-                    <div className="flex h-36 items-center justify-center text-slate-300">
-                      <MapPin className="h-12 w-12" />
-                    </div>
-                  )}
+                <div className="relative bg-slate-100 min-h-[9rem] flex items-center justify-center">
+                  <BranchImage
+                    src={branch.image_url}
+                    alt={branch.name}
+                    imgClassName="max-h-48 w-full"
+                    placeholderClassName="h-36"
+                  />
                   <div className="absolute top-2 right-2 flex gap-1">
                     {branch.is_main && <Badge variant="warning">رئيسي</Badge>}
                     {!branch.is_active && <Badge variant="default">مخفي</Badge>}

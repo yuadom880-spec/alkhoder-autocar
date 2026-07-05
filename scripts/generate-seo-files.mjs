@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 
-const SITE_URL = (process.env.VITE_SITE_URL || 'https://alkhoder-autocar.vercel.app').replace(/\/$/, '')
+const SITE_URL = (process.env.VITE_SITE_URL || 'https://alkhodercar.com').replace(/\/$/, '')
 const today = new Date().toISOString().split('T')[0]
 
 const CITY_SLUGS = [

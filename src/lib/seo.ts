@@ -1,6 +1,6 @@
 import { MAIN_BRANCH, SITE_NAME, SITE_NAME_EN, TOLL_FREE, TOLL_FREE_LINK, WHATSAPP_LINK } from './constants'
 
-export const DEFAULT_SITE_URL = 'https://alkhoder-autocar.vercel.app'
+export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
 
 export function getSiteUrl(): string {
   const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined

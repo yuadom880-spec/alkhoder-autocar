@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeft, Clock, ExternalLink, MapPin, Phone } from 'lucide-react'
+import { BranchImage } from '../components/branches/BranchImage'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { copy } from '../lib/copy'
@@ -75,18 +76,7 @@ export function BranchesPage() {
                 className="overflow-hidden rounded-2xl bg-white shadow-md card-hover"
               >
                 <div className="relative flex min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] items-center justify-center overflow-hidden bg-slate-100 px-4 py-5 sm:px-5 sm:py-6">
-                  {branch.image_url ? (
-                    <img
-                      src={branch.image_url}
-                      alt={branch.name}
-                      loading="lazy"
-                      className="max-h-56 sm:max-h-64 lg:max-h-72 w-auto max-w-full object-contain rounded-lg shadow-sm"
-                    />
-                  ) : (
-                    <div className="flex h-56 sm:h-64 lg:h-72 w-full items-center justify-center rounded-lg bg-gradient-to-bl from-brand-green/20 to-brand-dark/10">
-                      <MapPin className="h-16 w-16 text-brand-green/30" />
-                    </div>
-                  )}
+                  <BranchImage src={branch.image_url} alt={branch.name} />
                   <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
                   <h2 className="absolute bottom-4 right-4 left-4 text-lg sm:text-xl font-bold text-white drop-shadow">
                     {branch.name}

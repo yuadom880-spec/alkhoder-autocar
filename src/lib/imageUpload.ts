@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, uploadCarImage } from './supabase'
+import { isSupabaseConfigured, requireSupabaseAdminAuth, uploadCarImage } from './supabase'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -45,21 +45,31 @@ function compressImage(file: File, maxWidth = 1200, quality = 0.82): Promise<str
   })
 }
 
-/** رفع صورة — Supabase Storage أو base64 محلي */
+/** رفع صورة سيارة — Supabase Storage أو base64 (وضع تجريبي فقط) */
 export async function uploadCarImageFile(file: File): Promise<string> {
   const validationError = validateImageFile(file)
   if (validationError) throw new Error(validationError)
 
   if (isSupabaseConfigured) {
-    try {
-      return await uploadCarImage(file)
-    } catch (err) {
-      console.warn('Storage upload failed — using compressed image fallback', err)
-      return compressImage(file)
-    }
+    return uploadCarImage(file, 'cars')
   }
 
   return compressImage(file)
+}
+
+/** رفع صورة فرع — يجب أن تُخزَّن على Supabase لتظهر على كل الأجهزة */
+export async function uploadBranchImageFile(file: File): Promise<string> {
+  const validationError = validateImageFile(file)
+  if (validationError) throw new Error(validationError)
+
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      'قاعدة البيانات غير مُعدّة على الموقع المنشور — أضف VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY في Vercel ثم أعد النشر',
+    )
+  }
+
+  await requireSupabaseAdminAuth()
+  return uploadCarImage(file, 'branches')
 }
 
 export async function uploadMultipleCarImages(files: File[]): Promise<string[]> {
