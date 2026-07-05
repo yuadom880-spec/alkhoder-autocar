@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react'
+import {
+  Calendar,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from 'lucide-react'
 import type { BookingFormData, BranchRecord } from '../../lib/types'
 import { copy } from '../../lib/copy'
 import {
@@ -11,7 +20,16 @@ import {
   PICKUP_PERIOD_LABELS,
   type PickupPeriod,
 } from '../../lib/pickupTime'
-import { calcDays, calcTotalPrice, formatDate, formatPrice } from '../../lib/utils'
+import { TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
+import { formatDisplayPhone } from '../../lib/phone'
+import {
+  calcDays,
+  calcTotalPrice,
+  formatDate,
+  formatPrice,
+  toPhoneLink,
+  toWhatsAppLink,
+} from '../../lib/utils'
 import { isValidInternationalPhone } from '../../lib/phone'
 import { Button } from '../ui/Button'
 import { CustomerPhoneField } from './CustomerPhoneField'
@@ -207,17 +225,59 @@ export function BookingForm({
   }
 
   if (success) {
+    const branchPhone = selectedBranch?.phone?.trim() || null
+    const contactPhone = branchPhone ?? TOLL_FREE
+    const contactLabel = branchPhone
+      ? copy.booking.successBranchPhone
+      : 'الرقم الموحد'
+
     return (
-      <div className="rounded-2xl bg-green-50 border border-green-200 p-8 text-center">
-        <CheckCircle className="mx-auto h-12 w-12 text-green-600 mb-4" />
-        <h3 className="text-lg font-bold text-green-800 mb-2">{copy.booking.successTitle}</h3>
-        <p className="text-sm text-green-700 mb-4">
-          {successWhatsAppSent === true
-            ? copy.booking.successWhatsAppSent
-            : successWhatsAppSent === false
-              ? copy.booking.successWhatsAppPending
-              : copy.booking.successMsg}
-        </p>
+      <div className="rounded-2xl bg-green-50 border border-green-200 p-6 sm:p-8 text-center space-y-5">
+        <CheckCircle className="mx-auto h-12 w-12 text-green-600" />
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-green-800">{copy.booking.successTitle}</h3>
+          <p className="text-sm text-green-700">{copy.booking.successReview}</p>
+          {successWhatsAppSent === true && (
+            <p className="text-xs text-green-600">{copy.booking.successWhatsAppSent}</p>
+          )}
+        </div>
+
+        {selectedBranch && (
+          <div className="rounded-xl border border-green-200 bg-white p-4 text-right space-y-3">
+            <p className="text-sm text-slate-600">{copy.booking.successContactBranch}</p>
+            <div className="flex items-start gap-2 justify-end">
+              <div>
+                <p className="font-bold text-brand-dark">{selectedBranch.name}</p>
+                <p className="text-xs text-slate-500">{selectedBranch.city}</p>
+              </div>
+              <MapPin className="h-5 w-5 shrink-0 text-brand-green mt-0.5" />
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3 space-y-1">
+              <p className="text-xs text-slate-500">{contactLabel}</p>
+              <a
+                href={branchPhone ? toPhoneLink(branchPhone) : TOLL_FREE_LINK}
+                dir="ltr"
+                className="inline-flex items-center gap-2 text-lg font-bold text-brand-green hover:underline"
+              >
+                <Phone className="h-4 w-4" />
+                {formatDisplayPhone(contactPhone)}
+              </a>
+            </div>
+            <a
+              href={toWhatsAppLink(
+                contactPhone,
+                `السلام عليكم، أرسلت طلب حجز من الموقع وأحتاج تأكيد الحجز — فرع ${selectedBranch.name}`,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white hover:bg-[#1ebe57] transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              تواصل مع الفرع عبر واتساب
+            </a>
+          </div>
+        )}
+
         <Button variant="outline" onClick={() => { setSuccess(false); setStep(1) }}>
           {copy.booking.newBooking}
         </Button>
