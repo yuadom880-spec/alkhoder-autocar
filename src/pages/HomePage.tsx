@@ -5,7 +5,6 @@ import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { CarCard } from '../components/cars/CarCard'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
-import { NewPatrolSection } from '../components/home/NewPatrolSection'
 import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
 import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
@@ -132,8 +131,6 @@ export function HomePage() {
       <ProfileServicesSection />
 
       <FleetShowcaseSection />
-
-      <NewPatrolSection />
 
       <NewTigo7ProSection />
 
