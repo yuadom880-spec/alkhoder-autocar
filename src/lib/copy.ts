@@ -34,6 +34,8 @@ export const copy = {
     toDate: 'إلى تاريخ',
     searchCars: 'ابحث عن سيارة',
     newPatrol: 'جديدنا PATROL 2026 !',
+    newTigo7Pro: 'جديدنا — تيجو 7 برو',
+    newTigo7ProSub: 'SUV عائلي — راحة وأداء على الطريق',
   },
   features: [
     { title: 'أسطول متنوع', desc: 'سيارات اقتصادية وفاخرة وعائلية — على كيفك' },

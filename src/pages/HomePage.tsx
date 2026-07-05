@@ -6,6 +6,7 @@ import { CarCard } from '../components/cars/CarCard'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { NewPatrolSection } from '../components/home/NewPatrolSection'
+import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
 import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
 import { QuickSearch } from '../components/home/QuickSearch'
@@ -133,6 +134,8 @@ export function HomePage() {
       <FleetShowcaseSection />
 
       <NewPatrolSection />
+
+      <NewTigo7ProSection />
 
       <FeaturedOffersSection compact limit={6} />
 
