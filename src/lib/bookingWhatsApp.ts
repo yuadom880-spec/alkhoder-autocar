@@ -1,8 +1,8 @@
 import type { Booking } from './types'
-import { PHONE, SITE_NAME } from './constants'
+import { PHONE, SITE_NAME, TOLL_FREE } from './constants'
 import { getSupabaseEnv } from './env'
-import { supabase, isSupabaseConfigured } from './supabase'
-import { toWhatsAppDigits } from './phone'
+import { formatDisplayPhone, toWhatsAppDigits } from './phone'
+import { fetchBranches, supabase, isSupabaseConfigured } from './supabase'
 import { toWhatsAppLink } from './utils'
 
 const LRM = '\u200E'
@@ -63,6 +63,31 @@ function branchLine(booking: Booking): string {
   return `فرع الاستلام: ${booking.branch_name}${city}`
 }
 
+function formatWhatsAppBranchPhone(phone: string): string {
+  return wrapLtr(formatDisplayPhone(phone))
+}
+
+function branchPhoneLine(booking: Booking, branchPhone?: string | null): string {
+  if (!booking.branch_name && !booking.branch_id) return ''
+
+  const phone = branchPhone?.trim() || booking.branch_phone?.trim() || TOLL_FREE
+  const label = branchPhone?.trim() || booking.branch_phone?.trim() ? 'رقم الفرع' : 'الرقم الموحد'
+  return `${label}: ${formatWhatsAppBranchPhone(phone)}`
+}
+
+/** يجلب رقم الفرع من الحجز أو من قائمة الفروع الحالية (للفروع الجديدة) */
+export async function resolveBookingBranchPhone(booking: Booking): Promise<string | null> {
+  if (booking.branch_phone?.trim()) return booking.branch_phone.trim()
+  if (!booking.branch_id) return null
+
+  try {
+    const branches = await fetchBranches({ activeOnly: true })
+    return branches.find((b) => b.id === booking.branch_id)?.phone?.trim() ?? null
+  } catch {
+    return null
+  }
+}
+
 function pickupLine(booking: Booking): string {
   if (!booking.pickup_time) return ''
   return `موعد الاستلام: ${sanitizeWhatsAppText(booking.pickup_time)}`
@@ -76,6 +101,7 @@ function joinLines(lines: Array<string | false | null | undefined>): string {
 export function buildPendingBookingWhatsAppMessage(
   booking: Booking,
   carName?: string,
+  branchPhone?: string | null,
 ): string {
   const car = bookingCarName(booking, carName)
   return joinLines([
@@ -91,7 +117,9 @@ export function buildPendingBookingWhatsAppMessage(
     pickupLine(booking),
     `*الاجمالي:* ${formatWhatsAppPrice(booking.total_price)}`,
     '',
-    'راح نتواصل معك قريبا لتأكيد الحجز - شكرا لثقتك',
+    'طلبك قيد المراجعة - ستصلك رسالة واتساب عند التأكيد',
+    'لتسريع التأكيد تواصل مع فرع الاستلام',
+    branchPhoneLine(booking, branchPhone),
     SITE_NAME,
   ])
 }
@@ -99,6 +127,7 @@ export function buildPendingBookingWhatsAppMessage(
 export function buildConfirmedBookingWhatsAppMessage(
   booking: Booking,
   carName?: string,
+  branchPhone?: string | null,
 ): string {
   const car = bookingCarName(booking, carName)
   return joinLines([
@@ -114,7 +143,9 @@ export function buildConfirmedBookingWhatsAppMessage(
     `*الاجمالي:* ${formatWhatsAppPrice(booking.total_price)}`,
     '',
     '*سيارتك جاهزة* - نتمنى لك تجربة ممتعة',
-    `للاستفسار: ${formatWhatsAppContactPhone()}`,
+    'للاستفسار تواصل مع فرع الاستلام',
+    branchPhoneLine(booking, branchPhone),
+    `الدعم العام: ${formatWhatsAppContactPhone()}`,
   ])
 }
 
@@ -167,7 +198,8 @@ export async function notifyBookingPending(
   booking: Booking,
   carName?: string,
 ): Promise<WhatsAppNotifyResult> {
-  const message = buildPendingBookingWhatsAppMessage(booking, carName)
+  const branchPhone = await resolveBookingBranchPhone(booking)
+  const message = buildPendingBookingWhatsAppMessage(booking, carName, branchPhone)
   return sendBookingWhatsAppMessage(booking.customer_phone, message)
 }
 
@@ -176,7 +208,8 @@ export async function notifyBookingConfirmed(
   carName?: string,
   options?: { openFallback?: boolean },
 ): Promise<WhatsAppNotifyResult> {
-  const message = buildConfirmedBookingWhatsAppMessage(booking, carName)
+  const branchPhone = await resolveBookingBranchPhone(booking)
+  const message = buildConfirmedBookingWhatsAppMessage(booking, carName, branchPhone)
   const result = await sendBookingWhatsAppMessage(booking.customer_phone, message)
 
   if (!result.sent && options?.openFallback !== false) {

@@ -387,6 +387,7 @@ function normalizeBooking(booking: Booking): Booking {
     branch_id: booking.branch_id ?? null,
     branch_name: booking.branch_name ?? null,
     branch_city: booking.branch_city ?? null,
+    branch_phone: booking.branch_phone ?? null,
   }
 }
 
@@ -431,6 +432,7 @@ export async function createBooking(
     branch_id: meta.branchId ?? null,
     branch_name: meta.branchName ?? null,
     branch_city: meta.branchCity ?? null,
+    branch_phone: meta.branchPhone ?? null,
     notes: form.notes || null,
     created_at: now,
     updated_at: now,

@@ -209,6 +209,7 @@ export function BookingPage() {
                     branchId: selectedBranch?.id ?? null,
                     branchName: selectedBranch?.name ?? null,
                     branchCity: selectedBranch?.city ?? null,
+                    branchPhone: selectedBranch?.phone ?? null,
                   })
                   const notify = await notifyBookingPending(
                     { ...booking, car },

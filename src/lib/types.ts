@@ -81,6 +81,7 @@ export interface Booking {
   branch_id: string | null
   branch_name: string | null
   branch_city: string | null
+  branch_phone: string | null
   notes: string | null
   created_at: string
   updated_at: string
@@ -104,6 +105,7 @@ export interface CreateBookingMeta {
   branchId?: string | null
   branchName?: string | null
   branchCity?: string | null
+  branchPhone?: string | null
 }
 
 /** فترة حجز بدون بيانات العميل — للتحقق من التوفر */
