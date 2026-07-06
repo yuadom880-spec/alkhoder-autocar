@@ -3,6 +3,6 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/((?!googledc055f82532d3d71\\.html|robots\\.txt|sitemap\\.xml|assets/).*)", "destination": "/index.html" }
+    { "source": "/((?!googledc055f82532d3d71\\.html|robots\\.txt|sitemap\\.xml|favicon\\.ico|favicon-48\\.png|favicon-96\\.png|favicon-192\\.png|apple-touch-icon\\.png|logo\\.png|assets/).*)", "destination": "/index.html" }
   ]
 }

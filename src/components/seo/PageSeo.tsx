@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
+import { SITE_SEO_PRIMARY } from '../../lib/constants'
 import {
   buildBreadcrumbJsonLd,
   buildLocalBusinessJsonLd,
@@ -65,14 +66,14 @@ export function PageSeo() {
     upsertPropertyMeta('og:type', 'website')
     upsertPropertyMeta('og:locale', 'ar_SA')
     upsertPropertyMeta('og:url', canonical)
-    upsertPropertyMeta('og:image', `${origin}/logo.png`)
-    upsertPropertyMeta('og:site_name', 'عبدالمجيد الخضر لتأجير السيارات')
+    upsertPropertyMeta('og:image', `${origin}/favicon-192.png`)
+    upsertPropertyMeta('og:site_name', SITE_SEO_PRIMARY)
 
     upsertMeta('twitter:card', 'summary_large_image')
     upsertMeta('twitter:title', seo.title)
     upsertMeta('twitter:description', seo.description)
-    upsertMeta('twitter:image', `${origin}/logo.png`)
-    upsertMeta('application-name', 'الخضر لتأجير السيارات')
+    upsertMeta('twitter:image', `${origin}/favicon-192.png`)
+    upsertMeta('application-name', SITE_SEO_PRIMARY)
 
     const breadcrumbs = [{ name: 'الرئيسية', path: '/' }]
     if (pathname.startsWith('/locations/')) {

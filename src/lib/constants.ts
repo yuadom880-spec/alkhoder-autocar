@@ -12,6 +12,7 @@ const summerOffer = (badge: string): CarOffer => ({
   description: 'عرض الصيف — لفترة محدودة',
 })
 
+export const SITE_SEO_PRIMARY = 'الخضر لتأجير السيارات'
 export const SITE_NAME = 'عبدالمجيد الخضر لتأجير السيارات'
 export const SITE_NAME_SHORT = 'عبدالمجيد الخضر'
 export const SITE_NAME_EN = 'Abdulmjeed Alkhoder Car Rental'

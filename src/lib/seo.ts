@@ -1,4 +1,12 @@
-import { MAIN_BRANCH, SITE_NAME, SITE_NAME_EN, TOLL_FREE, TOLL_FREE_LINK, WHATSAPP_LINK } from './constants'
+import {
+  MAIN_BRANCH,
+  SITE_NAME,
+  SITE_NAME_EN,
+  SITE_SEO_PRIMARY,
+  TOLL_FREE,
+  TOLL_FREE_LINK,
+  WHATSAPP_LINK,
+} from './constants'
 
 export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
 
@@ -17,9 +25,9 @@ export function getSiteOrigin(): string {
 }
 
 export const SEO_BRAND_NAMES = [
+  SITE_SEO_PRIMARY,
   'عبدالمجيد الخضر لتأجير السيارات',
   'شبكة عبدالمجيد الخضر لتأجير السيارات',
-  'الخضر لتأجير السيارات',
   'تأجير سيارات الخضر',
   'ايجار سيارات الخضر',
   'شركة الخضر لتأجير السيارات',
@@ -31,9 +39,9 @@ export const SEO_BRAND_NAMES = [
 ] as const
 
 export const SEO_BRAND_INTRO = {
-  heading: 'شبكة عبدالمجيد الخضر لتأجير السيارات',
+  heading: SITE_SEO_PRIMARY,
   paragraphs: [
-    'الخضر لتأجير السيارات — شبكة سعودية موثوقة لـ تأجير سيارات الخضر وايجار السيارات يومي وشهري في أكثر من 35 فرعاً بالمملكة.',
+    'الخضر لتأجير السيارات — شبكة عبدالمجيد الخضر سعودية موثوقة لـ تأجير سيارات الخضر وايجار السيارات يومي وشهري في أكثر من 35 فرعاً بالمملكة.',
     'سواء كنت تبحث عن شركة تأجير سيارات في جدة أو الرياض أو مكة أو المدينة المنورة أو ينبع أو تبوك — نوفر لك أسطولاً حديثاً، أسعاراً واضحة، وحجزاً أونلاين سهلاً.',
     'احجز الآن من موقع عبدالمجيد الخضر لتأجير السيارات واستمتع بتجربة تأجير سيارات مريحة وآمنة.',
   ],
@@ -308,8 +316,8 @@ export function buildWebSiteJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: SITE_NAME,
-    alternateName: [...SEO_BRAND_NAMES, SITE_NAME_EN],
+    name: SITE_SEO_PRIMARY,
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_NAME_EN],
     url: origin,
     inLanguage: 'ar-SA',
     description: SEO_DESCRIPTION,
@@ -325,10 +333,10 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: SITE_NAME,
-    alternateName: [...SEO_BRAND_NAMES],
+    name: SITE_SEO_PRIMARY,
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME],
     url: origin,
-    logo: `${origin}/logo.png`,
+    logo: `${origin}/favicon-192.png`,
     description: SEO_DESCRIPTION,
     contactPoint: {
       '@type': 'ContactPoint',
@@ -352,13 +360,13 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'CarRental',
-    name: SITE_NAME,
-    alternateName: [...SEO_BRAND_NAMES, SITE_NAME_EN, 'Alkhoder AutoCar'],
+    name: SITE_SEO_PRIMARY,
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
     url: origin,
     telephone: TOLL_FREE_LINK.replace('tel:', ''),
-    image: `${origin}/logo.png`,
-    logo: `${origin}/logo.png`,
+    image: `${origin}/favicon-192.png`,
+    logo: `${origin}/favicon-192.png`,
     priceRange: '$$',
     currenciesAccepted: 'SAR',
     paymentAccepted: 'Cash, Credit Card',
@@ -409,7 +417,7 @@ export function buildCityJsonLd(city: SeoCity, origin = getSiteUrl()) {
     description: city.description,
     provider: {
       '@type': 'CarRental',
-      name: SITE_NAME,
+      name: SITE_SEO_PRIMARY,
       url: origin,
     },
     areaServed: {

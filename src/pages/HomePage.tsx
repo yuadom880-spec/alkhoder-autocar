@@ -14,7 +14,16 @@ import { SeoBrandSection } from '../components/seo/SeoBrandSection'
 import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
-import { LOGO_URL, MAIN_BRANCH, PHONE, PHONE_LINK, SITE_NAME, SITE_NAME_EN, WHATSAPP_LINK } from '../lib/constants'
+import {
+  LOGO_URL,
+  MAIN_BRANCH,
+  PHONE,
+  PHONE_LINK,
+  SITE_NAME,
+  SITE_NAME_EN,
+  SITE_SEO_PRIMARY,
+  WHATSAPP_LINK,
+} from '../lib/constants'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { copy } from '../lib/copy'
@@ -68,9 +77,10 @@ export function HomePage() {
               {copy.site.tagline}
             </span>
             <h1 className="mb-2 font-extrabold leading-snug text-[clamp(1.1rem,4.5vw,2.75rem)]">
-              {SITE_NAME}
+              {SITE_SEO_PRIMARY}
             </h1>
-            <p className="mb-1 text-sm sm:text-lg font-display text-brand-gold/90">{SITE_NAME_EN}</p>
+            <p className="mb-1 text-sm sm:text-lg font-display text-brand-gold/90">{SITE_NAME}</p>
+            <p className="mb-1 text-xs sm:text-base text-slate-300">{SITE_NAME_EN}</p>
             <p className="mb-2 text-lg font-bold text-white sm:text-2xl">{copy.site.heroTitle}</p>
             <p className="mb-6 text-sm text-slate-300 leading-relaxed sm:mb-8 sm:text-lg">
               {copy.site.heroSubtitle}
