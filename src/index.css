@@ -11,6 +11,15 @@
   body {
     @apply font-arabic bg-slate-50 text-brand-dark antialiased;
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (max-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -75,6 +84,17 @@
   .input-field[type='date']::-webkit-datetime-edit-day-field,
   .input-field[type='date']::-webkit-datetime-edit-year-field {
     @apply text-black;
+  }
+
+  .hero-text-glow {
+    text-shadow:
+      0 2px 24px rgba(10, 22, 40, 0.9),
+      0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-logo-glow {
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 20px rgba(212, 168, 83, 0.25));
   }
 
   .label-field {

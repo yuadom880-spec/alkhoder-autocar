@@ -51,55 +51,75 @@ export function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-bl from-brand-dark via-brand-navy to-brand-slate text-white pb-6 sm:pb-8 md:pb-24 lg:pb-28">
-        <div className="absolute inset-0 opacity-25">
+      <section className="relative min-h-[min(88svh,720px)] overflow-hidden bg-brand-dark text-white pb-4 sm:min-h-[620px] sm:pb-8 md:pb-24 lg:min-h-[700px] lg:pb-28">
+        <div className="absolute inset-0">
           <img
-            src={PROFILE_IMAGES.hero}
+            src={PROFILE_IMAGES.heroLuxurySuv}
             alt=""
-            className="h-full w-full object-cover object-center"
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover object-[center_62%] brightness-[0.88] contrast-[1.1] saturate-[1.05] sm:hidden"
+          />
+          <motion.img
+            src={PROFILE_IMAGES.heroLuxurySuv}
+            alt=""
+            aria-hidden
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.05 }}
+            transition={{ duration: 28, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+            className="absolute inset-0 hidden h-full w-full object-cover object-center brightness-[0.9] contrast-[1.08] saturate-[1.05] sm:block"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/85 via-brand-dark/55 to-brand-dark/30 sm:bg-gradient-to-l sm:from-brand-dark/95 sm:via-brand-dark/70 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/50 to-transparent sm:via-brand-dark/35" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 90% 55% at 50% 72%, rgba(212,168,83,0.14) 0%, transparent 70%)',
+            }}
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent" />
 
-        <div className="container-main relative py-10 sm:py-16 lg:py-28">
+        <div className="container-main relative flex min-h-[min(72svh,600px)] flex-col justify-end py-6 sm:min-h-0 sm:justify-start sm:py-16 lg:py-28">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-4xl"
+            transition={{ duration: 0.5 }}
+            className="hero-text-glow w-full max-w-4xl"
           >
             <img
               src={LOGO_URL}
               alt={SITE_NAME}
-              className="mb-4 h-16 sm:h-24 w-auto rounded-xl object-contain shadow-lg"
+              className="hero-logo-glow mb-3 h-14 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
             />
-            <span className="mb-3 inline-block rounded-full bg-brand-gold/20 px-3 py-1.5 text-xs font-medium text-brand-gold">
+            <span className="mb-2 inline-block rounded-full border border-brand-gold/30 bg-brand-dark/40 px-3 py-1 text-[11px] font-medium text-brand-gold backdrop-blur-sm sm:mb-3 sm:py-1.5 sm:text-xs">
               {copy.site.tagline}
             </span>
-            <h1 className="mb-2 font-extrabold leading-snug text-[clamp(1.1rem,4.5vw,2.75rem)]">
+            <h1 className="mb-1.5 font-extrabold leading-tight text-[clamp(1.25rem,5.5vw,2.75rem)] sm:mb-2 sm:leading-snug">
               {SITE_SEO_PRIMARY}
             </h1>
-            <p className="mb-1 text-sm sm:text-lg font-display text-brand-gold/90">{SITE_NAME}</p>
-            <p className="mb-1 text-xs sm:text-base text-slate-300">{SITE_NAME_EN}</p>
-            <p className="mb-2 text-lg font-bold text-white sm:text-2xl">{copy.site.heroTitle}</p>
-            <p className="mb-6 text-sm text-slate-300 leading-relaxed sm:mb-8 sm:text-lg">
+            <p className="mb-1 text-xs font-display text-brand-gold sm:text-lg">{SITE_NAME}</p>
+            <p className="mb-1 hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
+            <p className="mb-1 hidden text-lg font-bold text-white sm:mb-2 sm:block sm:text-2xl">
+              {copy.site.heroTitle}
+            </p>
+            <p className="mb-4 max-w-xl text-sm leading-relaxed text-slate-200 sm:mb-8 sm:text-lg">
               {copy.site.heroSubtitle}
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="hidden flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap">
               <Link to="/cars" className="w-full sm:w-auto">
-                <Button size="lg" variant="secondary" className="w-full sm:w-auto min-h-[48px]">
+                <Button size="lg" variant="secondary" className="w-full min-h-[48px] sm:w-auto">
                   {copy.site.browseCars}
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/cars" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto min-h-[48px]">{copy.site.heroCta}</Button>
+                <Button size="lg" className="w-full min-h-[48px] sm:w-auto">{copy.site.heroCta}</Button>
               </Link>
               <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto min-h-[48px] border-white/30 text-white hover:bg-white/10"
+                  className="w-full min-h-[48px] border-white/30 text-white hover:bg-white/10 sm:w-auto"
                 >
                   <Phone className="h-5 w-5" />
                   {copy.site.whatsapp}
@@ -112,9 +132,9 @@ export function HomePage() {
         <QuickSearch />
       </section>
 
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24">
+      <section className="py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
-          <div className="mb-10 text-center">
+          <div className="mb-8 text-center sm:mb-10">
             <h2 className="section-title">{copy.home.whyUs}</h2>
             <p className="section-subtitle">{copy.home.whyUsSub}</p>
           </div>

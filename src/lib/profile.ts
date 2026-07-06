@@ -8,6 +8,8 @@ export function profileAsset(filename: string): string {
 export const PARTNERS_IMAGE = asset('شركاء النجاح.png')
 
 export const PROFILE_IMAGES = {
+  /** باترول سوداء فاخرة — خلفية الهيرو */
+  heroLuxurySuv: '/hero-patrol-black.jpg',
   hero: profileAsset('page-01-img-002.bmp'),
   aboutFleet: profileAsset('page-03-img-003.bmp'),
   fleetBanner: profileAsset('page-12-img-070.bmp'),

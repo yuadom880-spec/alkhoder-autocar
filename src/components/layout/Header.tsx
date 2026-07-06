@@ -53,15 +53,22 @@ export function Header() {
           </Link>
         </div>
 
+        <div className="flex shrink-0 items-center gap-2 lg:hidden">
+          <Link to="/cars">
+            <Button size="sm" className="min-h-[40px] px-3 text-xs">
+              {copy.nav.bookNow}
+            </Button>
+          </Link>
         <button
           type="button"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200 lg:hidden"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200"
           onClick={() => setOpen(!open)}
           aria-label="القائمة"
           aria-expanded={open}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
+        </div>
       </div>
 
       {open && (

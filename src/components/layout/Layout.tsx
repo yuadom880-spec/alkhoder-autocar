@@ -2,6 +2,7 @@ import { Outlet } from 'react-router'
 import { PageSeo } from '../seo/PageSeo'
 import { Footer } from './Footer'
 import { Header } from './Header'
+import { MobileBookingBar } from './MobileBookingBar'
 import { WhatsAppButton } from './WhatsAppButton'
 
 export function Layout() {
@@ -9,10 +10,11 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <PageSeo />
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pb-[4.75rem] lg:pb-0">
         <Outlet />
       </main>
       <Footer />
+      <MobileBookingBar />
       <WhatsAppButton />
     </div>
   )

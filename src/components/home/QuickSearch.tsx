@@ -42,19 +42,19 @@ export function QuickSearch() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      className="relative z-10 mt-4 px-0 pb-2 sm:mt-6 md:absolute md:bottom-0 md:left-0 md:right-0 md:mt-0 md:translate-y-1/2 md:px-4 md:pb-0"
+      className="relative z-10 mt-2 px-0 pb-1 sm:mt-6 md:absolute md:bottom-0 md:left-0 md:right-0 md:mt-0 md:translate-y-1/2 md:px-4 md:pb-0"
     >
       <div className="container-main">
-        <div className="mx-auto max-w-4xl rounded-2xl bg-white p-4 shadow-xl shadow-brand-dark/10 sm:p-6 sm:shadow-2xl">
-          <div className="mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-brand-green" />
-            <div>
-              <p className="font-bold text-brand-dark">{copy.home.quickSearch}</p>
-              <p className="text-xs text-slate-500">{copy.home.quickSearchSub}</p>
+        <div className="mx-auto max-w-4xl rounded-2xl border border-slate-100 bg-white p-3.5 shadow-xl shadow-brand-dark/10 sm:p-6 sm:shadow-2xl">
+          <div className="mb-3 flex items-center gap-2 sm:mb-4">
+            <Calendar className="h-5 w-5 shrink-0 text-brand-green" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-brand-dark sm:text-base">{copy.home.quickSearch}</p>
+              <p className="text-[11px] text-slate-500 sm:text-xs">{copy.home.quickSearchSub}</p>
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
             <div>
               <label className="label-field text-xs text-black">{copy.home.fromDate}</label>
               <input

@@ -21,6 +21,8 @@ export default {
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',
         'slide-up': 'slideUp 0.5s ease-out forwards',
+        'hero-zoom': 'heroZoom 22s ease-in-out infinite alternate',
+        'hero-glow': 'heroGlow 8s ease-in-out infinite alternate',
       },
       keyframes: {
         fadeIn: {
@@ -30,6 +32,14 @@ export default {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(24px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        heroZoom: {
+          '0%': { transform: 'scale(1.04)' },
+          '100%': { transform: 'scale(1.1)' },
+        },
+        heroGlow: {
+          '0%': { opacity: '0.35' },
+          '100%': { opacity: '0.65' },
         },
       },
     },
