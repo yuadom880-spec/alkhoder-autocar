@@ -89,22 +89,24 @@ export function HomePage() {
             <img
               src={LOGO_URL}
               alt={SITE_NAME}
-              className="hero-logo-glow mb-2 h-12 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
+              className="hero-logo-glow mb-3 h-14 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
             />
-            <span className="mb-2 inline-block rounded-full border border-brand-gold/30 bg-brand-dark/40 px-3 py-1 text-[11px] font-medium text-brand-gold backdrop-blur-sm sm:mb-3 sm:py-1.5 sm:text-xs">
-              {copy.site.tagline}
-            </span>
-            <h1 className="mb-1.5 font-extrabold leading-tight text-[clamp(1.25rem,5.5vw,2.75rem)] sm:mb-2 sm:leading-snug">
-              {SITE_NAME}
-            </h1>
-            <p className="mb-1 text-xs font-display text-brand-gold sm:text-lg">{SITE_SEO_PRIMARY}</p>
-            <p className="mb-1 hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
-            <p className="mb-1 hidden text-lg font-bold text-white sm:mb-2 sm:block sm:text-2xl">
-              {copy.site.heroTitle}
-            </p>
-            <p className="mb-6 max-w-xl text-sm leading-relaxed text-slate-200 sm:mb-8 sm:text-lg">
-              {copy.site.heroSubtitle}
-            </p>
+            <div className="flex max-w-xl flex-col gap-2 sm:gap-2.5">
+              <span className="inline-block w-fit rounded-full border border-brand-gold/35 bg-brand-dark/50 px-3.5 py-1.5 text-xs font-semibold text-brand-gold backdrop-blur-sm sm:px-4 sm:py-1.5 sm:text-sm">
+                {copy.site.tagline}
+              </span>
+              <h1 className="font-extrabold leading-snug text-[clamp(1.35rem,5.8vw,2.75rem)] text-white">
+                {SITE_NAME}
+              </h1>
+              <p className="text-sm font-semibold text-brand-gold sm:text-lg">{SITE_SEO_PRIMARY}</p>
+              <p className="hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
+              <p className="hidden text-lg font-bold text-white sm:block sm:text-2xl">
+                {copy.site.heroTitle}
+              </p>
+              <p className="text-[15px] leading-relaxed text-slate-100 sm:text-lg sm:text-slate-200">
+                {copy.site.heroSubtitle}
+              </p>
+            </div>
             <div className="hidden flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap">
               <Link to="/cars" className="w-full sm:w-auto">
                 <Button size="lg" variant="secondary" className="w-full min-h-[48px] sm:w-auto">

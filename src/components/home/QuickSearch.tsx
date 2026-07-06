@@ -42,7 +42,7 @@ export function QuickSearch() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      className="relative z-10 mt-12 px-0 pb-2 sm:mt-10 md:absolute md:bottom-0 md:left-0 md:right-0 md:mt-0 md:translate-y-[62%] md:px-4 md:pb-0"
+      className="relative z-10 mt-14 px-0 pb-2 sm:mt-10 md:absolute md:bottom-0 md:left-0 md:right-0 md:mt-0 md:translate-y-[65%] md:px-4 md:pb-0"
     >
       <div className="container-main">
         <div className="mx-auto max-w-4xl rounded-2xl border border-slate-100 bg-white p-3.5 shadow-xl shadow-brand-dark/10 sm:p-6 sm:shadow-2xl">
