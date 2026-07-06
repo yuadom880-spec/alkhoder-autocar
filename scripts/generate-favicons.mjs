@@ -1,10 +1,11 @@
 /**
  * أيقونات مربعة من لوجو الخضر — مطلوبة لظهور اللوجو في نتائج جوجل
+ * يستخدم sharp (بدون متصفح) ليعمل على Vercel
  */
-import { readFileSync, existsSync, writeFileSync } from 'fs'
+import { existsSync, writeFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import puppeteer from 'puppeteer'
+import sharp from 'sharp'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
@@ -15,8 +16,6 @@ if (!existsSync(logoPath)) {
   process.exit(1)
 }
 
-const logoUri = `data:image/png;base64,${readFileSync(logoPath).toString('base64')}`
-
 const SIZES = [
   { name: 'favicon-48.png', size: 48 },
   { name: 'favicon-96.png', size: 96 },
@@ -24,47 +23,39 @@ const SIZES = [
   { name: 'apple-touch-icon.png', size: 180 },
 ]
 
-function iconHtml(px) {
-  const pad = Math.round(px * 0.08)
-  const radius = Math.round(px * 0.14)
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { width:${px}px; height:${px}px; background:#fff; }
-    .box {
-      width:${px}px; height:${px}px;
-      padding:${pad}px;
-      background:#fff;
-      border-radius:${radius}px;
-      display:flex; align-items:center; justify-content:center;
-    }
-    img { width:100%; height:100%; object-fit:contain; display:block; border-radius:${Math.round(px * 0.08)}px; }
-  </style></head><body>
-    <div class="box"><img src="${logoUri}" alt=""/></div>
-  </body></html>`
+async function generateSquareIcon(size) {
+  const pad = Math.round(size * 0.08)
+  const inner = size - pad * 2
+
+  const resizedLogo = await sharp(logoPath)
+    .resize(inner, inner, {
+      fit: 'contain',
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    })
+    .png()
+    .toBuffer()
+
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    },
+  })
+    .composite([{ input: resizedLogo, gravity: 'center' }])
+    .png()
+    .toBuffer()
 }
 
-const browser = await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-})
-
-try {
-  for (const { name, size } of SIZES) {
-    const page = await browser.newPage()
-    await page.setViewport({ width: size, height: size, deviceScaleFactor: 1 })
-    await page.setContent(iconHtml(size), { waitUntil: 'load' })
-    const buf = await page.screenshot({ type: 'png', omitBackground: false })
-    await page.close()
-    writeFileSync(resolve(root, 'public', name), buf)
-    console.log(`✓ public/${name}`)
-  }
-
-  // favicon.ico = نسخة 48px (بعض المتصفحات تفضّلها)
-  const ico48 = readFileSync(resolve(root, 'public', 'favicon-48.png'))
-  writeFileSync(resolve(root, 'public', 'favicon.ico'), ico48)
-  console.log('✓ public/favicon.ico')
-} finally {
-  await browser.close()
+for (const { name, size } of SIZES) {
+  const buf = await generateSquareIcon(size)
+  writeFileSync(resolve(root, 'public', name), buf)
+  console.log(`✓ public/${name}`)
 }
+
+const ico48 = await generateSquareIcon(48)
+writeFileSync(resolve(root, 'public', 'favicon.ico'), ico48)
+console.log('✓ public/favicon.ico')
 
 console.log('\n✅ أيقونات جوجل جاهزة\n')
