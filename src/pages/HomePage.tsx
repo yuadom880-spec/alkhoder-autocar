@@ -95,9 +95,9 @@ export function HomePage() {
               {copy.site.tagline}
             </span>
             <h1 className="mb-1.5 font-extrabold leading-tight text-[clamp(1.25rem,5.5vw,2.75rem)] sm:mb-2 sm:leading-snug">
-              {SITE_SEO_PRIMARY}
+              {SITE_NAME}
             </h1>
-            <p className="mb-1 text-xs font-display text-brand-gold sm:text-lg">{SITE_NAME}</p>
+            <p className="mb-1 text-xs font-display text-brand-gold sm:text-lg">{SITE_SEO_PRIMARY}</p>
             <p className="mb-1 hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
             <p className="mb-1 hidden text-lg font-bold text-white sm:mb-2 sm:block sm:text-2xl">
               {copy.site.heroTitle}

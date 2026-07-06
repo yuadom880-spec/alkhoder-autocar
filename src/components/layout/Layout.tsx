@@ -10,7 +10,7 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <PageSeo />
       <Header />
-      <main className="flex-1 pb-[4.75rem] lg:pb-0">
+      <main className="flex-1 pb-[4.25rem] lg:pb-0">
         <Outlet />
       </main>
       <Footer />
