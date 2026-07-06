@@ -51,7 +51,7 @@ export function HomePage() {
 
   return (
     <>
-      <section className="relative min-h-[min(88svh,720px)] overflow-hidden bg-brand-dark text-white pb-4 sm:min-h-[620px] sm:pb-8 md:pb-24 lg:min-h-[700px] lg:pb-28">
+      <section className="relative min-h-0 overflow-hidden bg-brand-dark text-white pb-4 sm:min-h-[620px] sm:pb-8 md:pb-24 lg:min-h-[700px] lg:pb-28">
         <div className="absolute inset-0">
           <img
             src={PROFILE_IMAGES.heroLuxurySuv}
@@ -79,7 +79,7 @@ export function HomePage() {
           />
         </div>
 
-        <div className="container-main relative flex min-h-[min(72svh,600px)] flex-col justify-end py-6 sm:min-h-0 sm:justify-start sm:py-16 lg:py-28">
+        <div className="container-main relative pt-3 pb-2 sm:py-16 lg:py-28">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -89,7 +89,7 @@ export function HomePage() {
             <img
               src={LOGO_URL}
               alt={SITE_NAME}
-              className="hero-logo-glow mb-3 h-14 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
+              className="hero-logo-glow mb-2 h-12 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
             />
             <span className="mb-2 inline-block rounded-full border border-brand-gold/30 bg-brand-dark/40 px-3 py-1 text-[11px] font-medium text-brand-gold backdrop-blur-sm sm:mb-3 sm:py-1.5 sm:text-xs">
               {copy.site.tagline}
