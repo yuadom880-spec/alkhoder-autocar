@@ -79,7 +79,7 @@ export function HomePage() {
           />
         </div>
 
-        <div className="container-main relative pt-3 pb-2 sm:py-16 lg:py-28">
+        <div className="container-main relative pt-6 pb-2 sm:py-16 lg:py-28">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
