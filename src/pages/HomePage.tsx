@@ -92,10 +92,10 @@ export function HomePage() {
               className="hero-logo-glow mb-3 h-14 w-auto rounded-xl object-contain sm:mb-4 sm:h-24"
             />
             <div className="flex max-w-xl flex-col gap-2 sm:gap-2.5">
-              <span className="inline-block w-fit rounded-full border border-brand-gold/35 bg-brand-dark/50 px-3.5 py-1.5 text-xs font-semibold text-brand-gold backdrop-blur-sm sm:px-4 sm:py-1.5 sm:text-sm">
+              <span className="mb-2 inline-block w-fit rounded-full border border-brand-gold/35 bg-brand-dark/50 px-3.5 py-1.5 text-xs font-semibold text-brand-gold backdrop-blur-sm sm:mb-3 sm:px-4 sm:py-1.5 sm:text-sm">
                 {copy.site.tagline}
               </span>
-              <h1 className="font-extrabold leading-snug text-[clamp(1.35rem,5.8vw,2.75rem)] text-white">
+              <h1 className="mt-1 font-extrabold leading-snug text-[clamp(1.35rem,5.8vw,2.75rem)] text-white sm:mt-1.5">
                 {SITE_NAME}
               </h1>
               <p className="text-sm font-semibold text-brand-gold sm:text-lg">{SITE_SEO_PRIMARY}</p>
