@@ -54,9 +54,9 @@ export function Header() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
-          <Link to="/cars">
-            <Button size="sm" className="min-h-[40px] px-3 text-xs">
-              {copy.nav.bookNow}
+          <Link to="/branches">
+            <Button size="sm" variant="outline" className="min-h-[40px] px-3 text-xs">
+              فروعنا
             </Button>
           </Link>
         <button
