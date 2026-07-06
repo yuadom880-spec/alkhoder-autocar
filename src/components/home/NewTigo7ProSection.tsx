@@ -16,21 +16,6 @@ export function NewTigo7ProSection() {
           className="mx-auto flex max-w-4xl flex-col gap-5"
         >
           <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-lg ring-1 ring-black/5">
-            <div className="border-b border-white/10 bg-gradient-to-l from-brand-navy via-brand-dark to-brand-slate px-4 py-4 text-center sm:px-6">
-              <p className="text-lg font-bold text-white sm:text-xl">عروض إجازة الصيف</p>
-            </div>
-            <video
-              src={SUMMER_VIDEO}
-              controls
-              playsInline
-              preload="metadata"
-              className="mx-auto w-full max-h-[280px] object-contain sm:max-h-[360px] lg:max-h-[420px]"
-            >
-              <track kind="captions" />
-            </video>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-lg ring-1 ring-black/5">
             <div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-l from-brand-green/40 via-brand-dark to-brand-navy px-4 py-5 sm:px-6 sm:py-6">
               <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-gold/10 blur-2xl" />
               <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center sm:gap-4">
@@ -66,6 +51,21 @@ export function NewTigo7ProSection() {
                 </Button>
               </Link>
             </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-lg ring-1 ring-black/5">
+            <div className="border-b border-white/10 bg-gradient-to-l from-brand-navy via-brand-dark to-brand-slate px-4 py-4 text-center sm:px-6">
+              <p className="text-lg font-bold text-white sm:text-xl">عروض إجازة الصيف</p>
+            </div>
+            <video
+              src={SUMMER_VIDEO}
+              controls
+              playsInline
+              preload="metadata"
+              className="mx-auto w-full max-h-[280px] object-contain sm:max-h-[360px] lg:max-h-[420px]"
+            >
+              <track kind="captions" />
+            </video>
           </div>
         </motion.div>
       </div>
