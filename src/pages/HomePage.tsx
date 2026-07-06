@@ -102,7 +102,7 @@ export function HomePage() {
             <p className="mb-1 hidden text-lg font-bold text-white sm:mb-2 sm:block sm:text-2xl">
               {copy.site.heroTitle}
             </p>
-            <p className="mb-4 max-w-xl text-sm leading-relaxed text-slate-200 sm:mb-8 sm:text-lg">
+            <p className="mb-6 max-w-xl text-sm leading-relaxed text-slate-200 sm:mb-8 sm:text-lg">
               {copy.site.heroSubtitle}
             </p>
             <div className="hidden flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap">
