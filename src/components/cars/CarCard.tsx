@@ -52,7 +52,7 @@ export function CarCard({
       <Link to={detailUrl}>
         <CarImage src={car.image_url} alt={car.name} variant="card">
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
-            <OfferBadge car={car} />
+            <OfferBadge car={car} rentalType={rentalType} />
             <Badge>{getCategoryLabel(car.category)}</Badge>
             <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
             {availability && (

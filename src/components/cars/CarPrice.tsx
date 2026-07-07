@@ -1,6 +1,6 @@
 import type { Car, RentalPeriodType } from '../../lib/types'
-import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
-import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../../lib/pricing'
+import { getEffectivePrice, getOfferBadge, getOfferSavings, isOfferActive } from '../../lib/offers'
+import { getCarBasePrice, getPriceUnitLabel } from '../../lib/pricing'
 import { cn, formatPrice } from '../../lib/utils'
 
 interface CarPriceProps {
@@ -25,12 +25,10 @@ export function CarPrice({
   className,
 }: CarPriceProps) {
   const s = sizes[size]
-  const isMonthly = rentalType === 'monthly'
   const basePrice = getCarBasePrice(car, rentalType)
-  const displayPrice = getCarDisplayPrice(car, rentalType)
-  const hasOffer = !isMonthly && isOfferActive(car)
-  const effective = isMonthly ? basePrice : getEffectivePrice(car)
-  const badge = getOfferBadge(car)
+  const effective = getEffectivePrice(car, rentalType)
+  const hasOffer = isOfferActive(car, rentalType)
+  const badge = getOfferBadge(car, rentalType)
   const unitLabel = getPriceUnitLabel(rentalType)
 
   return (
@@ -43,23 +41,29 @@ export function CarPrice({
             </span>
           )}
           <p className={cn('font-bold text-red-600', s.price)}>{formatPrice(effective)}</p>
-          <p className={cn('text-slate-400 line-through', s.old)}>{formatPrice(car.price_per_day)}</p>
+          <p className={cn('text-slate-400 line-through', s.old)}>{formatPrice(basePrice)}</p>
           {showSavings && (
             <p className="text-[10px] text-green-700 font-medium">
-              وفّر {formatPrice(car.price_per_day - effective)}
+              وفّر {formatPrice(getOfferSavings(car, rentalType))}
             </p>
           )}
         </>
       ) : (
-        <p className={cn('font-bold text-brand-green', s.price)}>{formatPrice(displayPrice)}</p>
+        <p className={cn('font-bold text-brand-green', s.price)}>{formatPrice(effective)}</p>
       )}
       <p className={cn('text-slate-400', s.sub)}>{unitLabel}</p>
     </div>
   )
 }
 
-export function OfferBadge({ car }: { car: Car }) {
-  const badge = getOfferBadge(car)
+export function OfferBadge({
+  car,
+  rentalType = 'daily',
+}: {
+  car: Car
+  rentalType?: RentalPeriodType
+}) {
+  const badge = getOfferBadge(car, rentalType)
   if (!badge) return null
   return (
     <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">

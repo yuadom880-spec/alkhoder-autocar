@@ -19,10 +19,9 @@ export function getCarBasePrice(car: Car, rentalType: RentalPeriodType): number 
   return car.price_per_day
 }
 
-/** السعر المعروض للعميل — العروض تُطبَّق على الإيجار اليومي فقط */
+/** السعر المعروض للعميل مع تطبيق العروض حسب نوع الإيجار */
 export function getCarDisplayPrice(car: Car, rentalType: RentalPeriodType): number {
-  if (rentalType === 'monthly') return getCarBasePrice(car, 'monthly')
-  return getEffectivePrice(car)
+  return getEffectivePrice(car, rentalType)
 }
 
 export function getPriceUnitLabel(rentalType: RentalPeriodType): string {

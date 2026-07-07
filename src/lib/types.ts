@@ -31,6 +31,11 @@ export interface CarOffer {
   description: string
 }
 
+export interface CarOffers {
+  daily: CarOffer | null
+  monthly: CarOffer | null
+}
+
 export interface CarSpecs {
   transmission: string
   fuel: string
@@ -55,7 +60,7 @@ export interface Car {
   description: string
   is_available: boolean
   is_featured: boolean
-  offer: CarOffer | null
+  offer: CarOffers | null
   /** فروع توفر السيارة — فارغ = كل الفروع */
   branch_ids: string[]
   created_at: string
@@ -77,7 +82,7 @@ export interface CarFormData {
   description: string
   is_available: boolean
   is_featured: boolean
-  offer: CarOffer | null
+  offer: CarOffers | null
   branch_ids: string[]
 }
 

@@ -1,21 +1,34 @@
+import type { LucideIcon } from 'lucide-react'
 import { Tag } from 'lucide-react'
-import type { CarOffer } from '../../lib/types'
+import type { CarOffer, RentalPeriodType } from '../../lib/types'
 import {
   DEFAULT_OFFER,
-  DISCOUNT_TYPE_LABELS,
+  getDiscountValueLabel,
   previewOfferPrice,
 } from '../../lib/offers'
+import { getPriceUnitLabel } from '../../lib/pricing'
 import { formatPrice } from '../../lib/utils'
 
 interface CarOfferFormProps {
+  rentalType: RentalPeriodType
   basePrice: number
   offer: CarOffer | null
   onChange: (offer: CarOffer | null) => void
+  heading: string
+  icon?: LucideIcon
 }
 
-export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) {
+export function CarOfferForm({
+  rentalType,
+  basePrice,
+  offer,
+  onChange,
+  heading,
+  icon: Icon,
+}: CarOfferFormProps) {
   const current = offer ?? { ...DEFAULT_OFFER, active: false }
   const enabled = current.active
+  const unitLabel = getPriceUnitLabel(rentalType)
 
   const update = (patch: Partial<CarOffer>) => {
     onChange({ ...current, ...patch })
@@ -25,7 +38,11 @@ export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) 
     if (!active) {
       onChange({ ...current, active: false })
     } else {
-      onChange({ ...DEFAULT_OFFER, active: true, title: 'عرض خاص' })
+      onChange({
+        ...DEFAULT_OFFER,
+        active: true,
+        title: rentalType === 'monthly' ? 'عرض شهري' : 'عرض يومي',
+      })
     }
   }
 
@@ -35,12 +52,12 @@ export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) 
     <div className="rounded-2xl border border-slate-200 overflow-hidden">
       <div className="flex items-center justify-between bg-slate-50 px-5 py-4 border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <Tag className="h-5 w-5 text-brand-gold" />
-          <span className="font-bold text-brand-dark">العروض والخصومات</span>
+          {Icon ? <Icon className="h-5 w-5 text-brand-gold" /> : <Tag className="h-5 w-5 text-brand-gold" />}
+          <span className="font-bold text-brand-dark">{heading}</span>
         </div>
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <span className={enabled ? 'text-brand-green font-medium' : 'text-slate-500'}>
-            {enabled ? 'العرض مفعّل' : 'بدون عرض'}
+            {enabled ? 'مفعّل' : 'بدون عرض'}
           </span>
           <input
             type="checkbox"
@@ -87,20 +104,16 @@ export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) 
                   })
                 }
               >
-                {Object.entries(DISCOUNT_TYPE_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
+                <option value="percent">نسبة مئوية (%)</option>
+                <option value="fixed">مبلغ ثابت (ر.س)</option>
+                <option value="custom_price">
+                  {rentalType === 'monthly' ? 'سعر العرض (ر.س/شهر)' : 'سعر العرض (ر.س/يوم)'}
+                </option>
               </select>
             </div>
             <div>
               <label className="label-field">
-                {current.discount_type === 'percent'
-                  ? 'نسبة الخصم (%)'
-                  : current.discount_type === 'fixed'
-                    ? 'مبلغ الخصم (ر.س)'
-                    : 'سعر العرض (ر.س/يوم)'}
+                {getDiscountValueLabel(current.discount_type, rentalType)}
               </label>
               <input
                 type="number"
@@ -130,11 +143,10 @@ export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) 
               className="input-field resize-none"
               value={current.description}
               onChange={(e) => update({ description: e.target.value })}
-              placeholder="مثال: العرض ساري على الحجوزات لمدة 3 أيام أو أكثر"
+              placeholder="مثال: العرض ساري لفترة محدودة"
             />
           </div>
 
-          {/* معاينة */}
           <div className="rounded-xl bg-red-50 border border-red-200 p-4">
             <p className="text-xs text-red-600 mb-2 font-medium">معاينة العرض</p>
             <div className="flex items-center gap-3 flex-wrap">
@@ -147,7 +159,7 @@ export function CarOfferForm({ basePrice, offer, onChange }: CarOfferFormProps) 
                 {formatPrice(basePrice)}
               </span>
               <span className="text-xl font-bold text-red-600">{formatPrice(preview)}</span>
-              <span className="text-xs text-slate-500">/ يوم</span>
+              <span className="text-xs text-slate-500">{unitLabel}</span>
               {preview < basePrice && (
                 <span className="text-xs text-green-700 bg-green-100 rounded-full px-2 py-0.5">
                   وفّر {formatPrice(basePrice - preview)}

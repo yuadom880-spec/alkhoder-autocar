@@ -4,7 +4,7 @@ import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
-import { CarOfferForm } from './CarOfferForm'
+import { CarOffersForm } from './CarOffersForm'
 import { Button } from '../ui/Button'
 
 const defaultSpecs = {
@@ -37,7 +37,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     description: initial?.description ?? '',
     is_available: initial?.is_available ?? true,
     is_featured: true,
-    offer: initial?.offer ?? null,
+    offer: initial?.offer ?? { daily: null, monthly: null },
     branch_ids: initial?.branch_ids ?? [],
   })
   const [loading, setLoading] = useState(false)
@@ -170,9 +170,10 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         onChange={(branch_ids) => update('branch_ids', branch_ids)}
       />
 
-      <CarOfferForm
-        basePrice={form.price_per_day}
-        offer={form.offer}
+      <CarOffersForm
+        dailyBasePrice={form.price_per_day}
+        monthlyBasePrice={form.price_per_month}
+        offers={form.offer}
         onChange={(offer) => update('offer', offer)}
       />
 

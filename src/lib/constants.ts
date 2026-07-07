@@ -1,6 +1,6 @@
 import { asset } from './assets'
 import logoUrl from '../assets/logo.png'
-import type { Car, CarCategory, CarClass, CarOffer } from './types'
+import type { Car, CarCategory, CarClass, CarOffer, CarOffers } from './types'
 
 const summerOffer = (badge: string): CarOffer => ({
   active: true,
@@ -10,6 +10,11 @@ const summerOffer = (badge: string): CarOffer => ({
   discount_value: 15,
   valid_until: '2026-09-30',
   description: 'عرض الصيف — لفترة محدودة',
+})
+
+const dailyOffer = (badge: string): CarOffers => ({
+  daily: summerOffer(badge),
+  monthly: null,
 })
 
 export const SITE_SEO_PRIMARY = 'الخضر لتأجير السيارات'
@@ -283,7 +288,7 @@ export const DEMO_CARS: Car[] = [
     description: 'دفع رباعي عائلية بـ 7 مقاعد، مثالية للعائلات والرحلات.',
     is_available: true,
     is_featured: true,
-    offer: summerOffer('خصم 15%'),
+    offer: dailyOffer('خصم 15%'),
     branch_ids: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -374,7 +379,7 @@ export const DEMO_CARS: Car[] = [
     description: 'دفع رباعي فل كامل بتجهيزات عالية وراحة ممتازة.',
     is_available: true,
     is_featured: true,
-    offer: summerOffer('دبل العرض'),
+    offer: dailyOffer('دبل العرض'),
     branch_ids: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -437,7 +442,7 @@ export const DEMO_CARS: Car[] = [
     description: 'سيدان اقتصادية مثالية للتنقل اليومي والرحلات القصيرة — عرض الصيف متاح.',
     is_available: true,
     is_featured: true,
-    offer: summerOffer('يبدأ 85 ر.س'),
+    offer: dailyOffer('يبدأ 85 ر.س'),
     branch_ids: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

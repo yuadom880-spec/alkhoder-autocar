@@ -12,7 +12,7 @@ import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
 import { sortFleet, type FleetSortOption } from '../lib/fleetSort'
 import { formatDate } from '../lib/utils'
-import { isOfferActive } from '../lib/offers'
+import { hasAnyOffer } from '../lib/offers'
 import { fetchBookingBlocks, fetchBranches, fetchCars } from '../lib/supabase'
 import type { BookingBlock, BranchRecord, Car, CarCategory, CarClass } from '../lib/types'
 
@@ -82,7 +82,7 @@ export function CarsPage() {
         car.name.toLowerCase().includes(q) ||
         car.brand.toLowerCase().includes(q) ||
         car.model.toLowerCase().includes(q)
-      const matchOffer = !offersOnly || isOfferActive(car)
+      const matchOffer = !offersOnly || hasAnyOffer(car)
       return matchCategory && matchClass && matchSearch && matchOffer
     })
 

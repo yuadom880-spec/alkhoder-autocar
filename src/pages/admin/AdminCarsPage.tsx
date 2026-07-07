@@ -139,21 +139,30 @@ export function AdminCarsPage() {
                           <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
                         </td>
                         <td className="px-4 py-3">
-                          {isOfferActive(car) ? (
-                            <div>
-                              <p className="font-medium text-red-600">
-                                {formatPrice(getEffectivePrice(car))}
-                              </p>
+                          <div>
+                            <p className={isOfferActive(car, 'daily') ? 'font-medium text-red-600' : 'font-medium'}>
+                              {formatPrice(getEffectivePrice(car, 'daily'))}
+                              <span className="text-[10px] text-slate-400 mr-1">/ يوم</span>
+                            </p>
+                            {isOfferActive(car, 'daily') && (
                               <p className="text-xs text-slate-400 line-through">
                                 {formatPrice(car.price_per_day)}
                               </p>
-                            </div>
-                          ) : (
-                            <span className="font-medium">{formatPrice(car.price_per_day)}</span>
-                          )}
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="font-medium">{formatPrice(car.price_per_month)}</span>
+                          <div>
+                            <p className={isOfferActive(car, 'monthly') ? 'font-medium text-red-600' : 'font-medium'}>
+                              {formatPrice(getEffectivePrice(car, 'monthly'))}
+                              <span className="text-[10px] text-slate-400 mr-1">/ شهر</span>
+                            </p>
+                            {isOfferActive(car, 'monthly') && (
+                              <p className="text-xs text-slate-400 line-through">
+                                {formatPrice(car.price_per_month)}
+                              </p>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
@@ -163,8 +172,11 @@ export function AdminCarsPage() {
                             {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
                             {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
 
-                            {isOfferActive(car) && (
-                              <Badge variant="danger">{getOfferBadge(car)}</Badge>
+                            {isOfferActive(car, 'daily') && (
+                              <Badge variant="danger">{getOfferBadge(car, 'daily')}</Badge>
+                            )}
+                            {isOfferActive(car, 'monthly') && (
+                              <Badge variant="danger">{getOfferBadge(car, 'monthly')}</Badge>
                             )}
                             {activeBlocks.length > 0 && (
                               <Badge variant="info">

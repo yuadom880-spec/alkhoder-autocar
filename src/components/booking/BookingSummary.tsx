@@ -3,7 +3,7 @@ import type { BranchRecord, Car as CarType, FeaturedOffer, RentalPeriodType } fr
 import { CarImage } from '../cars/CarImage'
 import { copy } from '../../lib/copy'
 import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/featuredOffers'
-import { isOfferActive } from '../../lib/offers'
+import { getCarOffer, isOfferActive } from '../../lib/offers'
 import {
   calcBookingTotal,
   calcMonths,
@@ -37,7 +37,8 @@ export function BookingSummary({
   const hasPromo = Boolean(promoOffer && isFeaturedOfferActive(promoOffer))
   const effectiveRentalType = hasPromo && promoOffer ? promoOffer.rental_type : rentalType
   const isMonthly = effectiveRentalType === 'monthly'
-  const hasCarOffer = !isMonthly && isOfferActive(car)
+  const hasCarOffer = isOfferActive(car, effectiveRentalType)
+  const activeCarOffer = getCarOffer(car, effectiveRentalType)
   const unitPrice = priceOverride ?? getCarDisplayPrice(car, effectiveRentalType)
   const basePrice = getCarBasePrice(car, effectiveRentalType)
   const days = startDate && endDate ? calcDays(startDate, endDate) : 0
@@ -83,10 +84,10 @@ export function BookingSummary({
         </div>
       )}
 
-      {!hasPromo && hasCarOffer && car.offer?.title && (
+      {!hasPromo && hasCarOffer && activeCarOffer?.title && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700">
           <Tag className="h-3.5 w-3.5 shrink-0" />
-          {car.offer.title}
+          {activeCarOffer.title}
         </div>
       )}
 
