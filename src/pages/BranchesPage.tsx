@@ -35,7 +35,7 @@ export function BranchesPage() {
         <div className="mb-12 overflow-hidden rounded-3xl shadow-md">
           <img
             src={PROFILE_IMAGES.branchesMap}
-            alt="شبكة فروع عبدالمجيد الخضر في المملكة"
+            alt="فروع شركة عبدالمجيد الخضر في المملكة"
             className="h-48 sm:h-64 lg:h-80 w-full object-cover object-center"
             loading="lazy"
           />

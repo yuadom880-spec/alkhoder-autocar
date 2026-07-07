@@ -1,5 +1,6 @@
 import {
   MAIN_BRANCH,
+  SITE_COMPANY_NAME,
   SITE_NAME,
   SITE_NAME_EN,
   SITE_SEO_PRIMARY,
@@ -27,7 +28,7 @@ export function getSiteOrigin(): string {
 export const SEO_BRAND_NAMES = [
   SITE_SEO_PRIMARY,
   'عبدالمجيد الخضر لتأجير السيارات',
-  'شبكة عبدالمجيد الخضر لتأجير السيارات',
+  SITE_COMPANY_NAME,
   'تأجير سيارات الخضر',
   'ايجار سيارات الخضر',
   'شركة الخضر لتأجير السيارات',
@@ -41,7 +42,7 @@ export const SEO_BRAND_NAMES = [
 export const SEO_BRAND_INTRO = {
   heading: SITE_SEO_PRIMARY,
   paragraphs: [
-    'الخضر لتأجير السيارات — شبكة عبدالمجيد الخضر سعودية موثوقة لـ تأجير سيارات الخضر وايجار السيارات يومي وشهري في أكثر من 35 فرعاً بالمملكة.',
+    'الخضر لتأجير السيارات — شركة عبدالمجيد الخضر سعودية موثوقة لـ تأجير سيارات الخضر وايجار السيارات يومي وشهري في أكثر من 35 فرعاً بالمملكة.',
     'سواء كنت تبحث عن شركة تأجير سيارات في جدة أو الرياض أو مكة أو المدينة المنورة أو ينبع أو تبوك — نوفر لك أسطولاً حديثاً، أسعاراً واضحة، وحجزاً أونلاين سهلاً.',
     'احجز الآن من موقع عبدالمجيد الخضر لتأجير السيارات واستمتع بتجربة تأجير سيارات مريحة وآمنة.',
   ],
@@ -107,10 +108,10 @@ export const SEO_KEYWORDS_TEXT = SEO_KEYWORDS.join(', ')
 export const SEO_KEYWORDS_FOOTER_TEXT = SEO_KEYWORDS.join(' · ')
 
 export const SEO_TITLE =
-  'الخضر لتأجير السيارات | شبكة عبدالمجيد الخضر — ايجار وتأجير سيارات يومي وشهري'
+  'الخضر لتأجير السيارات | شركة عبدالمجيد الخضر — ايجار وتأجير سيارات يومي وشهري'
 
 export const SEO_DESCRIPTION =
-  'شبكة عبدالمجيد الخضر لتأجير السيارات — الخضر لتأجير السيارات وتأجير سيارات الخضر في السعودية. ايجار سيارات يومي وشهري في جدة والرياض ومكة والمدينة وينبع وتبوك. احجز أونلاين.'
+  'شركة عبدالمجيد الخضر لتأجير السيارات — الخضر لتأجير السيارات وتأجير سيارات الخضر في السعودية. ايجار سيارات يومي وشهري في جدة والرياض ومكة والمدينة وينبع وتبوك. احجز أونلاين.'
 
 export interface SeoCity {
   slug: string
@@ -142,7 +143,7 @@ export const SEO_CITIES: SeoCity[] = [
       'ايجار سيارات في جدة — تأجير سيارات يومي وشهري بأسعار منافسة. احجز اونلاين من عبدالمجيد الخضر لتأجير السيارات.',
     keywords: ['ايجار سيارات جدة', 'تأجير سيارات جدة', 'ايجار سيارة في جدة'],
     intro:
-      'خدمة ايجار سيارات جدة من شبكة فروع الخضر — خيارات يومية وشهرية لرجال الأعمال والعائلات والزوار.',
+      'خدمة ايجار سيارات جدة من فروع شركة الخضر — خيارات يومية وشهرية لرجال الأعمال والعائلات والزوار.',
     highlights: ['حجز اونلاين', 'أسطول متنوع', 'دعم 24/7'],
   },
   {
@@ -232,11 +233,11 @@ export const STATIC_PAGE_SEO: Record<string, PageSeoConfig> = {
     keywords: ['عروض ايجار سيارات', 'تأجير سيارات رخيص', 'ايجار سيارات يومي'],
   },
   '/about': {
-    title: 'من نحن | شبكة عبدالمجيد الخضر لتأجير السيارات',
+    title: `من نحن | ${SITE_COMPANY_NAME}`,
     description:
-      'تعرف على شبكة عبدالمجيد الخضر لتأجير السيارات — الخضر لتأجير السيارات وتأجير سيارات الخضر في أكثر من 35 فرعاً بالمملكة.',
+      `تعرف على ${SITE_COMPANY_NAME} — الخضر لتأجير السيارات وتأجير سيارات الخضر في أكثر من 35 فرعاً بالمملكة.`,
     keywords: [
-      'شبكة عبدالمجيد الخضر لتأجير السيارات',
+      SITE_COMPANY_NAME,
       'الخضر لتأجير السيارات',
       'تأجير سيارات الخضر',
       'شركة تأجير سيارات',
@@ -334,7 +335,8 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: SITE_SEO_PRIMARY,
-    alternateName: [...SEO_BRAND_NAMES, SITE_NAME],
+    legalName: SITE_COMPANY_NAME,
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME],
     url: origin,
     logo: `${origin}/favicon-192.png`,
     description: SEO_DESCRIPTION,
@@ -361,7 +363,8 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
     '@context': 'https://schema.org',
     '@type': 'CarRental',
     name: SITE_SEO_PRIMARY,
-    alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
+    legalName: SITE_COMPANY_NAME,
+    alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
     url: origin,
     telephone: TOLL_FREE_LINK.replace('tel:', ''),
