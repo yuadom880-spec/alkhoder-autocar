@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
-import { FleetRentalSection } from '../components/cars/FleetRentalSection'
+import { CarCard } from '../components/cars/CarCard'
+import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
+import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
@@ -35,6 +37,7 @@ export function HomePage() {
   const [cars, setCars] = useState<CarType[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
+  const { rentalType, setRentalType } = useRentalPeriod()
 
   useEffect(() => {
     Promise.all([
@@ -188,7 +191,7 @@ export function HomePage() {
               <h2 className="section-title">{copy.home.featured}</h2>
               <p className="section-subtitle">{copy.home.featuredSub}</p>
             </div>
-            <Link to="/cars#daily-fleet" className="hidden sm:block">
+            <Link to={`/cars${rentalType === 'monthly' ? '?rental=monthly' : ''}`} className="hidden sm:block">
               <Button variant="outline">
                 {copy.home.viewAll}
                 <ArrowLeft className="h-4 w-4" />
@@ -196,17 +199,29 @@ export function HomePage() {
             </Link>
           </div>
 
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+            <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+          </div>
+
           {loading ? (
             <LoadingSpinner />
           ) : (
-            <div className="space-y-12 lg:space-y-16">
-              <FleetRentalSection type="daily" cars={featuredFleet} />
-              <FleetRentalSection type="monthly" cars={featuredFleet} />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredFleet.map(({ car, availability }, i) => (
+                <CarCard
+                  key={car.id}
+                  car={car}
+                  index={i}
+                  rentalType={rentalType}
+                  availability={availability}
+                />
+              ))}
             </div>
           )}
 
           <div className="mt-8 text-center sm:hidden">
-            <Link to="/cars#daily-fleet">
+            <Link to={`/cars${rentalType === 'monthly' ? '?rental=monthly' : ''}`}>
               <Button variant="outline">{copy.home.viewAll}</Button>
             </Link>
           </div>

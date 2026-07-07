@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Calendar } from 'lucide-react'
 import { BranchFilter } from '../components/cars/BranchFilter'
+import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
-import { FleetRentalSection } from '../components/cars/FleetRentalSection'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
+import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
@@ -32,7 +33,7 @@ export function CarsPage() {
   const [offersOnly, setOffersOnly] = useState(offersParam)
   const [availableOnly, setAvailableOnly] = useState(Boolean(startDate && endDate))
   const [selectedBranch, setSelectedBranch] = useState(branchParam)
-  const [activeSection, setActiveSection] = useState<'daily' | 'monthly'>('daily')
+  const { rentalType, setRentalType } = useRentalPeriod()
 
   useEffect(() => {
     setOffersOnly(offersParam)
@@ -45,16 +46,6 @@ export function CarsPage() {
   useEffect(() => {
     setSelectedBranch(branchParam)
   }, [branchParam])
-
-  useEffect(() => {
-    const hash = window.location.hash
-    if (hash === '#monthly-fleet') setActiveSection('monthly')
-    if (hash === '#daily-fleet' || hash === '#monthly-fleet') {
-      requestAnimationFrame(() => {
-        document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      })
-    }
-  }, [loading])
 
   useEffect(() => {
     Promise.all([
@@ -79,14 +70,7 @@ export function CarsPage() {
     setSearchParams(params, { replace: true })
   }
 
-  const scrollToSection = (section: 'daily' | 'monthly') => {
-    setActiveSection(section)
-    const id = section === 'daily' ? '#daily-fleet' : '#monthly-fleet'
-    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${id}`)
-  }
-
-  const baseFiltered = useMemo(() => {
+  const filtered = useMemo(() => {
     const result = cars.filter((car) => {
       if (!carMatchesBranch(car, selectedBranch || null)) return false
       const matchCategory = category === 'all' || car.category === category
@@ -105,37 +89,12 @@ export function CarsPage() {
       availability: getCarAvailability(car, blocks, startDate || undefined, endDate || undefined),
     }))
 
-    return availableOnly
+    const visible = availableOnly
       ? withAvailability.filter((item) => item.availability.available)
       : withAvailability
-  }, [cars, blocks, search, category, offersOnly, availableOnly, startDate, endDate, selectedBranch])
 
-  const hasResults = baseFiltered.length > 0
-  const dailyFleet = useMemo(() => sortFleet(baseFiltered, 'daily', sort), [baseFiltered, sort])
-  const monthlyFleet = useMemo(() => sortFleet(baseFiltered, 'monthly', sort), [baseFiltered, sort])
-
-  useEffect(() => {
-    if (loading || !hasResults) return
-
-    const dailyEl = document.getElementById('daily-fleet')
-    const monthlyEl = document.getElementById('monthly-fleet')
-    if (!dailyEl || !monthlyEl) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        if (visible[0]?.target.id === 'monthly-fleet') setActiveSection('monthly')
-        else if (visible[0]?.target.id === 'daily-fleet') setActiveSection('daily')
-      },
-      { rootMargin: '-20% 0px -55% 0px', threshold: [0, 0.25, 0.5] },
-    )
-
-    observer.observe(dailyEl)
-    observer.observe(monthlyEl)
-    return () => observer.disconnect()
-  }, [loading, hasResults])
+    return sortFleet(visible, rentalType, sort)
+  }, [cars, blocks, search, category, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, rentalType])
 
   return (
     <div className="page-shell">
@@ -166,14 +125,15 @@ export function CarsPage() {
           </div>
         )}
 
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
-            <RentalPeriodToggle value={activeSection} onChange={scrollToSection} />
-          </div>
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+          <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+          <p className="mt-3 text-xs text-slate-400">
+            {rentalType === 'daily' ? copy.cars.dailyFleetSub : copy.cars.monthlyFleetSub}
+          </p>
         </div>
 
-        <div className="mb-10 space-y-4">
+        <div className="mb-8 space-y-4">
           <CarFilters
             search={search}
             onSearchChange={setSearch}
@@ -221,7 +181,7 @@ export function CarsPage() {
 
         {loading ? (
           <LoadingSpinner />
-        ) : !hasResults ? (
+        ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-md">
             <p className="text-slate-500">
               {selectedBranch ? copy.cars.noCarsInBranch : copy.cars.noResults}
@@ -231,21 +191,19 @@ export function CarsPage() {
             )}
           </div>
         ) : (
-          <div className="space-y-14 lg:space-y-20">
-            <FleetRentalSection
-              type="daily"
-              cars={dailyFleet}
-              startDate={startDate}
-              endDate={endDate}
-              branchId={selectedBranch || undefined}
-            />
-            <FleetRentalSection
-              type="monthly"
-              cars={monthlyFleet}
-              startDate={startDate}
-              endDate={endDate}
-              branchId={selectedBranch || undefined}
-            />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map(({ car, availability }, i) => (
+              <CarCard
+                key={car.id}
+                car={car}
+                index={i}
+                startDate={startDate}
+                endDate={endDate}
+                branchId={selectedBranch || undefined}
+                rentalType={rentalType}
+                availability={availability}
+              />
+            ))}
           </div>
         )}
       </div>
