@@ -35,6 +35,7 @@ export const copy = {
     searchCars: 'ابحث عن سيارة',
     newTigo7Pro: 'جديدنا — تيجو 7 برو',
     newTigo7ProSub: 'SUV عائلي — راحة وأداء على الطريق',
+    brandVideoTitle: 'الخضر للسيارات',
   },
   features: [
     { title: 'أسطول متنوع', desc: 'سيارات اقتصادية وفاخرة وعائلية — على كيفك' },

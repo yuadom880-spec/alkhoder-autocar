@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import { Button } from '../ui/Button'
-import { NEW_TIGO_7_PRO_IMAGE, SUMMER_VIDEO } from '../../lib/constants'
+import { BRAND_VIDEO, NEW_TIGO_7_PRO_IMAGE } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 
 export function NewTigo7ProSection() {
@@ -55,10 +55,10 @@ export function NewTigo7ProSection() {
 
           <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-lg ring-1 ring-black/5">
             <div className="border-b border-white/10 bg-gradient-to-l from-brand-navy via-brand-dark to-brand-slate px-4 py-4 text-center sm:px-6">
-              <p className="text-lg font-bold text-white sm:text-xl">عروض إجازة الصيف</p>
+              <p className="text-lg font-bold text-white sm:text-xl">{copy.home.brandVideoTitle}</p>
             </div>
             <video
-              src={SUMMER_VIDEO}
+              src={BRAND_VIDEO}
               controls
               playsInline
               preload="metadata"
