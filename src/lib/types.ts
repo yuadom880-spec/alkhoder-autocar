@@ -1,12 +1,10 @@
 export type CarCategory =
   | 'sedan'
+  | 'hatchback'
   | 'crossover'
   | 'suv'
-  | 'family'
-  | 'pickup'
   | 'van'
-  | 'sports'
-  | 'luxury'
+  | 'pickup'
 
 export type BookingStatus = 'pending' | 'confirmed' | 'rejected' | 'completed' | 'cancelled'
 

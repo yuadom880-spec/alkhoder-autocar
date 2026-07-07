@@ -1,11 +1,12 @@
--- ترحيل تصنيفات السيارات إلى الفئات الجديدة
--- نفّذ في Supabase SQL Editor بعد التحديث
+-- ترحيل تصنيفات السيارات
+-- نفّذ في Supabase SQL Editor
 
 UPDATE cars SET category = 'sedan' WHERE category = 'economy';
-UPDATE cars SET category = 'family' WHERE category = 'van';
+UPDATE cars SET category = 'suv' WHERE category IN ('family', 'luxury');
+UPDATE cars SET category = 'sedan' WHERE category = 'sports';
 
 ALTER TABLE cars DROP CONSTRAINT IF EXISTS cars_category_check;
 
 ALTER TABLE cars
   ADD CONSTRAINT cars_category_check
-  CHECK (category IN ('sedan', 'crossover', 'suv', 'family', 'pickup', 'van', 'sports', 'luxury'));
+  CHECK (category IN ('sedan', 'hatchback', 'crossover', 'suv', 'van', 'pickup'));

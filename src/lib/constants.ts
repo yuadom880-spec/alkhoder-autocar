@@ -116,28 +116,27 @@ export const NAV_LINKS = [
 
 export const CAR_CATEGORIES: CarCategory[] = [
   'sedan',
+  'hatchback',
   'crossover',
   'suv',
-  'family',
-  'pickup',
   'van',
-  'sports',
-  'luxury',
+  'pickup',
 ]
 
 export const CATEGORY_LABELS: Record<CarCategory, string> = {
   sedan: 'سيدان',
+  hatchback: 'هاتشباك',
   crossover: 'كروس أوفر',
-  suv: 'SUV (دفع رباعي)',
-  family: 'عائلية',
-  pickup: 'بيك أب',
+  suv: 'SUV',
   van: 'فان',
-  sports: 'رياضية',
-  luxury: 'فاخرة',
+  pickup: 'بيك أب',
 }
 
 const LEGACY_CATEGORY_LABELS: Record<string, string> = {
   economy: 'سيدان',
+  family: 'SUV',
+  luxury: 'SUV',
+  sports: 'سيدان',
 }
 
 export function getCategoryLabel(category: string): string {
@@ -245,7 +244,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'شيفرولية',
     model: 'كابتيفا',
     year: 2026,
-    category: 'family',
+    category: 'suv',
     price_per_day: 180,
     price_per_month: 4500,
     image_url: asset('شيفرولية-كابتيفا٢٠٢٦.jpg.jpeg'),
@@ -311,7 +310,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'شيفرولية',
     model: 'تاهو',
     year: 2023,
-    category: 'luxury',
+    category: 'suv',
     price_per_day: 450,
     price_per_month: 11250,
     image_url: asset('تاهو-٢٠٢٣-بني-غامق.jpg.jpeg'),
