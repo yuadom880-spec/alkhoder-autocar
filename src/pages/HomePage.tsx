@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
-import { CarCard } from '../components/cars/CarCard'
+import { FleetRentalSection } from '../components/cars/FleetRentalSection'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
@@ -48,6 +48,18 @@ export function HomePage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
+
+  const featuredFleet = useMemo(
+    () =>
+      cars
+        .filter((c) => c.is_featured)
+        .slice(0, 6)
+        .map((car) => ({
+          car,
+          availability: getCarAvailability(car, blocks),
+        })),
+    [cars, blocks],
+  )
 
   return (
     <>
@@ -176,7 +188,7 @@ export function HomePage() {
               <h2 className="section-title">{copy.home.featured}</h2>
               <p className="section-subtitle">{copy.home.featuredSub}</p>
             </div>
-            <Link to="/cars" className="hidden sm:block">
+            <Link to="/cars#daily-fleet" className="hidden sm:block">
               <Button variant="outline">
                 {copy.home.viewAll}
                 <ArrowLeft className="h-4 w-4" />
@@ -187,20 +199,14 @@ export function HomePage() {
           {loading ? (
             <LoadingSpinner />
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {cars.map((car, i) => (
-                <CarCard
-                  key={car.id}
-                  car={car}
-                  index={i}
-                  availability={getCarAvailability(car, blocks)}
-                />
-              ))}
+            <div className="space-y-12 lg:space-y-16">
+              <FleetRentalSection type="daily" cars={featuredFleet} />
+              <FleetRentalSection type="monthly" cars={featuredFleet} />
             </div>
           )}
 
           <div className="mt-8 text-center sm:hidden">
-            <Link to="/cars">
+            <Link to="/cars#daily-fleet">
               <Button variant="outline">{copy.home.viewAll}</Button>
             </Link>
           </div>
