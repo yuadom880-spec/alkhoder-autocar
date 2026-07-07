@@ -52,15 +52,12 @@ export function HomePage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const featuredFleet = useMemo(
+  const fleetCars = useMemo(
     () =>
-      cars
-        .filter((c) => c.is_featured)
-        .slice(0, 6)
-        .map((car) => ({
-          car,
-          availability: getCarAvailability(car, blocks),
-        })),
+      cars.map((car) => ({
+        car,
+        availability: getCarAvailability(car, blocks),
+      })),
     [cars, blocks],
   )
 
@@ -186,17 +183,9 @@ export function HomePage() {
 
       <section className="bg-white py-16 lg:py-20">
         <div className="container-main">
-          <div className="mb-10 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="section-title">{copy.home.featured}</h2>
-              <p className="section-subtitle">{copy.home.featuredSub}</p>
-            </div>
-            <Link to={`/cars${rentalType === 'monthly' ? '?rental=monthly' : ''}`} className="hidden sm:block">
-              <Button variant="outline">
-                {copy.home.viewAll}
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
+          <div className="mb-10">
+            <h2 className="section-title">{copy.home.featured}</h2>
+            <p className="section-subtitle">{copy.home.featuredSub}</p>
           </div>
 
           <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -208,7 +197,7 @@ export function HomePage() {
             <LoadingSpinner />
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredFleet.map(({ car, availability }, i) => (
+              {fleetCars.map(({ car, availability }, i) => (
                 <CarCard
                   key={car.id}
                   car={car}
@@ -220,11 +209,6 @@ export function HomePage() {
             </div>
           )}
 
-          <div className="mt-8 text-center sm:hidden">
-            <Link to={`/cars${rentalType === 'monthly' ? '?rental=monthly' : ''}`}>
-              <Button variant="outline">{copy.home.viewAll}</Button>
-            </Link>
-          </div>
         </div>
       </section>
 
