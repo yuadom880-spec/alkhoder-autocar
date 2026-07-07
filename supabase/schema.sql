@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS cars (
   brand TEXT NOT NULL,
   model TEXT NOT NULL,
   year INTEGER NOT NULL,
-  category TEXT NOT NULL CHECK (category IN ('sedan', 'suv', 'luxury', 'economy', 'van')),
+  category TEXT NOT NULL CHECK (category IN ('sedan', 'crossover', 'suv', 'family', 'pickup', 'van', 'sports', 'luxury')),
   price_per_day NUMERIC(10,2) NOT NULL,
   image_url TEXT NOT NULL,
   images JSONB DEFAULT '[]'::jsonb,

@@ -1,4 +1,12 @@
-export type CarCategory = 'sedan' | 'suv' | 'luxury' | 'economy' | 'van'
+export type CarCategory =
+  | 'sedan'
+  | 'crossover'
+  | 'suv'
+  | 'family'
+  | 'pickup'
+  | 'van'
+  | 'sports'
+  | 'luxury'
 
 export type BookingStatus = 'pending' | 'confirmed' | 'rejected' | 'completed' | 'cancelled'
 

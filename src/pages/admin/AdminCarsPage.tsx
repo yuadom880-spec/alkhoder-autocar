@@ -5,7 +5,7 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
-import { CATEGORY_LABELS } from '../../lib/constants'
+import { getCategoryLabel } from '../../lib/constants'
 import { getCarBlocks } from '../../lib/availability'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { deleteCar, fetchBookingBlocks, fetchBranches, fetchCars, updateCar } from '../../lib/supabase'
@@ -131,7 +131,7 @@ export function AdminCarsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge>{CATEGORY_LABELS[car.category]}</Badge>
+                          <Badge>{getCategoryLabel(car.category)}</Badge>
                         </td>
                         <td className="px-4 py-3">
                           {isOfferActive(car) ? (

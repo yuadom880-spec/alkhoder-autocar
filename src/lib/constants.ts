@@ -114,12 +114,34 @@ export const NAV_LINKS = [
   { path: '/branches', label: 'فروعنا' },
 ]
 
+export const CAR_CATEGORIES: CarCategory[] = [
+  'sedan',
+  'crossover',
+  'suv',
+  'family',
+  'pickup',
+  'van',
+  'sports',
+  'luxury',
+]
+
 export const CATEGORY_LABELS: Record<CarCategory, string> = {
   sedan: 'سيدان',
-  suv: 'دفع رباعي',
+  crossover: 'كروس أوفر',
+  suv: 'SUV (دفع رباعي)',
+  family: 'عائلية',
+  pickup: 'بيك أب',
+  van: 'فان',
+  sports: 'رياضية',
   luxury: 'فاخرة',
-  economy: 'اقتصادية',
-  van: 'عائلية',
+}
+
+const LEGACY_CATEGORY_LABELS: Record<string, string> = {
+  economy: 'سيدان',
+}
+
+export function getCategoryLabel(category: string): string {
+  return CATEGORY_LABELS[category as CarCategory] ?? LEGACY_CATEGORY_LABELS[category] ?? category
 }
 
 export const BOOKING_STATUS_LABELS = {
@@ -137,7 +159,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'نيسان',
     model: 'كيكس',
     year: 2025,
-    category: 'suv',
+    category: 'crossover',
     price_per_day: 160,
     image_url: asset('نيسان-كيكس-٢٠٢٥-ابيض-ستوري.jpg.jpeg'),
     images: [
@@ -181,7 +203,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'شيري',
     model: 'أريزو 5',
     year: 2024,
-    category: 'economy',
+    category: 'sedan',
     price_per_day: 95,
     image_url: asset('اريزو ٥ ابيض ٢٠٢٤.jpg.jpeg'),
     images: [asset('اريزو ٥ ابيض ٢٠٢٤.jpg.jpeg')],
@@ -219,7 +241,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'شيفرولية',
     model: 'كابتيفا',
     year: 2026,
-    category: 'suv',
+    category: 'family',
     price_per_day: 180,
     image_url: asset('شيفرولية-كابتيفا٢٠٢٦.jpg.jpeg'),
     images: [
@@ -241,7 +263,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'فوتون',
     model: 'غمارة',
     year: 2026,
-    category: 'van',
+    category: 'pickup',
     price_per_day: 220,
     image_url: asset('فوتون-غمارة-٢٠٢٦.jpg.jpeg'),
     images: [asset('فوتون-غمارة-٢٠٢٦.jpg.jpeg')],
@@ -260,7 +282,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'لينك آند كو',
     model: '03',
     year: 2024,
-    category: 'suv',
+    category: 'crossover',
     price_per_day: 200,
     image_url: asset('لينك-اند-كو-03-ابيض2024.jpg.jpeg'),
     images: [
@@ -324,7 +346,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'أومودا',
     model: 'C5',
     year: 2026,
-    category: 'suv',
+    category: 'crossover',
     price_per_day: 190,
     image_url: asset('امودا-سي-٥-ابيض-٢٠٢٦.jpg.jpeg'),
     images: [asset('امودا-سي-٥-ابيض-٢٠٢٦.jpg.jpeg')],
@@ -362,7 +384,7 @@ export const DEMO_CARS: Car[] = [
     brand: 'تويوتا',
     model: 'يارس',
     year: 2024,
-    category: 'economy',
+    category: 'sedan',
     price_per_day: 100,
     image_url: asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg'),
     images: [asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg')],

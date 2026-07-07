@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Car, CarCategory, CarFormData } from '../../lib/types'
-import { CATEGORY_LABELS } from '../../lib/constants'
+import { CAR_CATEGORIES, CATEGORY_LABELS } from '../../lib/constants'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
 import { CarOfferForm } from './CarOfferForm'
@@ -115,9 +115,9 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             value={form.category}
             onChange={(e) => update('category', e.target.value as CarCategory)}
           >
-            {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
+            {CAR_CATEGORIES.map((k) => (
               <option key={k} value={k}>
-                {v}
+                {CATEGORY_LABELS[k]}
               </option>
             ))}
           </select>

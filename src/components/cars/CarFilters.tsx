@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
 import type { CarCategory } from '../../lib/types'
-import { CATEGORY_LABELS } from '../../lib/constants'
+import { CAR_CATEGORIES, CATEGORY_LABELS } from '../../lib/constants'
 import { cn } from '../../lib/utils'
 
 interface CarFiltersProps {
@@ -12,9 +12,9 @@ interface CarFiltersProps {
 
 const categories: { value: CarCategory | 'all'; label: string }[] = [
   { value: 'all', label: 'الكل' },
-  ...Object.entries(CATEGORY_LABELS).map(([value, label]) => ({
-    value: value as CarCategory,
-    label,
+  ...CAR_CATEGORIES.map((value) => ({
+    value,
+    label: CATEGORY_LABELS[value],
   })),
 ]
 
