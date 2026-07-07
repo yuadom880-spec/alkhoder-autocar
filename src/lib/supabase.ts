@@ -21,11 +21,14 @@ import type {
   FeaturedOffer,
   FeaturedOfferFormData,
 } from './types'
-import { calcDays, calcTotalPrice } from './utils'
+import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
+import { calcDays } from './utils'
+import type { RentalPeriodType } from './types'
 
 function normalizeCar(car: Car): Car {
   const branch_ids = Array.isArray(car.branch_ids) ? car.branch_ids : []
-  return { ...car, offer: car.offer ?? null, branch_ids }
+  const price_per_month = car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)
+  return { ...car, offer: car.offer ?? null, branch_ids, price_per_month }
 }
 
 function prepareCarForm(form: CarFormData): CarFormData {
@@ -80,7 +83,7 @@ const STORAGE_BUCKET = 'car-images'
 const DEMO_BOOKINGS_KEY = 'alkhoder_demo_bookings'
 const DEMO_CARS_KEY = 'alkhoder_demo_cars'
 const DEMO_CARS_VERSION_KEY = 'alkhoder_demo_cars_version'
-const DEMO_CARS_VERSION = '3'
+const DEMO_CARS_VERSION = '4'
 const DEMO_OFFERS_KEY = 'alkhoder_demo_offers'
 const DEMO_OFFERS_VERSION_KEY = 'alkhoder_demo_offers_version'
 const DEMO_OFFERS_VERSION = '2'
@@ -381,6 +384,7 @@ export async function fetchBookingBlocks(carId?: string): Promise<BookingBlock[]
 function normalizeBooking(booking: Booking): Booking {
   return {
     ...booking,
+    rental_type: booking.rental_type ?? 'daily',
     pickup_time: booking.pickup_time ?? null,
     promo_offer_id: booking.promo_offer_id ?? null,
     promo_title: booking.promo_title ?? null,
@@ -394,7 +398,7 @@ function normalizeBooking(booking: Booking): Booking {
 export async function createBooking(
   carId: string,
   form: BookingFormData,
-  pricePerDay: number,
+  unitPrice: number,
   meta: CreateBookingMeta = {},
 ): Promise<Booking> {
   const car = await fetchCarById(carId)
@@ -408,8 +412,9 @@ export async function createBooking(
   const check = canBookCar(car, blocks, form.start_date, form.end_date)
   if (!check.ok) throw new Error(check.message ?? 'السيارة غير متاحة في هذه الفترة')
 
+  const rentalType: RentalPeriodType = meta.rentalType ?? 'daily'
   const totalDays = calcDays(form.start_date, form.end_date)
-  const totalPrice = calcTotalPrice(pricePerDay, form.start_date, form.end_date)
+  const totalPrice = calcBookingTotal(unitPrice, form.start_date, form.end_date, rentalType)
   const now = new Date().toISOString()
   const id = crypto.randomUUID()
 
@@ -423,7 +428,8 @@ export async function createBooking(
     start_date: form.start_date,
     end_date: form.end_date,
     total_days: totalDays,
-    price_per_day: pricePerDay,
+    rental_type: rentalType,
+    price_per_day: unitPrice,
     total_price: totalPrice,
     status: 'pending',
     pickup_time: form.pickup_time || null,
@@ -456,7 +462,8 @@ export async function createBooking(
     start_date: form.start_date,
     end_date: form.end_date,
     total_days: totalDays,
-    price_per_day: pricePerDay,
+    rental_type: rentalType,
+    price_per_day: unitPrice,
     total_price: totalPrice,
     status: 'pending',
     pickup_time: form.pickup_time || null,

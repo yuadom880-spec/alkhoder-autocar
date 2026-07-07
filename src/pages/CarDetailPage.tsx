@@ -10,12 +10,15 @@ import { copy } from '../lib/copy'
 import { buildBookingQuery } from '../lib/branchFilter'
 import { getCarAvailability } from '../lib/availability'
 import { PromoOfferBanner } from '../components/offers/PromoOfferBanner'
-import { getFeaturedOfferPriceLabel, getPromoPricePerDay } from '../lib/featuredOffers'
+import { getFeaturedOfferPriceLabel } from '../lib/featuredOffers'
 import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
 import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
-import { getEffectivePrice, isOfferActive } from '../lib/offers'
+import { isOfferActive } from '../lib/offers'
+import { getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
+import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
+import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { formatDate, formatPrice } from '../lib/utils'
 
 export function CarDetailPage() {
@@ -31,11 +34,12 @@ export function CarDetailPage() {
   const start = searchParams.get('start') ?? ''
   const end = searchParams.get('end') ?? ''
   const branch = searchParams.get('branch') ?? ''
+  const { rentalType, setRentalType } = useRentalPeriod()
 
   const bookUrl = useMemo(
     () =>
-      `/book/${id}${buildBookingQuery({ branch, start, end, promo: promoId })}`,
-    [id, start, end, promoId, branch],
+      `/book/${id}${buildBookingQuery({ branch, start, end, promo: promoId, rental: rentalType })}`,
+    [id, start, end, promoId, branch, rentalType],
   )
 
   useEffect(() => {
@@ -73,7 +77,15 @@ export function CarDetailPage() {
 
   const images = car.images.length > 0 ? car.images : [car.image_url]
   const canBook = availability?.available ?? false
-  const displayPrice = promoOffer ? getPromoPricePerDay(promoOffer, car) : getEffectivePrice(car)
+  const displayPrice =
+    promoOffer && promoOffer.price > 0
+      ? promoOffer.price
+      : getCarDisplayPrice(car, rentalType)
+  const priceUnit = promoOffer
+    ? promoOffer.rental_type === 'monthly'
+      ? copy.cars.perMonth
+      : copy.cars.perDay
+    : getPriceUnitLabel(rentalType)
   const hasPromoPrice = Boolean(promoOffer && promoOffer.price > 0)
 
   const unavailableMessage =
@@ -157,7 +169,14 @@ export function CarDetailPage() {
                 </p>
               )}
 
-              <div className={`mb-6 rounded-xl p-4 border ${hasPromoPrice || isOfferActive(car) ? 'bg-red-50 border-red-200' : 'bg-brand-green/5 border-brand-green/20'}`}>
+              {!promoOffer && (
+                <div className="mb-4">
+                  <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+                  <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+                </div>
+              )}
+
+              <div className={`mb-6 rounded-xl p-4 border ${hasPromoPrice || (rentalType === 'daily' && isOfferActive(car)) ? 'bg-red-50 border-red-200' : 'bg-brand-green/5 border-brand-green/20'}`}>
                 {promoOffer?.title && (
                   <p className="text-sm font-bold text-red-600 mb-2">{promoOffer.title}</p>
                 )}
@@ -175,12 +194,16 @@ export function CarDetailPage() {
                       </p>
                     ) : (
                       <p className="text-sm text-slate-400 line-through mt-1">
-                        {formatPrice(car.price_per_day)}
+                        {formatPrice(
+                          promoOffer.rental_type === 'monthly'
+                            ? car.price_per_month
+                            : car.price_per_day,
+                        )}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <CarPrice car={car} size="lg" showSavings />
+                  <CarPrice car={car} size="lg" showSavings rentalType={rentalType} />
                 )}
                 {promoOffer?.description && (
                   <p className="text-xs text-slate-500 mt-2">{promoOffer.description}</p>
@@ -242,8 +265,8 @@ export function CarDetailPage() {
           <div className="flex items-center justify-between gap-4 mb-3">
             <div className="min-w-0">
               <p className="text-xs text-slate-500 truncate">{car.name}</p>
-              <p className={`font-bold ${hasPromoPrice || isOfferActive(car) ? 'text-red-600' : 'text-brand-green'}`}>
-                {formatPrice(displayPrice)}{copy.cars.perDay}
+              <p className={`font-bold ${hasPromoPrice || (rentalType === 'daily' && isOfferActive(car)) ? 'text-red-600' : 'text-brand-green'}`}>
+                {formatPrice(displayPrice)}{priceUnit}
               </p>
             </div>
           </div>

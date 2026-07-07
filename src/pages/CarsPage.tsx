@@ -4,12 +4,15 @@ import { Calendar } from 'lucide-react'
 import { BranchFilter } from '../components/cars/BranchFilter'
 import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
+import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
+import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
 import { formatDate } from '../lib/utils'
 import { isOfferActive } from '../lib/offers'
+import { getSortPrice } from '../lib/pricing'
 import { fetchBookingBlocks, fetchBranches, fetchCars } from '../lib/supabase'
 import type { BookingBlock, BranchRecord, Car, CarCategory } from '../lib/types'
 
@@ -32,6 +35,7 @@ export function CarsPage() {
   const [offersOnly, setOffersOnly] = useState(offersParam)
   const [availableOnly, setAvailableOnly] = useState(Boolean(startDate && endDate))
   const [selectedBranch, setSelectedBranch] = useState(branchParam)
+  const { rentalType, setRentalType } = useRentalPeriod()
 
   useEffect(() => {
     setOffersOnly(offersParam)
@@ -92,10 +96,14 @@ export function CarsPage() {
       : withAvailability
 
     if (sort === 'price-asc') {
-      visible = [...visible].sort((a, b) => a.car.price_per_day - b.car.price_per_day)
+      visible = [...visible].sort(
+        (a, b) => getSortPrice(a.car, rentalType) - getSortPrice(b.car, rentalType),
+      )
     }
     if (sort === 'price-desc') {
-      visible = [...visible].sort((a, b) => b.car.price_per_day - a.car.price_per_day)
+      visible = [...visible].sort(
+        (a, b) => getSortPrice(b.car, rentalType) - getSortPrice(a.car, rentalType),
+      )
     }
     if (sort === 'default') {
       visible = [...visible].sort((a, b) => {
@@ -107,7 +115,7 @@ export function CarsPage() {
     }
 
     return visible
-  }, [cars, blocks, search, category, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch])
+  }, [cars, blocks, search, category, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, rentalType])
 
   return (
     <div className="page-shell">
@@ -137,6 +145,13 @@ export function CarsPage() {
             </span>
           </div>
         )}
+
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+            <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+          </div>
+        </div>
 
         <div className="mb-8 space-y-4">
           <CarFilters
@@ -205,6 +220,7 @@ export function CarsPage() {
                 startDate={startDate}
                 endDate={endDate}
                 branchId={selectedBranch || undefined}
+                rentalType={rentalType}
                 availability={availability}
               />
             ))}

@@ -29,6 +29,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     year: initial?.year ?? new Date().getFullYear(),
     category: initial?.category ?? 'sedan',
     price_per_day: initial?.price_per_day ?? 100,
+    price_per_month: initial?.price_per_month ?? 2500,
     image_url: initial?.image_url ?? '',
     images: initial?.images ?? [],
     specs: initial?.specs ?? defaultSpecs,
@@ -123,12 +124,21 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           </select>
         </div>
         <div>
-          <label className="label-field">السعر / يوم (ر.س)</label>
+          <label className="label-field">السعر اليومي (ر.س)</label>
           <input
             type="number"
             className="input-field"
             value={form.price_per_day}
             onChange={(e) => update('price_per_day', Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <label className="label-field">السعر الشهري (ر.س)</label>
+          <input
+            type="number"
+            className="input-field"
+            value={form.price_per_month}
+            onChange={(e) => update('price_per_month', Number(e.target.value))}
           />
         </div>
       </div>

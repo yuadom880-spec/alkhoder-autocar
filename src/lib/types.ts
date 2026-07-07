@@ -40,6 +40,7 @@ export interface Car {
   year: number
   category: CarCategory
   price_per_day: number
+  price_per_month: number
   image_url: string
   images: string[]
   specs: CarSpecs
@@ -60,6 +61,7 @@ export interface CarFormData {
   year: number
   category: CarCategory
   price_per_day: number
+  price_per_month: number
   image_url: string
   images: string[]
   specs: CarSpecs
@@ -80,6 +82,7 @@ export interface Booking {
   start_date: string
   end_date: string
   total_days: number
+  rental_type: RentalPeriodType
   price_per_day: number
   total_price: number
   status: BookingStatus
@@ -114,6 +117,7 @@ export interface CreateBookingMeta {
   branchName?: string | null
   branchCity?: string | null
   branchPhone?: string | null
+  rentalType?: RentalPeriodType
 }
 
 /** فترة حجز بدون بيانات العميل — للتحقق من التوفر */

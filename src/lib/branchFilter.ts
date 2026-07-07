@@ -42,6 +42,7 @@ export interface BookingQueryParams {
   start?: string | null
   end?: string | null
   promo?: string | null
+  rental?: string | null
 }
 
 export function buildBookingQuery(params: BookingQueryParams): string {
@@ -50,6 +51,7 @@ export function buildBookingQuery(params: BookingQueryParams): string {
   if (params.start) sp.set('start', params.start)
   if (params.end) sp.set('end', params.end)
   if (params.promo) sp.set('promo', params.promo)
+  if (params.rental === 'monthly') sp.set('rental', 'monthly')
   const qs = sp.toString()
   return qs ? `?${qs}` : ''
 }

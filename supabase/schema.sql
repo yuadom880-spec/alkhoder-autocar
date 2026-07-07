@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS cars (
   year INTEGER NOT NULL,
   category TEXT NOT NULL CHECK (category IN ('sedan', 'crossover', 'suv', 'family', 'pickup', 'van', 'sports', 'luxury')),
   price_per_day NUMERIC(10,2) NOT NULL,
+  price_per_month NUMERIC(10,2) NOT NULL DEFAULT 0,
   image_url TEXT NOT NULL,
   images JSONB DEFAULT '[]'::jsonb,
   specs JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -49,6 +50,10 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_time TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_offer_id TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_title TEXT DEFAULT NULL;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS price_per_month NUMERIC(10,2);
+UPDATE cars SET price_per_month = ROUND(price_per_day * 25, 2) WHERE price_per_month IS NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS rental_type TEXT NOT NULL DEFAULT 'daily'
+  CHECK (rental_type IN ('daily', 'monthly'));
 
 -- جدول العروض المميزة (يومي / شهري)
 CREATE TABLE IF NOT EXISTS featured_offers (

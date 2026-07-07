@@ -97,7 +97,8 @@ export function AdminCarsPage() {
                     <th className="px-4 py-3 text-right font-medium">السيارة</th>
                     <th className="px-4 py-3 text-right font-medium">الفروع</th>
                     <th className="px-4 py-3 text-right font-medium">الفئة</th>
-                    <th className="px-4 py-3 text-right font-medium">السعر</th>
+                    <th className="px-4 py-3 text-right font-medium">السعر اليومي</th>
+                    <th className="px-4 py-3 text-right font-medium">السعر الشهري</th>
                     <th className="px-4 py-3 text-right font-medium">التوفر</th>
                     <th className="px-4 py-3 text-right font-medium">إجراءات</th>
                   </tr>
@@ -146,6 +147,9 @@ export function AdminCarsPage() {
                           ) : (
                             <span className="font-medium">{formatPrice(car.price_per_day)}</span>
                           )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-medium">{formatPrice(car.price_per_month)}</span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">

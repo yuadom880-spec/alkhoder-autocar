@@ -9,8 +9,10 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { buildBookingQuery, carMatchesBranch, findBranch, getBranchesForCar } from '../lib/branchFilter'
 import { canBookCar } from '../lib/availability'
 import { copy } from '../lib/copy'
-import { getPromoPricePerDay } from '../lib/featuredOffers'
-import { getEffectivePrice } from '../lib/offers'
+import { isFeaturedOfferActive } from '../lib/featuredOffers'
+import { getCarDisplayPrice, parseRentalType } from '../lib/pricing'
+import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
+import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { notifyBookingPending } from '../lib/bookingWhatsApp'
 import {
   createBooking,
@@ -36,6 +38,7 @@ export function BookingPage() {
   const branchId = searchParams.get('branch') ?? ''
   const startDate = searchParams.get('start') ?? ''
   const endDate = searchParams.get('end') ?? ''
+  const { rentalType, setRentalType } = useRentalPeriod()
   const [dates, setDates] = useState({ start: startDate, end: endDate })
   const [pickupTime, setPickupTime] = useState('')
   const [selectedBranch, setSelectedBranch] = useState<BranchRecord | null>(null)
@@ -120,11 +123,18 @@ export function BookingPage() {
     }
   }, [id, promoId, branchId, navigate, startDate, endDate])
 
-  const pricePerDay = useMemo(() => {
+  const effectiveRentalType = useMemo(() => {
+    if (promoOffer?.rental_type === 'monthly') return 'monthly' as const
+    return parseRentalType(searchParams.get('rental'))
+  }, [promoOffer, searchParams])
+
+  const unitPrice = useMemo(() => {
     if (!car) return 0
-    if (promoOffer) return getPromoPricePerDay(promoOffer, car)
-    return getEffectivePrice(car)
-  }, [car, promoOffer])
+    if (promoOffer && isFeaturedOfferActive(promoOffer) && promoOffer.price > 0) {
+      return promoOffer.price
+    }
+    return getCarDisplayPrice(car, effectiveRentalType)
+  }, [car, promoOffer, effectiveRentalType])
 
   const bookingCheck = useMemo(() => {
     if (!car || !dates.start || !dates.end) return null
@@ -153,7 +163,7 @@ export function BookingPage() {
 
   const backLink = promoOffer
     ? '/offers'
-    : `/cars/${car.id}${buildBookingQuery({ branch: branchId, start: startDate, end: endDate })}`
+    : `/cars/${car.id}${buildBookingQuery({ branch: branchId, start: startDate, end: endDate, rental: effectiveRentalType })}`
   const pageTitle = promoOffer ? copy.booking.promoBooking : copy.booking.title
   const pageSubtitle = promoOffer ? copy.booking.promoBookingSub : copy.booking.subtitle
 
@@ -180,13 +190,19 @@ export function BookingPage() {
           {promoOffer?.rental_type === 'monthly' && (
             <p className="mt-2 text-sm text-red-600 font-medium">{copy.offers.monthlyHint}</p>
           )}
+          {!promoOffer && (
+            <div className="mt-4">
+              <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+              <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+            </div>
+          )}
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
           <div className="order-2 lg:order-1 lg:col-span-3">
             <div className="rounded-2xl bg-white p-4 shadow-md sm:p-6">
               <BookingForm
-                pricePerDay={pricePerDay}
+                pricePerDay={unitPrice}
                 initialStartDate={dates.start}
                 initialEndDate={dates.end}
                 multiStep
@@ -203,13 +219,14 @@ export function BookingPage() {
                   if (availableBranches.length > 0 && !selectedBranch) {
                     throw new Error(copy.booking.errors.pickupBranch)
                   }
-                  const booking = await createBooking(car.id, data, pricePerDay, {
+                  const booking = await createBooking(car.id, data, unitPrice, {
                     promoOfferId: promoOffer?.id ?? null,
                     promoTitle: promoOffer?.title ?? null,
                     branchId: selectedBranch?.id ?? null,
                     branchName: selectedBranch?.name ?? null,
                     branchCity: selectedBranch?.city ?? null,
                     branchPhone: selectedBranch?.phone ?? null,
+                    rentalType: effectiveRentalType,
                   })
                   const notify = await notifyBookingPending(
                     { ...booking, car },
@@ -228,7 +245,8 @@ export function BookingPage() {
               endDate={dates.end}
               pickupTime={pickupTime}
               promoOffer={promoOffer}
-              pricePerDay={pricePerDay}
+              unitPrice={unitPrice}
+              rentalType={effectiveRentalType}
               branch={selectedBranch}
             />
           </div>

@@ -146,7 +146,10 @@ export function BookingAdminCard({
               <div>
                 <p className="text-xs text-slate-400 flex items-center gap-1"><Car className="h-3 w-3" /> السيارة</p>
                 <p className="font-bold text-brand-dark">{b.car?.name ?? '—'}</p>
-                <p className="text-xs text-slate-500">{formatPrice(b.price_per_day)} / يوم</p>
+                <p className="text-xs text-slate-500">
+                  {formatPrice(b.price_per_day)}
+                  {b.rental_type === 'monthly' ? ' / شهر' : ' / يوم'}
+                </p>
               </div>
             </div>
 

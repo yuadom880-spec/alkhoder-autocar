@@ -1,9 +1,11 @@
-import type { Car } from '../../lib/types'
+import type { Car, RentalPeriodType } from '../../lib/types'
 import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
+import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../../lib/pricing'
 import { cn, formatPrice } from '../../lib/utils'
 
 interface CarPriceProps {
   car: Car
+  rentalType?: RentalPeriodType
   size?: 'sm' | 'md' | 'lg'
   showSavings?: boolean
   className?: string
@@ -15,11 +17,21 @@ const sizes = {
   lg: { price: 'text-3xl', old: 'text-base', sub: 'text-sm' },
 }
 
-export function CarPrice({ car, size = 'md', showSavings = false, className }: CarPriceProps) {
+export function CarPrice({
+  car,
+  rentalType = 'daily',
+  size = 'md',
+  showSavings = false,
+  className,
+}: CarPriceProps) {
   const s = sizes[size]
-  const hasOffer = isOfferActive(car)
-  const effective = getEffectivePrice(car)
+  const isMonthly = rentalType === 'monthly'
+  const basePrice = getCarBasePrice(car, rentalType)
+  const displayPrice = getCarDisplayPrice(car, rentalType)
+  const hasOffer = !isMonthly && isOfferActive(car)
+  const effective = isMonthly ? basePrice : getEffectivePrice(car)
   const badge = getOfferBadge(car)
+  const unitLabel = getPriceUnitLabel(rentalType)
 
   return (
     <div className={cn('text-left shrink-0', className)}>
@@ -39,9 +51,9 @@ export function CarPrice({ car, size = 'md', showSavings = false, className }: C
           )}
         </>
       ) : (
-        <p className={cn('font-bold text-brand-green', s.price)}>{formatPrice(car.price_per_day)}</p>
+        <p className={cn('font-bold text-brand-green', s.price)}>{formatPrice(displayPrice)}</p>
       )}
-      <p className={cn('text-slate-400', s.sub)}>/ يوم</p>
+      <p className={cn('text-slate-400', s.sub)}>{unitLabel}</p>
     </div>
   )
 }

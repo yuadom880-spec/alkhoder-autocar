@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { Calendar, Fuel, Settings2, Users } from 'lucide-react'
-import type { Car, CarAvailability } from '../../lib/types'
+import type { Car, CarAvailability, RentalPeriodType } from '../../lib/types'
 import { buildBookingQuery } from '../../lib/branchFilter'
 import { getCategoryLabel } from '../../lib/constants'
 import { copy } from '../../lib/copy'
@@ -17,11 +17,20 @@ interface CarCardProps {
   startDate?: string
   endDate?: string
   branchId?: string
+  rentalType?: RentalPeriodType
   availability?: CarAvailability
 }
 
-export function CarCard({ car, index = 0, startDate, endDate, branchId, availability }: CarCardProps) {
-  const query = buildBookingQuery({ branch: branchId, start: startDate, end: endDate })
+export function CarCard({
+  car,
+  index = 0,
+  startDate,
+  endDate,
+  branchId,
+  rentalType = 'daily',
+  availability,
+}: CarCardProps) {
+  const query = buildBookingQuery({ branch: branchId, start: startDate, end: endDate, rental: rentalType })
   const detailUrl = `/cars/${car.id}${query}`
   const bookUrl = `/book/${car.id}${query}`
 
@@ -73,7 +82,7 @@ export function CarCard({ car, index = 0, startDate, endDate, branchId, availabi
                 {car.brand} · {car.year}
               </p>
             </div>
-            <CarPrice car={car} size="sm" />
+            <CarPrice car={car} size="sm" rentalType={rentalType} />
           </div>
         </Link>
 
