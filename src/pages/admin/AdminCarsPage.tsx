@@ -5,7 +5,7 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
-import { getCategoryLabel } from '../../lib/constants'
+import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { getCarBlocks } from '../../lib/availability'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { deleteCar, fetchBookingBlocks, fetchBranches, fetchCars, updateCar } from '../../lib/supabase'
@@ -96,6 +96,7 @@ export function AdminCarsPage() {
                   <tr>
                     <th className="px-4 py-3 text-right font-medium">السيارة</th>
                     <th className="px-4 py-3 text-right font-medium">الفروع</th>
+                    <th className="px-4 py-3 text-right font-medium">التصنيف</th>
                     <th className="px-4 py-3 text-right font-medium">الفئة</th>
                     <th className="px-4 py-3 text-right font-medium">السعر اليومي</th>
                     <th className="px-4 py-3 text-right font-medium">السعر الشهري</th>
@@ -133,6 +134,9 @@ export function AdminCarsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <Badge>{getCategoryLabel(car.category)}</Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
                         </td>
                         <td className="px-4 py-3">
                           {isOfferActive(car) ? (

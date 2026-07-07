@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import type { Car, CarCategory, CarFormData } from '../../lib/types'
-import { CAR_CATEGORIES, CATEGORY_LABELS } from '../../lib/constants'
+import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
+import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
 import { CarOfferForm } from './CarOfferForm'
@@ -28,6 +28,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     model: initial?.model ?? '',
     year: initial?.year ?? new Date().getFullYear(),
     category: initial?.category ?? 'sedan',
+    car_class: initial?.car_class ?? 'mid',
     price_per_day: initial?.price_per_day ?? 100,
     price_per_month: initial?.price_per_month ?? 2500,
     image_url: initial?.image_url ?? '',
@@ -110,7 +111,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           />
         </div>
         <div>
-          <label className="label-field">الفئة</label>
+          <label className="label-field">التصنيف</label>
           <select
             className="input-field"
             value={form.category}
@@ -119,6 +120,20 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             {CAR_CATEGORIES.map((k) => (
               <option key={k} value={k}>
                 {CATEGORY_LABELS[k]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="label-field">الفئة</label>
+          <select
+            className="input-field"
+            value={form.car_class}
+            onChange={(e) => update('car_class', e.target.value as CarClass)}
+          >
+            {CAR_CLASSES.map((k) => (
+              <option key={k} value={k}>
+                {CLASS_LABELS[k]}
               </option>
             ))}
           </select>

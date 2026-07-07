@@ -14,7 +14,7 @@ import { sortFleet, type FleetSortOption } from '../lib/fleetSort'
 import { formatDate } from '../lib/utils'
 import { isOfferActive } from '../lib/offers'
 import { fetchBookingBlocks, fetchBranches, fetchCars } from '../lib/supabase'
-import type { BookingBlock, BranchRecord, Car, CarCategory } from '../lib/types'
+import type { BookingBlock, BranchRecord, Car, CarCategory, CarClass } from '../lib/types'
 
 export function CarsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -29,6 +29,7 @@ export function CarsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<CarCategory | 'all'>('all')
+  const [carClass, setCarClass] = useState<CarClass | 'all'>('all')
   const [sort, setSort] = useState<FleetSortOption>('default')
   const [offersOnly, setOffersOnly] = useState(offersParam)
   const [availableOnly, setAvailableOnly] = useState(Boolean(startDate && endDate))
@@ -74,6 +75,7 @@ export function CarsPage() {
     const result = cars.filter((car) => {
       if (!carMatchesBranch(car, selectedBranch || null)) return false
       const matchCategory = category === 'all' || car.category === category
+      const matchClass = carClass === 'all' || car.car_class === carClass
       const q = search.trim().toLowerCase()
       const matchSearch =
         !q ||
@@ -81,7 +83,7 @@ export function CarsPage() {
         car.brand.toLowerCase().includes(q) ||
         car.model.toLowerCase().includes(q)
       const matchOffer = !offersOnly || isOfferActive(car)
-      return matchCategory && matchSearch && matchOffer
+      return matchCategory && matchClass && matchSearch && matchOffer
     })
 
     const withAvailability = result.map((car) => ({
@@ -94,7 +96,7 @@ export function CarsPage() {
       : withAvailability
 
     return sortFleet(visible, rentalType, sort)
-  }, [cars, blocks, search, category, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, rentalType])
+  }, [cars, blocks, search, category, carClass, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, rentalType])
 
   return (
     <div className="page-shell">
@@ -139,6 +141,8 @@ export function CarsPage() {
             onSearchChange={setSearch}
             category={category}
             onCategoryChange={setCategory}
+            carClass={carClass}
+            onClassChange={setCarClass}
           />
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <label className="flex min-h-[44px] items-center gap-2.5 text-sm cursor-pointer">

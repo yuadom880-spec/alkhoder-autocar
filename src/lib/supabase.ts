@@ -28,7 +28,8 @@ import type { RentalPeriodType } from './types'
 function normalizeCar(car: Car): Car {
   const branch_ids = Array.isArray(car.branch_ids) ? car.branch_ids : []
   const price_per_month = car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)
-  return { ...car, offer: car.offer ?? null, branch_ids, price_per_month }
+  const car_class = car.car_class ?? 'mid'
+  return { ...car, offer: car.offer ?? null, branch_ids, price_per_month, car_class }
 }
 
 function prepareCarForm(form: CarFormData): CarFormData {
@@ -83,7 +84,7 @@ const STORAGE_BUCKET = 'car-images'
 const DEMO_BOOKINGS_KEY = 'alkhoder_demo_bookings'
 const DEMO_CARS_KEY = 'alkhoder_demo_cars'
 const DEMO_CARS_VERSION_KEY = 'alkhoder_demo_cars_version'
-const DEMO_CARS_VERSION = '5'
+const DEMO_CARS_VERSION = '6'
 const DEMO_OFFERS_KEY = 'alkhoder_demo_offers'
 const DEMO_OFFERS_VERSION_KEY = 'alkhoder_demo_offers_version'
 const DEMO_OFFERS_VERSION = '2'

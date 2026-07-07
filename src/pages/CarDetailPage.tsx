@@ -5,7 +5,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { CarAvailabilityBadge } from '../components/cars/CarAvailabilityBadge'
-import { getCategoryLabel } from '../lib/constants'
+import { getCategoryLabel, getClassLabel } from '../lib/constants'
 import { copy } from '../lib/copy'
 import { buildBookingQuery } from '../lib/branchFilter'
 import { getCarAvailability } from '../lib/availability'
@@ -153,6 +153,7 @@ export function CarDetailPage() {
               <div className="mb-4 flex flex-wrap gap-2">
                 <OfferBadge car={car} />
                 <Badge>{getCategoryLabel(car.category)}</Badge>
+                <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
                 {availability && (
                   <CarAvailabilityBadge availability={availability} showDatesHint={Boolean(start && end)} />
                 )}

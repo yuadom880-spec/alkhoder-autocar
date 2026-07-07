@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Calendar, Fuel, Settings2, Users } from 'lucide-react'
 import type { Car, CarAvailability, RentalPeriodType } from '../../lib/types'
 import { buildBookingQuery } from '../../lib/branchFilter'
-import { getCategoryLabel } from '../../lib/constants'
+import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 import { Badge } from '../ui/Badge'
 import { CarPrice, OfferBadge } from './CarPrice'
@@ -54,6 +54,7 @@ export function CarCard({
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
             <OfferBadge car={car} />
             <Badge>{getCategoryLabel(car.category)}</Badge>
+            <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
             {availability && (
               <CarAvailabilityBadge
                 availability={availability}

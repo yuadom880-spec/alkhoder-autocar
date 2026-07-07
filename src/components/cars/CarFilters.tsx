@@ -1,6 +1,12 @@
 import { Search } from 'lucide-react'
-import type { CarCategory } from '../../lib/types'
-import { CAR_CATEGORIES, CATEGORY_LABELS } from '../../lib/constants'
+import type { CarCategory, CarClass } from '../../lib/types'
+import {
+  CAR_CATEGORIES,
+  CAR_CLASSES,
+  CATEGORY_LABELS,
+  CLASS_LABELS,
+} from '../../lib/constants'
+import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 
 interface CarFiltersProps {
@@ -8,9 +14,46 @@ interface CarFiltersProps {
   onSearchChange: (value: string) => void
   category: CarCategory | 'all'
   onCategoryChange: (value: CarCategory | 'all') => void
+  carClass: CarClass | 'all'
+  onClassChange: (value: CarClass | 'all') => void
 }
 
-const categories: { value: CarCategory | 'all'; label: string }[] = [
+function FilterChips<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string
+  value: T | 'all'
+  options: { value: T | 'all'; label: string }[]
+  onChange: (value: T | 'all') => void
+}) {
+  return (
+    <div>
+      <p className="mb-2 text-xs font-medium text-slate-500">{label}</p>
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              'shrink-0 rounded-full px-4 py-2.5 text-sm sm:py-1.5 sm:text-xs font-medium transition-colors min-h-[44px] sm:min-h-0',
+              value === opt.value
+                ? 'bg-brand-green text-white'
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-green/50',
+            )}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const categoryOptions: { value: CarCategory | 'all'; label: string }[] = [
   { value: 'all', label: 'الكل' },
   ...CAR_CATEGORIES.map((value) => ({
     value,
@@ -18,9 +61,24 @@ const categories: { value: CarCategory | 'all'; label: string }[] = [
   })),
 ]
 
-export function CarFilters({ search, onSearchChange, category, onCategoryChange }: CarFiltersProps) {
+const classOptions: { value: CarClass | 'all'; label: string }[] = [
+  { value: 'all', label: 'الكل' },
+  ...CAR_CLASSES.map((value) => ({
+    value,
+    label: CLASS_LABELS[value],
+  })),
+]
+
+export function CarFilters({
+  search,
+  onSearchChange,
+  category,
+  onCategoryChange,
+  carClass,
+  onClassChange,
+}: CarFiltersProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="relative">
         <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
@@ -32,23 +90,19 @@ export function CarFilters({ search, onSearchChange, category, onCategoryChange 
         />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0">
-        {categories.map((cat) => (
-          <button
-            key={cat.value}
-            type="button"
-            onClick={() => onCategoryChange(cat.value)}
-            className={cn(
-              'shrink-0 rounded-full px-4 py-2.5 text-sm sm:py-1.5 sm:text-xs font-medium transition-colors min-h-[44px] sm:min-h-0',
-              category === cat.value
-                ? 'bg-brand-green text-white'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-green/50',
-            )}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+      <FilterChips
+        label={copy.cars.filterCategory}
+        value={category}
+        options={categoryOptions}
+        onChange={onCategoryChange}
+      />
+
+      <FilterChips
+        label={copy.cars.filterClass}
+        value={carClass}
+        options={classOptions}
+        onChange={onClassChange}
+      />
     </div>
   )
 }

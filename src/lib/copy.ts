@@ -75,6 +75,8 @@ export const copy = {
     clearBranch: 'عرض كل الفروع',
     noCarsInBranch: 'لا توجد سيارات في هذا الفرع حالياً',
     branchRequired: 'اختر الفرع أولاً من صفحة السيارات',
+    filterCategory: 'التصنيف',
+    filterClass: 'الفئة',
   },
   detail: {
     back: 'العودة للسيارات',

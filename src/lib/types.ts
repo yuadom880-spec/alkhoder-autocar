@@ -6,6 +6,15 @@ export type CarCategory =
   | 'van'
   | 'pickup'
 
+/** فئة السيارة (اقتصادية، فاخرة، ...) */
+export type CarClass =
+  | 'economy'
+  | 'mid'
+  | 'family'
+  | 'executive'
+  | 'luxury'
+  | 'sports'
+
 export type BookingStatus = 'pending' | 'confirmed' | 'rejected' | 'completed' | 'cancelled'
 
 export type OfferDiscountType = 'percent' | 'fixed' | 'custom_price'
@@ -37,6 +46,7 @@ export interface Car {
   model: string
   year: number
   category: CarCategory
+  car_class: CarClass
   price_per_day: number
   price_per_month: number
   image_url: string
@@ -58,6 +68,7 @@ export interface CarFormData {
   model: string
   year: number
   category: CarCategory
+  car_class: CarClass
   price_per_day: number
   price_per_month: number
   image_url: string

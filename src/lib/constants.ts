@@ -1,6 +1,6 @@
 import { asset } from './assets'
 import logoUrl from '../assets/logo.png'
-import type { Car, CarCategory, CarOffer } from './types'
+import type { Car, CarCategory, CarClass, CarOffer } from './types'
 
 const summerOffer = (badge: string): CarOffer => ({
   active: true,
@@ -143,6 +143,28 @@ export function getCategoryLabel(category: string): string {
   return CATEGORY_LABELS[category as CarCategory] ?? LEGACY_CATEGORY_LABELS[category] ?? category
 }
 
+export const CAR_CLASSES: CarClass[] = [
+  'economy',
+  'mid',
+  'family',
+  'executive',
+  'luxury',
+  'sports',
+]
+
+export const CLASS_LABELS: Record<CarClass, string> = {
+  economy: 'اقتصادية',
+  mid: 'متوسطة',
+  family: 'عائلية',
+  executive: 'تنفيذية',
+  luxury: 'فاخرة',
+  sports: 'رياضية',
+}
+
+export function getClassLabel(carClass: string): string {
+  return CLASS_LABELS[carClass as CarClass] ?? carClass
+}
+
 export const BOOKING_STATUS_LABELS = {
   pending: 'قيد المراجعة',
   confirmed: 'مؤكد',
@@ -159,6 +181,7 @@ export const DEMO_CARS: Car[] = [
     model: 'كيكس',
     year: 2025,
     category: 'crossover',
+    car_class: 'mid',
     price_per_day: 160,
     price_per_month: 4000,
     image_url: asset('نيسان-كيكس-٢٠٢٥-ابيض-ستوري.jpg.jpeg'),
@@ -182,6 +205,7 @@ export const DEMO_CARS: Car[] = [
     model: 'سيتي',
     year: 2024,
     category: 'sedan',
+    car_class: 'economy',
     price_per_day: 120,
     price_per_month: 3000,
     image_url: asset('هوندا-سيتي-٢٠٢٤-رمادي.jpg.jpeg'),
@@ -205,6 +229,7 @@ export const DEMO_CARS: Car[] = [
     model: 'أريزو 5',
     year: 2024,
     category: 'sedan',
+    car_class: 'economy',
     price_per_day: 95,
     price_per_month: 2375,
     image_url: asset('اريزو ٥ ابيض ٢٠٢٤.jpg.jpeg'),
@@ -225,6 +250,7 @@ export const DEMO_CARS: Car[] = [
     model: 'بيقاس',
     year: 2025,
     category: 'sedan',
+    car_class: 'mid',
     price_per_day: 110,
     price_per_month: 2750,
     image_url: asset('كيا-بيقاس-٢٠٢٥-ابيض.jpg.jpeg'),
@@ -245,6 +271,7 @@ export const DEMO_CARS: Car[] = [
     model: 'كابتيفا',
     year: 2026,
     category: 'suv',
+    car_class: 'family',
     price_per_day: 180,
     price_per_month: 4500,
     image_url: asset('شيفرولية-كابتيفا٢٠٢٦.jpg.jpeg'),
@@ -268,6 +295,7 @@ export const DEMO_CARS: Car[] = [
     model: 'غمارة',
     year: 2026,
     category: 'pickup',
+    car_class: 'mid',
     price_per_day: 220,
     price_per_month: 5500,
     image_url: asset('فوتون-غمارة-٢٠٢٦.jpg.jpeg'),
@@ -288,6 +316,7 @@ export const DEMO_CARS: Car[] = [
     model: '03',
     year: 2024,
     category: 'crossover',
+    car_class: 'executive',
     price_per_day: 200,
     price_per_month: 5000,
     image_url: asset('لينك-اند-كو-03-ابيض2024.jpg.jpeg'),
@@ -311,6 +340,7 @@ export const DEMO_CARS: Car[] = [
     model: 'تاهو',
     year: 2023,
     category: 'suv',
+    car_class: 'luxury',
     price_per_day: 450,
     price_per_month: 11250,
     image_url: asset('تاهو-٢٠٢٣-بني-غامق.jpg.jpeg'),
@@ -331,6 +361,7 @@ export const DEMO_CARS: Car[] = [
     model: 'ازكارا',
     year: 2023,
     category: 'suv',
+    car_class: 'executive',
     price_per_day: 210,
     price_per_month: 5250,
     image_url: asset('جيلي-ازكارا-٢٠٢٣-رمادي.jpg.jpeg'),
@@ -355,6 +386,7 @@ export const DEMO_CARS: Car[] = [
     model: 'C5',
     year: 2026,
     category: 'crossover',
+    car_class: 'mid',
     price_per_day: 190,
     price_per_month: 4750,
     image_url: asset('امودا-سي-٥-ابيض-٢٠٢٦.jpg.jpeg'),
@@ -375,6 +407,7 @@ export const DEMO_CARS: Car[] = [
     model: 'داستر',
     year: 2024,
     category: 'suv',
+    car_class: 'economy',
     price_per_day: 140,
     price_per_month: 3500,
     image_url: asset('رينو-داستر-٢٠٢٤-ابيض.jpg.jpeg'),
@@ -395,6 +428,7 @@ export const DEMO_CARS: Car[] = [
     model: 'يارس',
     year: 2024,
     category: 'sedan',
+    car_class: 'economy',
     price_per_day: 100,
     price_per_month: 2500,
     image_url: asset('تويوتا-يارس-عروض-الصيف.jpg.jpeg'),

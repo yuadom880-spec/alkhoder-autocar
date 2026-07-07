@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS cars (
   model TEXT NOT NULL,
   year INTEGER NOT NULL,
   category TEXT NOT NULL CHECK (category IN ('sedan', 'hatchback', 'crossover', 'suv', 'van', 'pickup')),
+  car_class TEXT NOT NULL DEFAULT 'mid' CHECK (car_class IN ('economy', 'mid', 'family', 'executive', 'luxury', 'sports')),
   price_per_day NUMERIC(10,2) NOT NULL,
   price_per_month NUMERIC(10,2) NOT NULL DEFAULT 0,
   image_url TEXT NOT NULL,
@@ -109,6 +110,7 @@ CREATE TABLE IF NOT EXISTS branches (
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS offer JSONB DEFAULT NULL;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS price_per_month NUMERIC(10,2);
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS car_class TEXT DEFAULT 'mid';
 
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_time TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_offer_id TEXT DEFAULT NULL;
@@ -151,12 +153,20 @@ ALTER TABLE cars ALTER COLUMN price_per_month SET DEFAULT 0;
 -- نوع الإيجار للحجوزات القديمة
 UPDATE bookings SET rental_type = 'daily' WHERE rental_type IS NULL;
 
+-- فئة السيارة للبيانات القديمة
+UPDATE cars SET car_class = 'mid' WHERE car_class IS NULL;
+
 -- ─── قيود التصنيف (التصنيفات الحالية) ──────────────────────
 
 ALTER TABLE cars DROP CONSTRAINT IF EXISTS cars_category_check;
 ALTER TABLE cars
   ADD CONSTRAINT cars_category_check
   CHECK (category IN ('sedan', 'hatchback', 'crossover', 'suv', 'van', 'pickup'));
+
+ALTER TABLE cars DROP CONSTRAINT IF EXISTS cars_car_class_check;
+ALTER TABLE cars
+  ADD CONSTRAINT cars_car_class_check
+  CHECK (car_class IN ('economy', 'mid', 'family', 'executive', 'luxury', 'sports'));
 
 -- ─── Triggers ───────────────────────────────────────────────
 
