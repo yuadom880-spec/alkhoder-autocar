@@ -4,8 +4,11 @@ import {
   SITE_NAME,
   SITE_NAME_EN,
   SITE_SEO_PRIMARY,
+  FACEBOOK_LINK,
+  INSTAGRAM_LINK,
   TOLL_FREE,
   WHATSAPP_LINK,
+  X_LINK,
 } from './constants'
 export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
 
@@ -39,7 +42,13 @@ const OPENING_HOURS_SPEC = [
   },
 ] as const
 
-const SCHEMA_SAME_AS = [WHATSAPP_LINK, MAIN_BRANCH.mapUrl.split('?')[0]] as const
+const SCHEMA_SAME_AS = [
+  INSTAGRAM_LINK,
+  X_LINK,
+  FACEBOOK_LINK,
+  WHATSAPP_LINK,
+  MAIN_BRANCH.mapUrl.split('?')[0],
+] as const
 
 function schemaId(origin: string, fragment: string) {
   return `${origin}/#${fragment}`

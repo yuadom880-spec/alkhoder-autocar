@@ -26,6 +26,23 @@ export const LOGO_URL = logoUrl
 export const PHONE = '050 459 0002'
 export const PHONE_LINK = 'tel:+966504590002'
 export const WHATSAPP_LINK = 'https://wa.me/966504590002'
+export const INSTAGRAM_LINK = 'https://www.instagram.com/alkhedrrental/'
+export const X_LINK = 'https://x.com/alkhedrrental'
+export const FACEBOOK_LINK =
+  'https://www.facebook.com/p/%D8%B4%D8%B1%D9%83%D8%A9-%D8%B9%D8%A8%D8%AF-%D8%A7%D9%84%D9%85%D8%AC%D9%8A%D8%AF-%D8%B5%D8%A7%D9%84%D8%AD-%D8%A7%D9%84%D8%AE%D8%B6%D8%B1-%D9%84%D8%AA%D8%A3%D8%AC%D9%8A%D8%B1-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA-%D9%81%D8%B1%D8%B9-%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9-%D8%A7%D9%84%D9%85%D9%86%D9%88%D8%B1%D8%A9-100093714615823/'
+
+export type SocialLink = {
+  id: 'instagram' | 'x' | 'facebook'
+  label: string
+  href: string
+}
+
+export const SOCIAL_LINKS: SocialLink[] = [
+  { id: 'instagram', label: 'إنستغرام', href: INSTAGRAM_LINK },
+  { id: 'x', label: 'X', href: X_LINK },
+  { id: 'facebook', label: 'فيسبوك', href: FACEBOOK_LINK },
+]
+
 export const TOLL_FREE = '920018216'
 export const TOLL_FREE_LINK = 'tel:920018216'
 export const EMAIL_QA = 'Alkhedr.qa@alkhedrcars.com'

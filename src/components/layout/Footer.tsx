@@ -18,6 +18,7 @@ import {
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 import { SEO_CITIES, SEO_KEYWORDS_FOOTER_TEXT } from '../../lib/seo'
+import { SocialLinks } from './SocialLinks'
 
 export function Footer() {
   return (
@@ -33,6 +34,10 @@ export function Footer() {
               </div>
             </Link>
             <p className="text-sm leading-relaxed text-slate-400">{copy.footer.desc}</p>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold text-white">{copy.footer.social}</p>
+              <SocialLinks />
+            </div>
             <p className="mt-3 hidden text-[10px] leading-relaxed text-slate-600 md:block">{SEO_KEYWORDS_FOOTER_TEXT}</p>
           </div>
 

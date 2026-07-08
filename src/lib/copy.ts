@@ -254,6 +254,7 @@ export const copy = {
     quickLinks: 'روابط سريعة',
     contact: 'تواصل معنا',
     hours: 'ساعات العمل',
+    social: 'تابعنا',
     rights: 'جميع الحقوق محفوظة',
     tagline: 'الافضل في مجال تأجير السيارات',
   },
