@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { LayoutDashboard, Menu, Phone, X } from 'lucide-react'
+import { Menu, Phone, X } from 'lucide-react'
 import { NAV_LINKS, TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
 import { Logo } from '../ui/Logo'
 import { copy } from '../../lib/copy'
@@ -34,13 +34,6 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            to="/admin"
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-brand-dark transition-colors"
-          >
-            <LayoutDashboard className="h-4 w-4" />
-            {copy.nav.admin}
-          </Link>
           <a
             href={TOLL_FREE_LINK}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-green transition-colors"
@@ -89,14 +82,6 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/admin"
-              onClick={() => setOpen(false)}
-              className="flex min-h-[48px] items-center gap-2 rounded-xl px-4 py-3.5 text-base font-medium text-slate-600 active:bg-slate-50"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              {copy.nav.admin}
-            </Link>
             <a
               href={TOLL_FREE_LINK}
               className="flex min-h-[48px] items-center gap-2 rounded-xl px-4 py-3.5 text-base font-medium text-slate-600 active:bg-slate-50"

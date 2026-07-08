@@ -52,14 +52,6 @@ export function Footer() {
                   احجز سيارتك الآن
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/admin"
-                  className="text-sm text-slate-400 hover:text-brand-gold transition-colors"
-                >
-                  {copy.nav.admin}
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -161,9 +153,6 @@ export function Footer() {
 
         <div className="mt-10 border-t border-slate-700/50 pt-6 text-center text-xs text-slate-500 space-y-2">
           <p>© {new Date().getFullYear()} {SITE_NAME}. {copy.footer.rights}.</p>
-          <Link to="/admin" className="text-slate-600 hover:text-brand-gold transition-colors">
-            {copy.nav.admin}
-          </Link>
           <p className="text-[10px] sm:text-xs text-slate-600 pt-1">{copy.footer.tagline}</p>
         </div>
       </div>
