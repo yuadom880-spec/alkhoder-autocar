@@ -18,6 +18,7 @@ import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
+import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import {
   LOGO_URL,
   MAIN_BRANCH,
@@ -194,6 +195,7 @@ export function HomePage() {
           <div className="mb-10">
             <h2 className="section-title">{copy.home.featured}</h2>
             <p className="section-subtitle">{copy.home.featuredSub}</p>
+            <PricesIncludeVatNote />
           </div>
 
           <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">

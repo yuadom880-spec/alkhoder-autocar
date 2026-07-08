@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { FeaturedOfferCard } from './FeaturedOfferCard'
 import { LoadingSpinner } from '../ui/LoadingSpinner'
 import { Button } from '../ui/Button'
+import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
 import { isFeaturedOfferActive } from '../../lib/featuredOffers'
 import { copy } from '../../lib/copy'
 import { fetchFeaturedOffers } from '../../lib/supabase'
@@ -61,6 +62,7 @@ export function FeaturedOffersSection({
             <div>
               <h2 className="section-title">{copy.offers.title}</h2>
               <p className="section-subtitle">{copy.offers.subtitle}</p>
+              <PricesIncludeVatNote />
             </div>
             {compact && (
               <Link to="/offers" className="hidden sm:block">

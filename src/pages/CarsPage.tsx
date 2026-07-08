@@ -7,6 +7,7 @@ import { CarFilters } from '../components/cars/CarFilters'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
@@ -104,6 +105,7 @@ export function CarsPage() {
         <div className="mb-8">
           <h1 className="section-title">{copy.cars.title}</h1>
           <p className="section-subtitle">{copy.cars.subtitle}</p>
+          <PricesIncludeVatNote />
         </div>
 
         <div className="mb-6">

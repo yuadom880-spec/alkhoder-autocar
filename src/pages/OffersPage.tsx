@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { LazyVideo } from '../components/ui/LazyVideo'
+import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import { SAVINGS_OFFER_IMAGE, SUMMER_VIDEO } from '../lib/constants'
 import { copy } from '../lib/copy'
 
@@ -19,6 +20,7 @@ export function OffersPage() {
             </span>
             <h1 className="text-2xl font-extrabold sm:text-4xl mb-3 leading-snug">{copy.offers.pageTitle}</h1>
             <p className="text-slate-300 leading-relaxed">{copy.offers.pageSubtitle}</p>
+            <PricesIncludeVatNote variant="dark" />
           </motion.div>
         </div>
       </section>
