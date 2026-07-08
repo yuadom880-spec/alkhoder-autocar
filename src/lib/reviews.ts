@@ -1,5 +1,3 @@
-import { asset } from './assets'
-
 export type CustomerReview = {
   id: string
   name: string
@@ -7,20 +5,19 @@ export type CustomerReview = {
   date: string
   rating: 5
   text: string
-  image: string
   localGuide?: boolean
   isNew?: boolean
 }
 
-/** مراجعات Google الحقيقية — مستخرجة من صور public/اراء العملاء */
+/** مراجعات Google الحقيقية — نصوص مستخرجة من مراجعات العملاء */
 export const GOOGLE_REVIEWS: CustomerReview[] = [
   {
     id: 'review-1',
     name: 'Yamen Alagey',
+    nameAr: 'يامن العجي',
     date: 'منذ 41 أسبوعاً',
     rating: 5,
     localGuide: true,
-    image: asset('اراء العملاء1.png'),
     text: 'من أفضل الشركات في المدينة لتأجير السيارات وخصوصاً الشهري وأفضل قيمة موجودة بالشركة هي الموظفين تعاملت معهم بأربع فروع وكلهم محترمين ومتعاونين',
   },
   {
@@ -29,7 +26,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     nameAr: 'علي إبراهيم',
     date: 'منذ 43 أسبوعاً',
     rating: 5,
-    image: asset('اراء العملاء2.png'),
     text: 'صراحة مكتب ممتاز واسعاره حلوه وخدمتهم ممتازه ويوصلون لك السياره لين باب بيتك',
   },
   {
@@ -38,7 +34,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     date: 'منذ 12 أسبوعاً',
     rating: 5,
     localGuide: true,
-    image: asset('اراء العملاء3.png'),
     text: 'ما شاء الله تبارك الرحمن، يعلم الله انه من افضل المكاتب الي استاجرت منها الأسعار مختلفة عن منافسينه بشكل كبير جداً، هذا غير الإحترام والقبول الي فيهم، ولا انسى اشكر الاخ عبدالرحمن السوسي اطيب انسان استقبلني من بين جميع الي تعاملت معهم موقفين يارب',
   },
   {
@@ -47,7 +42,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     date: 'منذ 25 أسبوعاً',
     rating: 5,
     localGuide: true,
-    image: asset('اراء العملاء4.png'),
     text: 'والله مكتب محترم اخدنا ٣ سيارات للشركة تعاملهم محترم اشكر ابو أمير و ابو براء على حسن التعامل',
   },
   {
@@ -57,7 +51,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     date: 'منذ 39 أسبوعاً',
     rating: 5,
     localGuide: true,
-    image: asset('اراء العملاء5.png'),
     text: 'افضل مكتب تأجير سيارات بالمدينة المنورة تعاملهم ممتاز جدا خصوصا الاخ عبدالرحمن السوسي الله يجزاه كل خير ما يقصر .... انصح فيهم بقوه',
   },
   {
@@ -66,7 +59,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     nameAr: 'عاصم عبدالكريم',
     date: 'منذ 46 أسبوعاً',
     rating: 5,
-    image: asset('اراء العملاء6.png'),
     text: 'خدمة سريعة في القل وامانة واسعار طيبة واخصص شكري لعبدالرحمن الستوسي الصراحة تعامل راقي وخدمة سريعة بدون تعقيدات واسعار طيبة',
   },
   {
@@ -74,7 +66,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     name: 'أوس الشريف',
     date: 'منذ 51 أسبوعاً',
     rating: 5,
-    image: asset('اراء العملاء7.png'),
     text: 'تعاملهم ممتاز يعلم الله واخص بالشكر الموظف المحترم وائل عبدالله الصاعدي محترم وخدوم على الله يوفقه ويوفقهم',
   },
   {
@@ -84,7 +75,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     date: 'منذ 4 أشهر',
     rating: 5,
     localGuide: true,
-    image: asset('اراء العملاء8.png'),
     text: 'احترافية في التعامل تميز في إنهاء الإجراءات مصداقية وشفافيه في الاسعار امانة موثوقية اقل ما يقال لمشرف المبيعات الاستاذ محمد مجدي اوصي التعامل معه',
   },
   {
@@ -93,7 +83,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     date: 'منذ 3 أسابيع',
     rating: 5,
     isNew: true,
-    image: asset('اراء العملاء9.png'),
     text: 'يعطيه العافيه اخ محمد مجدي على اسلوبه الراقي وتعامله مع المعاملات و الاوراق بكل سلاسه و اشكر مجهوده الصراحه من الورق الى استلم سيارتي ما قصر وشكرا',
   },
   {
@@ -102,7 +91,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     nameAr: 'أشرف الجهني',
     date: 'منذ سنة',
     rating: 5,
-    image: asset('اراء العملاء10.png'),
     text: 'افضل مكان لتأجير السيارات بالمدينه .. من حيث الخدمه الجيده والمعامله والسيارات والاسعار .. شكر خاص للاستاذ عبد الرحمن السنوسي .. اخدت سياره موديل ٢٤ ممتازه .. اي ايجار بعد الان هيكون من عندهم ان شاء الله',
   },
   {
@@ -111,7 +99,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
     nameAr: 'أحود صالح',
     date: 'منذ 11 شهراً',
     rating: 5,
-    image: asset('اراء العملاء 8.png'),
     text: 'الحمدلله توفقت بالمعامله مع المكتب والموظفين اخلاق فوق الحلوه وانصح بالتعاون معهم واسعارهم مره حلوه',
   },
 ]
