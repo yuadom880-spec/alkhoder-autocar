@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { LazyVideo } from '../components/ui/LazyVideo'
 import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
-import { SAVINGS_OFFER_IMAGE, SUMMER_VIDEO } from '../lib/constants'
+import { SAVINGS_OFFER_IMAGE_FALLBACK, SUMMER_VIDEO } from '../lib/constants'
 import { copy } from '../lib/copy'
 
 export function OffersPage() {
@@ -35,7 +35,7 @@ export function OffersPage() {
           >
             <LazyVideo
               src={SUMMER_VIDEO}
-              poster={SAVINGS_OFFER_IMAGE}
+              poster={SAVINGS_OFFER_IMAGE_FALLBACK}
               className="w-full max-h-[420px] object-cover bg-brand-dark"
             />
           </motion.div>
