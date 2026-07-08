@@ -7,9 +7,13 @@ import {
   TOLL_FREE,
   WHATSAPP_LINK,
 } from './constants'
-import { GOOGLE_REVIEWS, GOOGLE_REVIEWS_SUMMARY } from './reviews'
-
 export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
+
+const MAIN_BRANCH_GEO = {
+  '@type': 'GeoCoordinates' as const,
+  latitude: 24.482824,
+  longitude: 39.630497,
+}
 
 function schemaLogo(origin: string) {
   return {
@@ -39,23 +43,6 @@ const SCHEMA_SAME_AS = [WHATSAPP_LINK, MAIN_BRANCH.mapUrl.split('?')[0]] as cons
 
 function schemaId(origin: string, fragment: string) {
   return `${origin}/#${fragment}`
-}
-
-function buildReviewItems() {
-  return GOOGLE_REVIEWS.slice(0, 5).map((review) => ({
-    '@type': 'Review',
-    author: {
-      '@type': 'Person',
-      name: review.nameAr ?? review.name,
-    },
-    reviewRating: {
-      '@type': 'Rating',
-      ratingValue: review.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    reviewBody: review.text,
-  }))
 }
 
 function stripJsonLdContext<T extends { '@context'?: string }>(item: T) {
@@ -416,8 +403,9 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
 export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'CarRental',
-    '@id': schemaId(origin, 'carrental'),
+    '@type': 'LocalBusiness',
+    '@id': schemaId(origin, 'localbusiness'),
+    additionalType: 'https://schema.org/CarRental',
     name: SITE_SEO_PRIMARY,
     legalName: SITE_COMPANY_NAME,
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
@@ -426,9 +414,6 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
     telephone: TOLL_FREE,
     image: `${origin}/favicon-192.png`,
     logo: schemaLogo(origin),
-    priceRange: '$$',
-    currenciesAccepted: 'SAR',
-    paymentAccepted: 'Cash, Credit Card',
     parentOrganization: { '@id': schemaId(origin, 'organization') },
     address: {
       '@type': 'PostalAddress',
@@ -437,10 +422,11 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
       addressRegion: 'المدينة المنورة',
       addressCountry: 'SA',
     },
-    areaServed: SEO_CITIES.map((c) => ({
-      '@type': 'City',
-      name: c.nameAr,
-    })),
+    geo: MAIN_BRANCH_GEO,
+    areaServed: {
+      '@type': 'Country',
+      name: 'Saudi Arabia',
+    },
     sameAs: [...SCHEMA_SAME_AS],
     openingHoursSpecification: OPENING_HOURS_SPEC,
     contactPoint: {
@@ -450,14 +436,6 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
       areaServed: 'SA',
       availableLanguage: ['Arabic', 'English'],
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: GOOGLE_REVIEWS_SUMMARY.rating,
-      bestRating: 5,
-      worstRating: 1,
-      ratingCount: GOOGLE_REVIEWS_SUMMARY.count,
-    },
-    review: buildReviewItems(),
   }
 }
 
@@ -480,12 +458,18 @@ export function buildPageJsonLdGraph(pathname: string, origin = getSiteUrl()) {
     if (label) breadcrumbs.push({ name: label, path: pathname })
   }
 
+  const locationMatch = pathname.match(/^\/locations\/([^/]+)$/)
+  const locationCity = locationMatch ? getCityBySlug(locationMatch[1]) : undefined
+
   const graph = [
     stripJsonLdContext(buildWebSiteJsonLd(origin)),
-    ...(seo.noindex ? [] : [
-      stripJsonLdContext(buildOrganizationJsonLd(origin)),
-      stripJsonLdContext(buildLocalBusinessJsonLd(origin)),
-    ]),
+    ...(seo.noindex
+      ? []
+      : [
+          stripJsonLdContext(buildOrganizationJsonLd(origin)),
+          ...(pathname === '/' ? [stripJsonLdContext(buildLocalBusinessJsonLd(origin))] : []),
+        ]),
+    ...(locationCity ? [stripJsonLdContext(buildCityJsonLd(locationCity, origin))] : []),
     ...(breadcrumbs.length > 1
       ? [stripJsonLdContext(buildBreadcrumbJsonLd(breadcrumbs, origin))]
       : []),
@@ -517,13 +501,10 @@ export function buildCityJsonLd(city: SeoCity, origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
+    '@id': `${origin}/locations/${city.slug}#service`,
     name: `ايجار سيارات ${city.nameAr}`,
     description: city.description,
-    provider: {
-      '@type': 'CarRental',
-      name: SITE_SEO_PRIMARY,
-      url: origin,
-    },
+    provider: { '@id': schemaId(origin, 'organization') },
     areaServed: {
       '@type': 'City',
       name: city.nameAr,

@@ -102,8 +102,9 @@
             ]
           },
           {
-            "@type": "CarRental",
-            "@id": "https://alkhodercar.com/#carrental",
+            "@type": "LocalBusiness",
+            "@id": "https://alkhodercar.com/#localbusiness",
+            "additionalType": "https://schema.org/CarRental",
             "name": "الخضر لتأجير السيارات",
             "legalName": "شركة عبدالمجيد الخضر لتأجير السيارات",
             "url": "https://alkhodercar.com/",
@@ -115,7 +116,6 @@
               "width": 192,
               "height": 192
             },
-            "priceRange": "$$",
             "parentOrganization": { "@id": "https://alkhodercar.com/#organization" },
             "address": {
               "@type": "PostalAddress",
@@ -123,6 +123,15 @@
               "addressLocality": "المدينة المنورة",
               "addressRegion": "المدينة المنورة",
               "addressCountry": "SA"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 24.482824,
+              "longitude": 39.630497
+            },
+            "areaServed": {
+              "@type": "Country",
+              "name": "Saudi Arabia"
             },
             "openingHoursSpecification": [
               {

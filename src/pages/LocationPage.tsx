@@ -1,31 +1,11 @@
-import { useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { Button } from '../components/ui/Button'
-import {
-  buildCityJsonLd,
-  getCityBySlug,
-  getSiteUrl,
-  SEO_CITIES,
-} from '../lib/seo'
-
-const CITY_JSON_LD_ID = 'alkhoder-city-service-jsonld'
+import { getCityBySlug, SEO_CITIES } from '../lib/seo'
 
 export function LocationPage() {
   const { slug } = useParams<{ slug: string }>()
   const city = slug ? getCityBySlug(slug) : undefined
-
-  useEffect(() => {
-    if (!slug || !city) return
-    const script = document.createElement('script')
-    script.id = CITY_JSON_LD_ID
-    script.type = 'application/ld+json'
-    script.textContent = JSON.stringify(buildCityJsonLd(city, getSiteUrl()))
-    document.head.appendChild(script)
-    return () => {
-      document.getElementById(CITY_JSON_LD_ID)?.remove()
-    }
-  }, [slug, city])
 
   if (!city) return <Navigate to="/locations" replace />
 
