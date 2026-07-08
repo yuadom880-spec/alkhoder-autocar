@@ -1,3 +1,5 @@
+import { asset } from './assets'
+
 /** محتوى وصور الملف التعريفي — عبدالمجيد الخضر لتأجير السيارات */
 export function profileAsset(filename: string): string {
   return encodeURI(`/profile/${filename}`)
@@ -119,7 +121,7 @@ export const PROFILE_FLEET: FleetCategory[] = [
     title: 'دفع رباعي',
     titleEn: 'SUVs',
     models: [
-      { name: 'Chery Tiggo 7 Pro', image: encodeURI('/تيجو 7 برو.webp') },
+      { name: 'Chery Tiggo 7 Pro', image: asset('تيجو 7 برو.webp') },
       { name: 'Toyota RAV-4', image: fleetImg(8, 37) },
       { name: 'Nissan Kicks', image: fleetImg(9, 43) },
       { name: 'Chevrolet Captiva', image: fleetImg(9, 46) },

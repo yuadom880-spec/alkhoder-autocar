@@ -2,9 +2,8 @@ import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import { LazyVideo } from '../ui/LazyVideo'
-import { OptimizedImage } from '../ui/OptimizedImage'
 import { Button } from '../ui/Button'
-import { BRAND_VIDEO, NEW_TIGO_7_PRO_IMAGE } from '../../lib/constants'
+import { BRAND_VIDEO, NEW_TIGO_7_PRO_IMAGE, NEW_TIGO_7_PRO_IMAGE_FALLBACK } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 
 export function NewTigo7ProSection() {
@@ -37,12 +36,17 @@ export function NewTigo7ProSection() {
             </div>
 
             <div className="bg-gradient-to-b from-slate-900 to-brand-dark p-4 sm:p-6">
-              <OptimizedImage
-                src={NEW_TIGO_7_PRO_IMAGE}
-                alt={copy.home.newTigo7Pro}
-                loading="lazy"
-                className="mx-auto w-full max-h-[280px] rounded-xl object-contain sm:max-h-[380px] lg:max-h-[440px]"
-              />
+              <picture>
+                <source srcSet={NEW_TIGO_7_PRO_IMAGE} type="image/webp" />
+                <source srcSet={NEW_TIGO_7_PRO_IMAGE_FALLBACK} type="image/jpeg" />
+                <img
+                  src={NEW_TIGO_7_PRO_IMAGE_FALLBACK}
+                  alt={copy.home.newTigo7Pro}
+                  loading="lazy"
+                  decoding="async"
+                  className="mx-auto w-full max-h-[280px] rounded-xl object-contain sm:max-h-[380px] lg:max-h-[440px]"
+                />
+              </picture>
             </div>
 
             <div className="flex justify-center border-t border-white/10 bg-brand-navy/80 px-4 py-5 sm:px-6">
