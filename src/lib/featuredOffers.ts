@@ -1,6 +1,16 @@
 import type { Car, FeaturedOffer, RentalPeriodType } from './types'
-import { getEffectivePrice } from './offers'
+import {
+  getCarOffer,
+  getEffectivePrice,
+  getOfferBadge,
+  getOfferSavings,
+  isOfferActive,
+} from './offers'
+import { getCarBasePrice } from './pricing'
 import { formatPrice } from './utils'
+
+/** الحد الأدنى للخصم ليظهر العرض تلقائياً في العروض المميزة */
+export const FEATURED_OFFER_MIN_SAVINGS = 200
 
 export const RENTAL_TYPE_LABELS: Record<RentalPeriodType, string> = {
   daily: 'إيجار يومي',
@@ -17,8 +27,98 @@ export function isFeaturedOfferActive(offer: FeaturedOffer): boolean {
   return true
 }
 
+export function isAutoCarFeaturedOffer(offer: FeaturedOffer): boolean {
+  return offer.id.startsWith('car-offer-')
+}
+
+/** تحويل عرض السيارة (يومي/شهري) إلى بطاقة عرض مميز */
+export function carToFeaturedOffer(car: Car, rentalType: RentalPeriodType): FeaturedOffer | null {
+  if (!car.is_available || !isOfferActive(car, rentalType)) return null
+
+  const savings = getOfferSavings(car, rentalType)
+  if (savings <= FEATURED_OFFER_MIN_SAVINGS) return null
+
+  const carOffer = getCarOffer(car, rentalType)
+  if (!carOffer) return null
+
+  const basePrice = getCarBasePrice(car, rentalType)
+  const effectivePrice = getEffectivePrice(car, rentalType)
+
+  return {
+    id: `car-offer-${rentalType}-${car.id}`,
+    title: carOffer.title.trim() || car.name,
+    description: carOffer.description.trim() || `${car.name} — ${RENTAL_TYPE_LABELS[rentalType]}`,
+    rental_type: rentalType,
+    image_url: car.image_url,
+    badge_text: getOfferBadge(car, rentalType) ?? '',
+    price: effectivePrice,
+    original_price: basePrice,
+    car_id: car.id,
+    link_url: null,
+    is_active: true,
+    is_featured: true,
+    valid_until: carOffer.valid_until,
+    sort_order: -Math.round(savings),
+    created_at: car.created_at,
+    updated_at: car.updated_at,
+    car,
+  }
+}
+
+export function buildAutoFeaturedOffersFromCars(cars: Car[]): FeaturedOffer[] {
+  const offers: FeaturedOffer[] = []
+  const rentalTypes: RentalPeriodType[] = ['daily', 'monthly']
+
+  for (const car of cars) {
+    for (const rentalType of rentalTypes) {
+      const offer = carToFeaturedOffer(car, rentalType)
+      if (offer) offers.push(offer)
+    }
+  }
+
+  return offers.sort((a, b) => a.sort_order - b.sort_order)
+}
+
+export function mergeFeaturedOffers(
+  manualOffers: FeaturedOffer[],
+  autoOffers: FeaturedOffer[],
+): FeaturedOffer[] {
+  const manualKeys = new Set(
+    manualOffers
+      .filter((offer) => offer.car_id)
+      .map((offer) => `${offer.car_id}-${offer.rental_type}`),
+  )
+
+  const uniqueAuto = autoOffers.filter(
+    (offer) => !manualKeys.has(`${offer.car_id}-${offer.rental_type}`),
+  )
+
+  return [...manualOffers, ...uniqueAuto].sort((a, b) => a.sort_order - b.sort_order)
+}
+
+export function resolveDisplayedFeaturedOffers(
+  manualOffers: FeaturedOffer[],
+  cars: Car[],
+  options: { activeOnly?: boolean; featuredOnly?: boolean } = {},
+): FeaturedOffer[] {
+  const { activeOnly = false, featuredOnly = false } = options
+
+  let displayedManual = manualOffers
+  if (activeOnly) displayedManual = displayedManual.filter(isFeaturedOfferActive)
+  if (featuredOnly) displayedManual = displayedManual.filter((offer) => offer.is_featured)
+
+  const autoOffers = buildAutoFeaturedOffersFromCars(cars).filter(
+    activeOnly ? isFeaturedOfferActive : () => true,
+  )
+
+  return mergeFeaturedOffers(displayedManual, autoOffers)
+}
+
 /** رابط صفحة الحجز مباشرة مع العرض */
 export function getFeaturedOfferLink(offer: FeaturedOffer): string {
+  if (isAutoCarFeaturedOffer(offer) && offer.car_id) {
+    return `/book/${offer.car_id}?rental=${offer.rental_type}`
+  }
   if (offer.car_id) {
     return `/book/${offer.car_id}?promo=${offer.id}`
   }

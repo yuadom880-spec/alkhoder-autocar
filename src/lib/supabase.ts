@@ -21,6 +21,7 @@ import type {
   FeaturedOffer,
   FeaturedOfferFormData,
 } from './types'
+import { resolveDisplayedFeaturedOffers } from './featuredOffers'
 import { normalizeCarOffers, sanitizeCarOffers } from './offers'
 import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
 import { calcDays } from './utils'
@@ -601,6 +602,21 @@ export async function fetchFeaturedOffers(
   const { data, error } = await query.order('sort_order', { ascending: true })
   if (error) throw new Error(formatError(error))
   return ((data as FeaturedOffer[]) ?? []).map(normalizeFeaturedOffer)
+}
+
+/** العروض المميزة المعروضة = عروض الإدارة + سيارات بخصم أكثر من 200 ر.س */
+export async function fetchDisplayedFeaturedOffers(
+  options: FetchFeaturedOffersOptions = {},
+): Promise<FeaturedOffer[]> {
+  const [manualOffers, cars] = await Promise.all([
+    fetchFeaturedOffers({ ...options, includeCars: true }),
+    fetchCars({ availableOnly: false }),
+  ])
+
+  return resolveDisplayedFeaturedOffers(manualOffers, cars, {
+    activeOnly: options.activeOnly,
+    featuredOnly: options.featuredOnly,
+  })
 }
 
 export async function fetchFeaturedOfferById(id: string): Promise<FeaturedOffer | null> {

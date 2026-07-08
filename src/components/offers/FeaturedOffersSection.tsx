@@ -7,7 +7,7 @@ import { Button } from '../ui/Button'
 import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
 import { isFeaturedOfferActive } from '../../lib/featuredOffers'
 import { copy } from '../../lib/copy'
-import { fetchFeaturedOffers } from '../../lib/supabase'
+import { fetchDisplayedFeaturedOffers } from '../../lib/supabase'
 import type { FeaturedOffer, RentalPeriodType } from '../../lib/types'
 import { cn } from '../../lib/utils'
 
@@ -31,7 +31,7 @@ export function FeaturedOffersSection({
   const [filter, setFilter] = useState<FilterType>('all')
 
   useEffect(() => {
-    fetchFeaturedOffers({
+    fetchDisplayedFeaturedOffers({
       activeOnly: true,
       featuredOnly: compact,
       includeCars: true,
