@@ -52,27 +52,28 @@
       rel="stylesheet"
     />
     <title>الخضر لتأجير السيارات | عبدالمجيد الخضر لتأجير السيارات | شركة عبدالمجيد الخضر</title>
-    <script type="application/ld+json">
+    <script id="alkhoder-structured-data" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "WebSite",
+            "@id": "https://alkhodercar.com/#website",
             "name": "الخضر لتأجير السيارات",
             "alternateName": [
               "عبدالمجيد الخضر لتأجير السيارات",
               "شركة عبدالمجيد الخضر لتأجير السيارات",
               "تأجير سيارات الخضر",
-              "ايجار سيارات الخضر",
-              "شركة الخضر لتأجير السيارات",
-              "alkhodercar"
+              "ايجار سيارات الخضر"
             ],
             "url": "https://alkhodercar.com/",
             "inLanguage": "ar-SA",
-            "description": "الخضر لتأجير السيارات — الموقع الرسمي لشركة عبدالمجيد الخضر لتأجير السيارات وعبدالمجيد الخضر لتأجير السيارات. ايجار سيارات يومي وشهري في السعودية."
+            "description": "الخضر لتأجير السيارات — الموقع الرسمي لشركة عبدالمجيد الخضر لتأجير السيارات وعبدالمجيد الخضر لتأجير السيارات. ايجار سيارات يومي وشهري في السعودية.",
+            "publisher": { "@id": "https://alkhodercar.com/#organization" }
           },
           {
             "@type": "Organization",
+            "@id": "https://alkhodercar.com/#organization",
             "name": "الخضر لتأجير السيارات",
             "legalName": "شركة عبدالمجيد الخضر لتأجير السيارات",
             "alternateName": [
@@ -81,30 +82,41 @@
               "Abdulmjeed Alkhoder Car Rental"
             ],
             "url": "https://alkhodercar.com/",
-            "logo": "https://alkhodercar.com/favicon-192.png",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://alkhodercar.com/favicon-192.png",
+              "width": 192,
+              "height": 192
+            },
+            "image": "https://alkhodercar.com/favicon-192.png",
             "contactPoint": {
               "@type": "ContactPoint",
               "telephone": "920018216",
               "contactType": "customer service",
               "areaServed": "SA",
               "availableLanguage": ["ar", "en"]
-            }
+            },
+            "sameAs": [
+              "https://wa.me/966504590002",
+              "https://maps.app.goo.gl/JJNXk515GhDxqu889"
+            ]
           },
           {
             "@type": "CarRental",
+            "@id": "https://alkhodercar.com/#carrental",
             "name": "الخضر لتأجير السيارات",
             "legalName": "شركة عبدالمجيد الخضر لتأجير السيارات",
-            "alternateName": [
-              "عبدالمجيد الخضر لتأجير السيارات",
-              "شركة عبدالمجيد الخضر لتأجير السيارات",
-              "تأجير سيارات الخضر",
-              "ايجار سيارات الخضر"
-            ],
             "url": "https://alkhodercar.com/",
             "telephone": "920018216",
             "image": "https://alkhodercar.com/favicon-192.png",
-            "logo": "https://alkhodercar.com/favicon-192.png",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://alkhodercar.com/favicon-192.png",
+              "width": 192,
+              "height": 192
+            },
             "priceRange": "$$",
+            "parentOrganization": { "@id": "https://alkhodercar.com/#organization" },
             "address": {
               "@type": "PostalAddress",
               "streetAddress": "طريق المطار",
@@ -112,10 +124,24 @@
               "addressRegion": "المدينة المنورة",
               "addressCountry": "SA"
             },
-            "areaServed": {
-              "@type": "Country",
-              "name": "Saudi Arabia"
-            }
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+                "opens": "08:00",
+                "closes": "24:00"
+              },
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "Friday",
+                "opens": "16:00",
+                "closes": "24:00"
+              }
+            ],
+            "sameAs": [
+              "https://wa.me/966504590002",
+              "https://maps.app.goo.gl/JJNXk515GhDxqu889"
+            ]
           }
         ]
       }

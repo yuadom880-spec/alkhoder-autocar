@@ -2,12 +2,8 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { SITE_SEO_PRIMARY } from '../../lib/constants'
 import {
-  buildBreadcrumbJsonLd,
-  buildLocalBusinessJsonLd,
-  buildOrganizationJsonLd,
-  buildWebSiteJsonLd,
+  buildPageJsonLdGraph,
   getCanonicalUrl,
-  getCityBySlug,
   getPageSeo,
   getSiteUrl,
   SEO_KEYWORDS,
@@ -75,29 +71,6 @@ export function PageSeo() {
     upsertMeta('twitter:image', `${origin}/favicon-192.png`)
     upsertMeta('application-name', SITE_SEO_PRIMARY)
 
-    const breadcrumbs = [{ name: 'الرئيسية', path: '/' }]
-    if (pathname.startsWith('/locations/')) {
-      breadcrumbs.push({ name: 'المدن', path: '/locations' })
-      const city = getCityBySlug(pathname.split('/')[2] ?? '')
-      if (city) breadcrumbs.push({ name: city.nameAr, path: pathname })
-    } else if (pathname !== '/') {
-      const labels: Record<string, string> = {
-        '/cars': 'السيارات',
-        '/offers': 'العروض',
-        '/about': 'من نحن',
-        '/branches': 'فروعنا',
-        '/locations': 'المدن',
-      }
-      const label = labels[pathname]
-      if (label) breadcrumbs.push({ name: label, path: pathname })
-    }
-
-    const jsonLdGraph = [
-      buildWebSiteJsonLd(origin),
-      ...(seo.noindex ? [] : [buildOrganizationJsonLd(origin), buildLocalBusinessJsonLd(origin)]),
-      ...(breadcrumbs.length > 1 ? [buildBreadcrumbJsonLd(breadcrumbs, origin)] : []),
-    ].map(({ '@context': _ctx, ...item }) => item)
-
     let script = document.getElementById(JSON_LD_ID) as HTMLScriptElement | null
     if (!script) {
       script = document.createElement('script')
@@ -105,10 +78,7 @@ export function PageSeo() {
       script.type = 'application/ld+json'
       document.head.appendChild(script)
     }
-    script.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@graph': jsonLdGraph,
-    })
+    script.textContent = JSON.stringify(buildPageJsonLdGraph(pathname, origin))
   }, [pathname])
 
   return null

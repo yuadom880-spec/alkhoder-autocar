@@ -5,12 +5,63 @@ import {
   SITE_NAME_EN,
   SITE_SEO_PRIMARY,
   TOLL_FREE,
-  TOLL_FREE_LINK,
   WHATSAPP_LINK,
 } from './constants'
-import { GOOGLE_REVIEWS_SUMMARY } from './reviews'
+import { GOOGLE_REVIEWS, GOOGLE_REVIEWS_SUMMARY } from './reviews'
 
 export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
+
+function schemaLogo(origin: string) {
+  return {
+    '@type': 'ImageObject' as const,
+    url: `${origin}/favicon-192.png`,
+    width: 192,
+    height: 192,
+  }
+}
+
+const OPENING_HOURS_SPEC = [
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    opens: '08:00',
+    closes: '24:00',
+  },
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Friday',
+    opens: '16:00',
+    closes: '24:00',
+  },
+] as const
+
+const SCHEMA_SAME_AS = [WHATSAPP_LINK, MAIN_BRANCH.mapUrl.split('?')[0]] as const
+
+function schemaId(origin: string, fragment: string) {
+  return `${origin}/#${fragment}`
+}
+
+function buildReviewItems() {
+  return GOOGLE_REVIEWS.slice(0, 5).map((review) => ({
+    '@type': 'Review',
+    author: {
+      '@type': 'Person',
+      name: review.nameAr ?? review.name,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: review.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    reviewBody: review.text,
+  }))
+}
+
+function stripJsonLdContext<T extends { '@context'?: string }>(item: T) {
+  const { '@context': _ctx, ...rest } = item
+  return rest
+}
 
 export function getSiteUrl(): string {
   const fromEnv = import.meta.env.VITE_SITE_URL as string | undefined
@@ -322,16 +373,13 @@ export function buildWebSiteJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': schemaId(origin, 'website'),
     name: SITE_SEO_PRIMARY,
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_NAME_EN],
-    url: origin,
+    url: `${origin}/`,
     inLanguage: 'ar-SA',
     description: SEO_DESCRIPTION,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${origin}/cars?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
+    publisher: { '@id': schemaId(origin, 'organization') },
   }
 }
 
@@ -339,11 +387,13 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': schemaId(origin, 'organization'),
     name: SITE_SEO_PRIMARY,
     legalName: SITE_COMPANY_NAME,
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME],
-    url: origin,
-    logo: `${origin}/favicon-192.png`,
+    url: `${origin}/`,
+    logo: schemaLogo(origin),
+    image: `${origin}/favicon-192.png`,
     description: SEO_DESCRIPTION,
     contactPoint: {
       '@type': 'ContactPoint',
@@ -352,7 +402,7 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
       areaServed: 'SA',
       availableLanguage: ['ar', 'en'],
     },
-    sameAs: [WHATSAPP_LINK, origin],
+    sameAs: [...SCHEMA_SAME_AS],
     knowsAbout: [
       'تأجير سيارات',
       'ايجار سيارات',
@@ -367,17 +417,19 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'CarRental',
+    '@id': schemaId(origin, 'carrental'),
     name: SITE_SEO_PRIMARY,
     legalName: SITE_COMPANY_NAME,
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
-    url: origin,
-    telephone: TOLL_FREE_LINK.replace('tel:', ''),
+    url: `${origin}/`,
+    telephone: TOLL_FREE,
     image: `${origin}/favicon-192.png`,
-    logo: `${origin}/favicon-192.png`,
+    logo: schemaLogo(origin),
     priceRange: '$$',
     currenciesAccepted: 'SAR',
     paymentAccepted: 'Cash, Credit Card',
+    parentOrganization: { '@id': schemaId(origin, 'organization') },
     address: {
       '@type': 'PostalAddress',
       streetAddress: MAIN_BRANCH.address,
@@ -389,8 +441,8 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
       '@type': 'City',
       name: c.nameAr,
     })),
-    sameAs: [WHATSAPP_LINK],
-    openingHours: 'Sa-Th 08:00-24:00, Fr 16:00-24:00',
+    sameAs: [...SCHEMA_SAME_AS],
+    openingHoursSpecification: OPENING_HOURS_SPEC,
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: TOLL_FREE,
@@ -400,11 +452,48 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
     },
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: GOOGLE_REVIEWS_SUMMARY.ratingValue,
-      bestRating: '5',
-      worstRating: '1',
-      reviewCount: String(GOOGLE_REVIEWS_SUMMARY.count),
+      ratingValue: GOOGLE_REVIEWS_SUMMARY.rating,
+      bestRating: 5,
+      worstRating: 1,
+      ratingCount: GOOGLE_REVIEWS_SUMMARY.count,
     },
+    review: buildReviewItems(),
+  }
+}
+
+export function buildPageJsonLdGraph(pathname: string, origin = getSiteUrl()) {
+  const seo = getPageSeo(pathname)
+  const breadcrumbs = [{ name: 'الرئيسية', path: '/' }]
+  if (pathname.startsWith('/locations/')) {
+    breadcrumbs.push({ name: 'المدن', path: '/locations' })
+    const city = getCityBySlug(pathname.split('/')[2] ?? '')
+    if (city) breadcrumbs.push({ name: city.nameAr, path: pathname })
+  } else if (pathname !== '/') {
+    const labels: Record<string, string> = {
+      '/cars': 'السيارات',
+      '/offers': 'العروض',
+      '/about': 'من نحن',
+      '/branches': 'فروعنا',
+      '/locations': 'المدن',
+    }
+    const label = labels[pathname]
+    if (label) breadcrumbs.push({ name: label, path: pathname })
+  }
+
+  const graph = [
+    stripJsonLdContext(buildWebSiteJsonLd(origin)),
+    ...(seo.noindex ? [] : [
+      stripJsonLdContext(buildOrganizationJsonLd(origin)),
+      stripJsonLdContext(buildLocalBusinessJsonLd(origin)),
+    ]),
+    ...(breadcrumbs.length > 1
+      ? [stripJsonLdContext(buildBreadcrumbJsonLd(breadcrumbs, origin))]
+      : []),
+  ]
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
   }
 }
 
