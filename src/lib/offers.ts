@@ -126,24 +126,24 @@ export function getOfferSavings(car: Car, rentalType: RentalPeriodType = 'daily'
   return Math.round((basePrice - getEffectivePrice(car, rentalType)) * 100) / 100
 }
 
+export const ADMIN_OFFER_DISCOUNT_TYPES = ['percent', 'fixed'] as const
+
 export const DISCOUNT_TYPE_LABELS: Record<OfferDiscountType, string> = {
   percent: 'نسبة مئوية (%)',
   fixed: 'مبلغ ثابت (ر.س)',
-  custom_price: 'سعر العرض',
+  custom_price: 'سعر العرض (قديم)',
 }
 
 export function getDiscountValueLabel(
   discountType: OfferDiscountType,
-  rentalType: RentalPeriodType,
+  _rentalType: RentalPeriodType,
 ): string {
-  const unit = rentalType === 'monthly' ? 'ر.س/شهر' : 'ر.س/يوم'
   switch (discountType) {
     case 'percent':
       return 'نسبة الخصم (%)'
     case 'fixed':
-      return 'مبلغ الخصم (ر.س)'
     case 'custom_price':
-      return `سعر العرض (${unit})`
+      return 'مبلغ الخصم (ر.س)'
     default:
       return 'قيمة الخصم'
   }

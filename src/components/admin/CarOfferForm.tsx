@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { Tag } from 'lucide-react'
 import type { CarOffer, RentalPeriodType } from '../../lib/types'
 import {
+  ADMIN_OFFER_DISCOUNT_TYPES,
   DEFAULT_OFFER,
   getDiscountValueLabel,
   previewOfferPrice,
@@ -48,6 +50,15 @@ export function CarOfferForm({
 
   const preview = enabled ? previewOfferPrice(basePrice, current) : basePrice
 
+  useEffect(() => {
+    if (!offer?.active || offer.discount_type !== 'custom_price') return
+    onChange({
+      ...offer,
+      discount_type: 'fixed',
+      discount_value: Math.max(0, Math.round((basePrice - offer.discount_value) * 100) / 100),
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- تحويل العروض القديمة مرة واحدة عند الفتح
+
   return (
     <div className="rounded-2xl border border-slate-200 overflow-hidden">
       <div className="flex items-center justify-between bg-slate-50 px-5 py-4 border-b border-slate-200">
@@ -93,22 +104,24 @@ export function CarOfferForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">نوع الخصم</label>
+              <label className="label-field">نوع العرض</label>
               <select
                 className="input-field"
-                value={current.discount_type}
+                value={
+                  current.discount_type === 'custom_price' ? 'fixed' : current.discount_type
+                }
                 onChange={(e) =>
                   update({
-                    discount_type: e.target.value as CarOffer['discount_type'],
+                    discount_type: e.target.value as 'percent' | 'fixed',
                     discount_value: 0,
                   })
                 }
               >
-                <option value="percent">نسبة مئوية (%)</option>
-                <option value="fixed">مبلغ ثابت (ر.س)</option>
-                <option value="custom_price">
-                  {rentalType === 'monthly' ? 'سعر العرض (ر.س/شهر)' : 'سعر العرض (ر.س/يوم)'}
-                </option>
+                {ADMIN_OFFER_DISCOUNT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type === 'percent' ? 'نسبة مئوية (%)' : 'مبلغ ثابت (ر.س)'}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
