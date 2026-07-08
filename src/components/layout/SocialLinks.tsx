@@ -32,9 +32,21 @@ type SocialLinksProps = {
   className?: string
   iconClassName?: string
   showLabels?: boolean
+  variant?: 'dark' | 'light'
 }
 
-export function SocialLinks({ className, iconClassName, showLabels = false }: SocialLinksProps) {
+const variantStyles = {
+  dark: 'border-slate-600/60 bg-slate-800/40 text-slate-300 hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold',
+  light:
+    'border-white/25 bg-white/10 text-white hover:border-brand-gold/60 hover:bg-white/20 hover:text-brand-gold',
+} as const
+
+export function SocialLinks({
+  className,
+  iconClassName,
+  showLabels = false,
+  variant = 'dark',
+}: SocialLinksProps) {
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
       {SOCIAL_LINKS.map((link) => (
@@ -46,7 +58,8 @@ export function SocialLinks({ className, iconClassName, showLabels = false }: So
           aria-label={link.label}
           title={link.label}
           className={cn(
-            'inline-flex items-center gap-2 rounded-lg border border-slate-600/60 bg-slate-800/40 p-2.5 text-slate-300 transition-colors hover:border-brand-gold/50 hover:bg-brand-gold/10 hover:text-brand-gold',
+            'inline-flex items-center gap-2 rounded-lg border p-2.5 transition-colors',
+            variantStyles[variant],
             iconClassName,
           )}
         >

@@ -18,6 +18,7 @@ import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
+import { SocialLinks } from '../components/layout/SocialLinks'
 import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import {
   LOGO_URL,
@@ -245,6 +246,10 @@ export function HomePage() {
                 <Clock className="h-5 w-5 shrink-0" />
                 {MAIN_BRANCH.hours}
               </p>
+            </div>
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-bold text-white">{copy.footer.social}</p>
+              <SocialLinks variant="light" />
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <a href={MAIN_BRANCH.mapUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
