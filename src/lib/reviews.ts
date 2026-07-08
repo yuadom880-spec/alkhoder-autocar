@@ -114,6 +114,6 @@ export const GOOGLE_REVIEWS: CustomerReview[] = [
 export const GOOGLE_REVIEWS_SUMMARY = {
   rating: 5,
   ratingValue: '5.0',
-  count: GOOGLE_REVIEWS.length,
+  count: 160,
   source: 'Google',
 } as const
