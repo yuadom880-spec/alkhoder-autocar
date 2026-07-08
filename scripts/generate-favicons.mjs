@@ -20,6 +20,7 @@ const SIZES = [
   { name: 'favicon-48.png', size: 48 },
   { name: 'favicon-96.png', size: 96 },
   { name: 'favicon-192.png', size: 192 },
+  { name: 'favicon-512.png', size: 512 },
   { name: 'apple-touch-icon.png', size: 180 },
 ]
 

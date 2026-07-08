@@ -8,7 +8,6 @@ import {
   type ReactNode,
 } from 'react'
 import { clearAdminSession, isAdminSession } from '../lib/admin'
-import { ensureSupabaseAdminAuth, isSupabaseConfigured, signOutAdmin } from '../lib/supabase'
 
 interface AuthContextValue {
   isAdmin: boolean
@@ -26,8 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const loggedIn = isAdminSession()
     setIsAdmin(loggedIn)
-    if (loggedIn && isSupabaseConfigured) {
-      await ensureSupabaseAdminAuth()
+    if (loggedIn) {
+      const { ensureSupabaseAdminAuth, isSupabaseConfigured } = await import('../lib/supabase')
+      if (isSupabaseConfigured) {
+        await ensureSupabaseAdminAuth()
+      }
     }
     setIsLoading(false)
   }, [])
@@ -38,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     clearAdminSession()
+    const { isSupabaseConfigured, signOutAdmin } = await import('../lib/supabase')
     if (isSupabaseConfigured) {
       await signOutAdmin()
     }
