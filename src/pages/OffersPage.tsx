@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
-import { SUMMER_VIDEO } from '../lib/constants'
+import { LazyVideo } from '../components/ui/LazyVideo'
+import { SAVINGS_OFFER_IMAGE, SUMMER_VIDEO } from '../lib/constants'
 import { copy } from '../lib/copy'
-import { asset } from '../lib/assets'
 
 export function OffersPage() {
   return (
@@ -31,15 +31,11 @@ export function OffersPage() {
             viewport={{ once: true }}
             className="overflow-hidden rounded-2xl shadow-lg"
           >
-            <video
+            <LazyVideo
               src={SUMMER_VIDEO}
-              controls
-              playsInline
+              poster={SAVINGS_OFFER_IMAGE}
               className="w-full max-h-[420px] object-cover bg-brand-dark"
-              poster={asset('عروض-التوفير.jpg.jpeg')}
-            >
-              <track kind="captions" />
-            </video>
+            />
           </motion.div>
         </div>
       </section>

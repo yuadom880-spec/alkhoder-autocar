@@ -490,5 +490,5 @@ export const PROMO_BANNERS = [
 
 export const SUMMER_VIDEO = asset('فيديو اجازة الصيف (1).mp4')
 export const BRAND_VIDEO = asset('الخضر للسيارات.mp4')
-export const NEW_TIGO_7_PRO_IMAGE = asset('تيجو 7 برو.jpeg')
-export const SAVINGS_OFFER_IMAGE = asset('عروض-التوفير.jpg.jpeg')
+export const NEW_TIGO_7_PRO_IMAGE = encodeURI('/تيجو 7 برو.webp')
+export const SAVINGS_OFFER_IMAGE = encodeURI('/عروض-التوفير.jpg.webp')

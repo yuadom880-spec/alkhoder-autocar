@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { MapPin } from 'lucide-react'
-import { isPersistedImageUrl } from '../../lib/imageUrl'
+import { isPersistedImageUrl, optimizeImageUrl } from '../../lib/imageUrl'
 import { cn } from '../../lib/utils'
 
 interface BranchImageProps {
@@ -37,7 +37,7 @@ export function BranchImage({
 
   return (
     <img
-      src={src!}
+      src={optimizeImageUrl(src, 720)}
       alt={alt}
       loading="lazy"
       decoding="async"

@@ -1,3 +1,4 @@
+import { optimizeImageUrl } from '../../lib/imageUrl'
 import { cn } from '../../lib/utils'
 
 type OfferImageVariant = 'card' | 'admin'
@@ -25,9 +26,10 @@ export function OfferImage({
   return (
     <div className={cn(wrapperStyles[variant], className)}>
       <img
-        src={src}
+        src={optimizeImageUrl(src, variant === 'card' ? 640 : 960)}
         alt={alt}
         loading="lazy"
+        decoding="async"
         className="h-full w-full object-contain"
       />
       {children}

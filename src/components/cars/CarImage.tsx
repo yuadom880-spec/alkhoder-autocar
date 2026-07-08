@@ -1,3 +1,4 @@
+import { optimizeImageUrl } from '../../lib/imageUrl'
 import { cn } from '../../lib/utils'
 
 type CarImageVariant = 'card' | 'detail' | 'thumb' | 'summary'
@@ -19,6 +20,13 @@ const wrapperStyles: Record<CarImageVariant, string> = {
   summary: 'h-20 w-28 overflow-hidden rounded-xl bg-slate-100 shrink-0',
 }
 
+const imageWidths: Record<CarImageVariant, number> = {
+  card: 640,
+  detail: 960,
+  thumb: 192,
+  summary: 224,
+}
+
 const imgStyles: Record<CarImageVariant, string> = {
   card: 'h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]',
   detail: 'h-full w-full object-contain',
@@ -35,12 +43,15 @@ export function CarImage({
   loading = 'lazy',
   children,
 }: CarImageProps) {
+  const optimizedSrc = optimizeImageUrl(src, imageWidths[variant])
+
   return (
     <div className={cn(wrapperStyles[variant], className)}>
       <img
-        src={src}
+        src={optimizedSrc}
         alt={alt}
         loading={loading}
+        decoding="async"
         className={cn(imgStyles[variant], imgClassName)}
       />
       {children}

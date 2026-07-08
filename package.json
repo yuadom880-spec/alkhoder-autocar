@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/generate-seo-files.mjs",
     "favicons:generate": "node scripts/generate-favicons.mjs",
+    "images:optimize": "node scripts/optimize-images.mjs",
     "seo:generate": "node scripts/generate-seo-files.mjs",
     "lint": "oxlint",
     "preview": "vite preview",

@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, ExternalLink, MapPin, Phone } from 'lucide-react'
 import { BranchImage } from '../components/branches/BranchImage'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
 import { PROFILE_ABOUT, PROFILE_BRANCH_REGIONS, PROFILE_IMAGES } from '../lib/profile'
 import { fetchBranches } from '../lib/supabase'
@@ -33,7 +34,7 @@ export function BranchesPage() {
         </div>
 
         <div className="mb-12 overflow-hidden rounded-3xl shadow-md">
-          <img
+          <OptimizedImage
             src={PROFILE_IMAGES.branchesMap}
             alt="فروع شركة عبدالمجيد الخضر في المملكة"
             className="h-48 sm:h-64 lg:h-80 w-full object-cover object-center"

@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { OptimizedImage } from '../ui/OptimizedImage'
 import { SAVINGS_OFFER_IMAGE } from '../../lib/constants'
 
 export function SummerPromoBlock() {
@@ -10,7 +11,7 @@ export function SummerPromoBlock() {
             to="/offers"
             className="block overflow-hidden rounded-2xl bg-white shadow-md card-hover"
           >
-            <img
+            <OptimizedImage
               src={SAVINGS_OFFER_IMAGE}
               alt="عروض التوفير"
               className="mx-auto w-full max-h-[240px] object-contain sm:max-h-[300px] lg:max-h-[360px]"

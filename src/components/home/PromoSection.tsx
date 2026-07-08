@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
+import { LazyVideo } from '../ui/LazyVideo'
+import { OptimizedImage } from '../ui/OptimizedImage'
 import { PROMO_BANNERS, SUMMER_VIDEO } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 
@@ -18,15 +20,11 @@ export function PromoSection() {
           viewport={{ once: true }}
           className="mb-8 overflow-hidden rounded-2xl shadow-lg"
         >
-          <video
+          <LazyVideo
             src={SUMMER_VIDEO}
-            controls
-            playsInline
-            className="w-full max-h-[420px] object-cover bg-brand-dark"
             poster={PROMO_BANNERS[0].src}
-          >
-            <track kind="captions" />
-          </video>
+            className="w-full max-h-[420px] object-cover bg-brand-dark"
+          />
         </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -42,7 +40,7 @@ export function PromoSection() {
                 to={banner.link}
                 className="group block overflow-hidden rounded-2xl bg-white shadow-md card-hover"
               >
-                <img
+                <OptimizedImage
                   src={banner.src}
                   alt={banner.alt}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

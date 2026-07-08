@@ -17,6 +17,7 @@ import { SeoBrandSection } from '../components/seo/SeoBrandSection'
 import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import {
   LOGO_URL,
   MAIN_BRANCH,
@@ -66,16 +67,22 @@ export function HomePage() {
     <>
       <section className="relative min-h-0 overflow-hidden bg-brand-dark text-white pb-4 sm:min-h-[620px] sm:pb-8 md:pb-24 lg:min-h-[700px] lg:pb-28">
         <div className="absolute inset-0">
-          <img
+          <OptimizedImage
             src={PROFILE_IMAGES.heroLuxurySuv}
+            mobileSrc={PROFILE_IMAGES.heroLuxurySuvMobile}
             alt=""
-            aria-hidden
+            ariaHidden
+            loading="eager"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover object-[center_62%] brightness-[0.88] contrast-[1.1] saturate-[1.05] sm:hidden"
           />
           <motion.img
             src={PROFILE_IMAGES.heroLuxurySuv}
             alt=""
             aria-hidden
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             initial={{ scale: 1 }}
             animate={{ scale: 1.05 }}
             transition={{ duration: 28, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}

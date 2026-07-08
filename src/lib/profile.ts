@@ -1,19 +1,18 @@
-import { asset } from './assets'
-
 /** محتوى وصور الملف التعريفي — عبدالمجيد الخضر لتأجير السيارات */
 export function profileAsset(filename: string): string {
   return encodeURI(`/profile/${filename}`)
 }
 
-export const PARTNERS_IMAGE = asset('شركاء النجاح.png')
+export const PARTNERS_IMAGE = encodeURI('/شركاء النجاح.webp')
 
 export const PROFILE_IMAGES = {
   /** باترول سوداء فاخرة — خلفية الهيرو */
-  heroLuxurySuv: '/hero-patrol-black.jpg',
-  hero: profileAsset('page-01-img-002.bmp'),
-  aboutFleet: profileAsset('page-03-img-003.bmp'),
-  fleetBanner: profileAsset('page-12-img-070.bmp'),
-  branchesMap: profileAsset('page-12-img-070.bmp'),
+  heroLuxurySuv: '/hero-patrol-black.webp',
+  heroLuxurySuvMobile: '/hero-patrol-black-mobile.webp',
+  hero: profileAsset('page-01-img-002.webp'),
+  aboutFleet: profileAsset('page-03-img-003.webp'),
+  fleetBanner: profileAsset('page-12-img-070.webp'),
+  branchesMap: profileAsset('page-12-img-070.webp'),
 } as const
 
 export const PROFILE_CONTACT = {
@@ -90,7 +89,7 @@ type FleetCategory = {
 
 function fleetImg(page: number, index: number): string {
   const num = String(index).padStart(3, '0')
-  return profileAsset(`page-${String(page).padStart(2, '0')}-img-${num}.bmp`)
+  return profileAsset(`page-${String(page).padStart(2, '0')}-img-${num}.webp`)
 }
 
 export const PROFILE_FLEET: FleetCategory[] = [
@@ -120,7 +119,7 @@ export const PROFILE_FLEET: FleetCategory[] = [
     title: 'دفع رباعي',
     titleEn: 'SUVs',
     models: [
-      { name: 'Chery Tiggo 7 Pro', image: asset('تيجو 7 برو.jpeg') },
+      { name: 'Chery Tiggo 7 Pro', image: encodeURI('/تيجو 7 برو.webp') },
       { name: 'Toyota RAV-4', image: fleetImg(8, 37) },
       { name: 'Nissan Kicks', image: fleetImg(9, 43) },
       { name: 'Chevrolet Captiva', image: fleetImg(9, 46) },

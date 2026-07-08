@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
+import { OptimizedImage } from '../ui/OptimizedImage'
 import { Button } from '../ui/Button'
 import { copy } from '../../lib/copy'
 import { PROFILE_FLEET, PROFILE_IMAGES } from '../../lib/profile'
@@ -28,7 +29,7 @@ export function FleetShowcaseSection() {
         </div>
 
         <div className="mb-8 overflow-hidden rounded-2xl">
-          <img
+          <OptimizedImage
             src={PROFILE_IMAGES.fleetBanner}
             alt="أسطول عبدالمجيد الخضر"
             className="h-40 sm:h-56 w-full object-cover object-center"
@@ -65,7 +66,7 @@ export function FleetShowcaseSection() {
               className="group overflow-hidden rounded-xl bg-white shadow-md card-hover"
             >
               <div className="aspect-square overflow-hidden bg-slate-50 p-2">
-                <img
+                <OptimizedImage
                   src={model.image}
                   alt={model.name}
                   loading="lazy"

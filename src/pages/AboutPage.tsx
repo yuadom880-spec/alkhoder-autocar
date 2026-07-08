@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Award, Globe2, Headphones, Sparkles, Target } from 'lucide-react'
+import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
 import {
   PROFILE_ABOUT,
@@ -24,9 +25,10 @@ export function AboutPage() {
         </div>
 
         <div className="mb-16 overflow-hidden rounded-3xl">
-          <img
+          <OptimizedImage
             src={PROFILE_IMAGES.aboutFleet}
             alt="أسطول عبدالمجيد الخضر لتأجير السيارات"
+            loading="lazy"
             className="h-64 w-full object-cover sm:h-80 lg:h-96"
           />
         </div>
