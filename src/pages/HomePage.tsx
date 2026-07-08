@@ -176,8 +176,6 @@ export function HomePage() {
 
       <ProfileServicesSection />
 
-      <CustomerReviewsSection />
-
       <FleetShowcaseSection />
 
       <NewTigo7ProSection />
@@ -253,6 +251,8 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <CustomerReviewsSection />
 
       <SeoBrandSection />
 
