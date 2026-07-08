@@ -8,6 +8,7 @@ import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
+import { CustomerReviewsSection } from '../components/home/CustomerReviewsSection'
 import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
 import { QuickSearch } from '../components/home/QuickSearch'
@@ -174,6 +175,8 @@ export function HomePage() {
       </section>
 
       <ProfileServicesSection />
+
+      <CustomerReviewsSection />
 
       <FleetShowcaseSection />
 

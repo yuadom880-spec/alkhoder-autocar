@@ -8,6 +8,7 @@ import {
   TOLL_FREE_LINK,
   WHATSAPP_LINK,
 } from './constants'
+import { GOOGLE_REVIEWS_SUMMARY } from './reviews'
 
 export const DEFAULT_SITE_URL = 'https://alkhodercar.com'
 
@@ -392,6 +393,13 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
       contactType: 'customer service',
       areaServed: 'SA',
       availableLanguage: ['Arabic', 'English'],
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: GOOGLE_REVIEWS_SUMMARY.ratingValue,
+      bestRating: '5',
+      worstRating: '1',
+      reviewCount: String(GOOGLE_REVIEWS_SUMMARY.count),
     },
   }
 }

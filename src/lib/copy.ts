@@ -36,6 +36,9 @@ export const copy = {
     newTigo7Pro: 'جديدنا — تيجو 7 برو',
     newTigo7ProSub: 'SUV عائلي — راحة وأداء على الطريق',
     brandVideoTitle: 'الخضر للسيارات',
+    reviewsTitle: 'آراء عملائنا',
+    reviewsSub: 'تقييمات حقيقية 5 نجوم من مراجعات Google — تجارب عملائنا في تأجير السيارات',
+    reviewsCta: 'شاهد على Google',
   },
   features: [
     { title: 'أسطول متنوع', desc: 'سيارات اقتصادية وفاخرة وعائلية — على كيفك' },
