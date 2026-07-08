@@ -26,9 +26,9 @@ import {
   PHONE_LINK,
   SITE_NAME,
   SITE_NAME_EN,
-  SITE_SEO_PRIMARY,
   WHATSAPP_LINK,
 } from '../lib/constants'
+import { SEO_HOME_H1, SEO_HOME_SUBTITLE } from '../lib/seo'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { copy } from '../lib/copy'
@@ -117,9 +117,9 @@ export function HomePage() {
                 {copy.site.tagline}
               </span>
               <h1 className="mt-1 font-extrabold leading-snug text-[clamp(1.35rem,5.8vw,2.75rem)] text-white sm:mt-1.5">
-                {SITE_NAME}
+                {SEO_HOME_H1}
               </h1>
-              <p className="text-sm font-semibold text-brand-gold sm:text-lg">{SITE_SEO_PRIMARY}</p>
+              <p className="text-sm font-semibold text-brand-gold sm:text-lg">{SEO_HOME_SUBTITLE}</p>
               <p className="hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
               <p className="hidden text-lg font-bold text-white sm:block sm:text-2xl">
                 {copy.site.heroTitle}
@@ -154,6 +154,8 @@ export function HomePage() {
 
         <QuickSearch />
       </section>
+
+      <SeoBrandSection />
 
       <section className="py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
@@ -262,8 +264,6 @@ export function HomePage() {
       </section>
 
       <CustomerReviewsSection />
-
-      <SeoBrandSection />
 
       <SeoCitiesSection />
 

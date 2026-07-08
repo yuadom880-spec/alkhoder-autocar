@@ -8,8 +8,10 @@ import {
   PHONE,
   PHONE_LINK,
   LOGO_URL,
+  SITE_COMPANY_NAME,
   SITE_NAME,
   SITE_NAME_SHORT,
+  SITE_SEO_PRIMARY,
   TOLL_FREE,
   TOLL_FREE_LINK,
   WHATSAPP_LINK,
@@ -25,7 +27,10 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-4">
               <img src={LOGO_URL} alt={copy.footer.brandAlt} className="h-12 w-auto rounded-lg object-contain" />
-              <span className="text-lg font-bold text-white">{SITE_NAME_SHORT}</span>
+              <div>
+                <span className="block text-lg font-bold text-white">{SITE_SEO_PRIMARY}</span>
+                <span className="block text-xs text-slate-400">{SITE_NAME_SHORT}</span>
+              </div>
             </Link>
             <p className="text-sm leading-relaxed text-slate-400">{copy.footer.desc}</p>
             <p className="mt-3 hidden text-[10px] leading-relaxed text-slate-600 md:block">{SEO_KEYWORDS_FOOTER_TEXT}</p>
@@ -152,7 +157,7 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-slate-700/50 pt-6 text-center text-xs text-slate-500 space-y-2">
-          <p>© {new Date().getFullYear()} {SITE_NAME}. {copy.footer.rights}.</p>
+          <p>© {new Date().getFullYear()} {SITE_COMPANY_NAME} — {SITE_NAME}. {copy.footer.rights}.</p>
           <p className="text-[10px] sm:text-xs text-slate-600 pt-1">{copy.footer.tagline}</p>
         </div>
       </div>

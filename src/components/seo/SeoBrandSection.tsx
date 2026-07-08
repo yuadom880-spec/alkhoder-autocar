@@ -10,6 +10,9 @@ export function SeoBrandSection() {
         <h2 id="seo-brand-heading" className="text-xl font-bold text-brand-dark sm:text-2xl">
           {SEO_BRAND_INTRO.heading}
         </h2>
+        <p className="mt-2 text-base font-semibold text-brand-green sm:text-lg">
+          {SEO_BRAND_INTRO.subheading}
+        </p>
         {SEO_BRAND_INTRO.paragraphs.map((text) => (
           <p key={text} className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
             {text}
