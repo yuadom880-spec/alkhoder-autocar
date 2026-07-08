@@ -5,7 +5,8 @@ export function profileAsset(filename: string): string {
   return encodeURI(`/profile/${filename}`)
 }
 
-export const PARTNERS_IMAGE = encodeURI('/شركاء النجاح.webp')
+export const PARTNERS_IMAGE = asset('شركاء النجاح.webp')
+export const PARTNERS_IMAGE_FALLBACK = asset('شركاء النجاح.png')
 
 export const PROFILE_IMAGES = {
   /** باترول سوداء فاخرة — خلفية الهيرو */

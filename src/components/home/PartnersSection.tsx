@@ -1,6 +1,5 @@
-import { OptimizedImage } from '../ui/OptimizedImage'
 import { copy } from '../../lib/copy'
-import { PARTNERS_IMAGE } from '../../lib/profile'
+import { PARTNERS_IMAGE, PARTNERS_IMAGE_FALLBACK } from '../../lib/profile'
 
 export function PartnersSection() {
   return (
@@ -12,12 +11,17 @@ export function PartnersSection() {
         </div>
 
         <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-slate-100 bg-white px-3 py-4 sm:px-6 sm:py-5 shadow-sm">
-          <OptimizedImage
-            src={PARTNERS_IMAGE}
-            alt={copy.profile.partnersTitle}
-            loading="lazy"
-            className="mx-auto w-full h-auto object-contain"
-          />
+          <picture>
+            <source srcSet={PARTNERS_IMAGE} type="image/webp" />
+            <source srcSet={PARTNERS_IMAGE_FALLBACK} type="image/png" />
+            <img
+              src={PARTNERS_IMAGE_FALLBACK}
+              alt={copy.profile.partnersTitle}
+              loading="lazy"
+              decoding="async"
+              className="mx-auto w-full h-auto object-contain"
+            />
+          </picture>
         </div>
 
         <p className="mt-4 text-center text-xs text-slate-400">{copy.profile.partnersCta}</p>
