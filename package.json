@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "db:check": "node scripts/check-supabase.mjs",
     "db:migrate-branch-phone": "node scripts/migrate-branch-phone.mjs",
+    "db:migrate-branch-hours": "node scripts/migrate-branch-hours.mjs",
     "db:setup": "node scripts/setup-database.mjs",
     "db:admin": "node scripts/create-admin.mjs",
     "portfolio:pdf": "node scripts/generate-portfolio-pdf.mjs",

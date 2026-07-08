@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS branches (
   address TEXT NOT NULL,
   city TEXT NOT NULL,
   phone TEXT DEFAULT NULL,
-  hours TEXT DEFAULT 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م',
+  hours TEXT DEFAULT 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م',
   map_url TEXT DEFAULT '#',
   image_url TEXT DEFAULT NULL,
   is_main BOOLEAN DEFAULT false,

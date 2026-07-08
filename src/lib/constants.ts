@@ -31,7 +31,7 @@ export const TOLL_FREE_LINK = 'tel:920018216'
 export const EMAIL_QA = 'Alkhedr.qa@alkhedrcars.com'
 export const EMAIL_OSAMA = 'M.osama@alkhedrcars.com'
 
-const BRANCH_HOURS = 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م'
+const BRANCH_HOURS = 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م'
 
 export type Branch = {
   name: string

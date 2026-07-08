@@ -1,6 +1,6 @@
 import type { BranchRecord } from './types'
 
-const DEFAULT_HOURS = 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م'
+const DEFAULT_HOURS = 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م'
 const now = new Date().toISOString()
 
 export const DEMO_BRANCHES: BranchRecord[] = [

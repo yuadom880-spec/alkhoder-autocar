@@ -4,7 +4,7 @@ import { BranchImageUploader } from './BranchImageUploader'
 import { Button } from '../ui/Button'
 import type { BranchFormData, BranchRecord } from '../../lib/types'
 
-const DEFAULT_HOURS = 'السبت - الخميس: 8 ص - 11 م | الجمعة: 4 م - 11 م'
+const DEFAULT_HOURS = 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م'
 
 const emptyForm = (): BranchFormData => ({
   name: '',

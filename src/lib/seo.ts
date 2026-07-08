@@ -386,7 +386,7 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
       name: c.nameAr,
     })),
     sameAs: [WHATSAPP_LINK],
-    openingHours: 'Mo-Su 08:00-23:00',
+    openingHours: 'Sa-Th 08:00-24:00, Fr 16:00-24:00',
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: TOLL_FREE,
