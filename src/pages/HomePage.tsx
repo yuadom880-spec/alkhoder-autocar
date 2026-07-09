@@ -156,8 +156,6 @@ export function HomePage() {
         <QuickSearch />
       </section>
 
-      <SeoBrandSection />
-
       <section className="py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
           <div className="mb-8 text-center sm:mb-10">
@@ -273,6 +271,8 @@ export function HomePage() {
       <SeoCitiesSection />
 
       <PartnersSection />
+
+      <SeoBrandSection />
     </>
   )
 }
