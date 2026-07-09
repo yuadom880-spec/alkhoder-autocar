@@ -60,4 +60,15 @@ for (const dir of ['public', 'dist']) {
   fs.writeFileSync(path.join(target, 'robots.txt'), robots, 'utf8')
 }
 
+const FORBIDDEN_SCHEMA = ['aggregateRating', 'reviewBody', '"@type": "Review"', '"@type":"Review"']
+for (const file of ['index.html', 'dist/index.html']) {
+  const htmlPath = path.join(root, file)
+  if (!fs.existsSync(htmlPath)) continue
+  const html = fs.readFileSync(htmlPath, 'utf8')
+  const hit = FORBIDDEN_SCHEMA.find((token) => html.includes(token))
+  if (hit) {
+    throw new Error(`Review schema is not allowed in ${file} (found: ${hit})`)
+  }
+}
+
 console.log(`SEO files generated for ${SITE_URL}`)

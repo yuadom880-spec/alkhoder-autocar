@@ -415,10 +415,8 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    '@id': schemaId(origin, 'localbusiness'),
-    additionalType: 'https://schema.org/CarRental',
+    '@id': schemaId(origin, 'business'),
     name: SITE_SEO_PRIMARY,
-    legalName: SITE_COMPANY_NAME,
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
     url: `${origin}/`,
