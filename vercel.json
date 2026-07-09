@@ -2,7 +2,71 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-site"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/((?!googledc055f82532d3d71\\.html|robots\\.txt|sitemap\\.xml|favicon\\.ico|favicon-48\\.png|favicon-96\\.png|favicon-192\\.png|apple-touch-icon\\.png|logo\\.png|assets/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!googledc055f82532d3d71\\.html|robots\\.txt|sitemap\\.xml|favicon\\.ico|favicon-48\\.png|favicon-96\\.png|favicon-192\\.png|favicon-512\\.png|apple-touch-icon\\.png|logo\\.png|manifest\\.webmanifest|sw\\.js|workbox-.*\\.js|assets/).*)",
+      "destination": "/index.html"
+    }
   ]
 }

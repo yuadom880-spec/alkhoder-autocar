@@ -17,6 +17,7 @@ export default defineConfig({
         'apple-touch-icon.png',
       ],
       manifest: {
+        id: 'https://alkhodercar.com/',
         name: 'الخضر لتأجير السيارات',
         short_name: 'الخضر',
         description:
@@ -24,17 +25,30 @@ export default defineConfig({
         theme_color: '#0d7a4a',
         background_color: '#f8fafc',
         display: 'standalone',
+        display_override: ['standalone', 'minimal-ui'],
         orientation: 'portrait',
         scope: '/',
-        start_url: '/',
+        start_url: '/?source=pwa',
         lang: 'ar',
         dir: 'rtl',
         categories: ['business', 'travel'],
+        prefer_related_applications: false,
         icons: [
+          {
+            src: 'favicon-48.png',
+            sizes: '48x48',
+            type: 'image/png',
+          },
+          {
+            src: 'favicon-96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
           {
             src: 'favicon-192.png',
             sizes: '192x192',
             type: 'image/png',
+            purpose: 'any',
           },
           {
             src: 'favicon-512.png',
@@ -54,6 +68,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/admin/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
