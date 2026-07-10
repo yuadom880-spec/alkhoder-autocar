@@ -17,7 +17,7 @@ import {
   WHATSAPP_LINK,
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
-import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
+
 import { SEO_CITIES, SEO_KEYWORDS_FOOTER_TEXT } from '../../lib/seo'
 import { SocialLinks } from './SocialLinks'
 
@@ -163,7 +163,6 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-slate-700/50 pt-6 text-center text-xs text-slate-500 space-y-2">
-          <PricesIncludeVatNote variant="dark" className="mx-auto" />
           <p>© {new Date().getFullYear()} {SITE_COMPANY_NAME} — {SITE_NAME}. {copy.footer.rights}.</p>
           <p className="text-[10px] sm:text-xs text-slate-600 pt-1">{copy.footer.tagline}</p>
         </div>
