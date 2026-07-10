@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { SITE_SEO_PRIMARY } from '../../lib/constants'
+import { SITE_COPYRIGHT_NOTICE, SITE_META_AUTHOR, SITE_SEO_PRIMARY } from '../../lib/constants'
 import {
   buildPageJsonLdGraph,
   getCanonicalUrl,
@@ -55,6 +55,8 @@ export function PageSeo() {
     upsertMeta('description', seo.description)
     upsertMeta('keywords', keywords)
     upsertMeta('robots', robots)
+    upsertMeta('author', SITE_META_AUTHOR)
+    upsertMeta('copyright', SITE_COPYRIGHT_NOTICE)
     upsertLink('canonical', canonical)
 
     upsertPropertyMeta('og:title', seo.title)

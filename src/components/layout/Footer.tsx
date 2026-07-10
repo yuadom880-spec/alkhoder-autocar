@@ -8,8 +8,6 @@ import {
   PHONE,
   PHONE_LINK,
   LOGO_URL,
-  SITE_COMPANY_NAME,
-  SITE_NAME,
   SITE_NAME_SHORT,
   SITE_SEO_PRIMARY,
   TOLL_FREE,
@@ -19,6 +17,7 @@ import {
 import { copy } from '../../lib/copy'
 
 import { SEO_CITIES, SEO_KEYWORDS_FOOTER_TEXT } from '../../lib/seo'
+import { CopyrightNotice } from './CopyrightNotice'
 import { SocialLinks } from './SocialLinks'
 
 export function Footer() {
@@ -162,9 +161,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-slate-700/50 pt-6 text-center text-xs text-slate-500 space-y-2">
-          <p>© {new Date().getFullYear()} {SITE_COMPANY_NAME} — {SITE_NAME}. {copy.footer.rights}.</p>
-          <p className="text-[10px] sm:text-xs text-slate-600 pt-1">{copy.footer.tagline}</p>
+        <div className="mt-10 border-t border-slate-700/50 pt-6">
+          <CopyrightNotice />
+          <p className="mt-3 text-center text-[10px] text-slate-600 sm:text-xs">{copy.footer.tagline}</p>
         </div>
       </div>
     </footer>

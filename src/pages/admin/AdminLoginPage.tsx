@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 import { setAdminSession, validateAdminCredentials } from '../../lib/admin'
 import { ensureSupabaseAdminAuth, isSupabaseConfigured } from '../../lib/supabase'
+import { CopyrightNotice } from '../../components/layout/CopyrightNotice'
+import { PageSeo } from '../../components/seo/PageSeo'
 import { LOGO_URL, SITE_NAME } from '../../lib/constants'
 
 export function AdminLoginPage() {
@@ -44,7 +46,9 @@ export function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-bl from-brand-dark to-brand-navy p-4">
+    <div className="flex min-h-screen flex-col bg-gradient-to-bl from-brand-dark to-brand-navy">
+      <PageSeo />
+      <div className="flex flex-1 items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-8 shadow-2xl">
         <div className="mb-8 text-center">
           <img
@@ -108,6 +112,8 @@ export function AdminLoginPage() {
           </a>
         </p>
       </div>
+      </div>
+      <CopyrightNotice variant="admin" />
     </div>
   )
 }
