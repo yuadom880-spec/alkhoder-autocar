@@ -19,6 +19,7 @@
     "db:admin": "node scripts/create-admin.mjs",
     "portfolio:pdf": "node scripts/generate-portfolio-pdf.mjs",
     "report:pdf": "node scripts/generate-report-pdf.mjs",
+    "report:employees": "node scripts/generate-employee-admin-guide.mjs",
     "poster:pdf": "node scripts/generate-branch-poster-pdf.mjs"
   },
   "dependencies": {
