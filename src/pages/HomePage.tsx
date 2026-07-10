@@ -5,6 +5,9 @@ import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { CarCard } from '../components/cars/CarCard'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
+import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
+import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
+import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
@@ -32,6 +35,7 @@ import {
 import { SEO_HOME_H1, SEO_HOME_SUBTITLE } from '../lib/seo'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
+import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
 
@@ -43,16 +47,16 @@ export function HomePage() {
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
   const { rentalType, setRentalType } = useRentalPeriod()
-
-  const savedBranchId = useMemo(
-    () => sessionStorage.getItem('alkhoder_customer_branch') ?? '',
-    [],
-  )
+  const { branchId, hasBranch } = useCustomerBranch()
 
   useEffect(() => {
+    if (!hasBranch) {
+      setLoading(false)
+      return
+    }
     Promise.all([
       fetchCars({ availableOnly: false }),
-      fetchBookingBlocks(undefined, savedBranchId || null),
+      fetchBookingBlocks(undefined, branchId || null),
     ])
       .then(([carsData, blocksData]) => {
         setCars(carsData)
@@ -60,18 +64,16 @@ export function HomePage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [savedBranchId])
+  }, [hasBranch, branchId])
 
-  const fleetCars = useMemo(
-    () =>
-      cars.map((car) => ({
+  const fleetCars = useMemo(() => {
+    if (!hasBranch) return []
+    return cars.filter((car) => carMatchesBranch(car, branchId))
+      .map((car) => ({
         car,
-        availability: savedBranchId
-          ? getCarAvailability(car, blocks, undefined, undefined, savedBranchId)
-          : undefined,
-      })),
-    [cars, blocks, savedBranchId],
-  )
+        availability: getCarAvailability(car, blocks, undefined, undefined, branchId),
+      }))
+  }, [cars, blocks, branchId, hasBranch])
 
   return (
     <>
@@ -197,7 +199,21 @@ export function HomePage() {
 
       <NewTigo7ProSection />
 
-      <FeaturedOffersSection compact limit={6} />
+      <HomeBranchPicker />
+
+      {hasBranch ? (
+        <FeaturedOffersSection compact limit={6} branchId={branchId} />
+      ) : (
+        <section className="py-16 lg:py-20 bg-slate-50">
+          <div className="container-main">
+            <div className="mb-8">
+              <h2 className="section-title">{copy.offers.title}</h2>
+              <p className="section-subtitle">{copy.offers.subtitle}</p>
+            </div>
+            <BranchRequiredPlaceholder />
+          </div>
+        </section>
+      )}
 
       <section className="bg-white py-16 lg:py-20">
         <div className="container-main">
@@ -212,7 +228,9 @@ export function HomePage() {
             <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
           </div>
 
-          {loading ? (
+          {!hasBranch ? (
+            <BranchRequiredPlaceholder />
+          ) : loading ? (
             <LoadingSpinner />
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -222,7 +240,7 @@ export function HomePage() {
                   car={car}
                   index={i}
                   rentalType={rentalType}
-                  branchId={savedBranchId || undefined}
+                  branchId={branchId || undefined}
                   availability={availability}
                 />
               ))}

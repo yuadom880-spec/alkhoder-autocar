@@ -260,8 +260,15 @@ export function CarDetailPage() {
               </div>
 
               {!hasBranch ? (
-                <div className="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center">
-                  <p className="text-amber-800 font-medium">{copy.cars.branchRequiredHint}</p>
+                <div className="rounded-2xl bg-brand-green/5 border border-brand-green/20 p-6 text-center">
+                  <p className="text-brand-dark font-medium mb-1">{copy.cars.branchPromptTitle}</p>
+                  <p className="text-sm text-slate-600 mb-4">{copy.cars.branchRequiredHint}</p>
+                  <Link
+                    to="/#choose-branch-home"
+                    className="inline-flex items-center justify-center rounded-xl bg-brand-green px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-brand-green/90"
+                  >
+                    {copy.cars.branchPromptCta}
+                  </Link>
                 </div>
               ) : canBook ? (
                 <Link to={bookUrl} className="hidden lg:block">

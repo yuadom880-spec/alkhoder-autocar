@@ -2,7 +2,6 @@ import { Outlet } from 'react-router'
 import { CustomerBranchProvider } from '../../context/CustomerBranchContext'
 import { PageSeo } from '../seo/PageSeo'
 import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
-import { CustomerBranchBar } from './CustomerBranchBar'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { MobileBookingBar } from './MobileBookingBar'
@@ -14,7 +13,6 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <PageSeo />
       <Header />
-      <CustomerBranchBar />
       <div className="border-b border-brand-green/10 bg-brand-green/[0.04] py-2 text-center">
         <PricesIncludeVatNote className="mt-0" />
       </div>

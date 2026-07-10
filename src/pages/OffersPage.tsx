@@ -1,11 +1,15 @@
 import { motion } from 'framer-motion'
+import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
+import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
+import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { LazyVideo } from '../components/ui/LazyVideo'
 import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import { SAVINGS_OFFER_IMAGE_FALLBACK, SUMMER_VIDEO } from '../lib/constants'
 import { copy } from '../lib/copy'
 
 export function OffersPage() {
+  const { branchId, hasBranch } = useCustomerBranch()
   return (
     <>
       <section className="page-shell bg-gradient-to-bl from-brand-dark via-brand-navy to-brand-slate text-white">
@@ -42,7 +46,17 @@ export function OffersPage() {
         </div>
       </section>
 
-      <FeaturedOffersSection compact={false} showHeader={false} />
+      <HomeBranchPicker />
+
+      {hasBranch ? (
+        <FeaturedOffersSection compact={false} showHeader={false} branchId={branchId} />
+      ) : (
+        <section className="py-16 lg:py-20 bg-slate-50">
+          <div className="container-main">
+            <BranchRequiredPlaceholder />
+          </div>
+        </section>
+      )}
     </>
   )
 }

@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
 
+import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
+import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
@@ -99,11 +101,17 @@ export function CarsPage() {
           <PricesIncludeVatNote />
         </div>
 
-        {hasBranch && (
-          <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
-        )}
+        <div className="mb-8 -mx-4 sm:mx-0">
+          <HomeBranchPicker />
+        </div>
 
-        {startDate && endDate && (
+        {!hasBranch ? (
+          <BranchRequiredPlaceholder />
+        ) : (
+          <>
+            <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
+
+            {startDate && endDate && (
           <div className="mb-6 flex items-start gap-2 rounded-xl bg-brand-green/5 border border-brand-green/20 px-4 py-3 text-sm">
             <Calendar className="h-4 w-4 text-brand-green shrink-0 mt-0.5" />
             <span className="text-slate-600 leading-relaxed">
@@ -171,13 +179,8 @@ export function CarsPage() {
           </div>
         </div>
 
-        {loading ? (
+            {loading ? (
           <LoadingSpinner />
-        ) : !hasBranch ? (
-          <div className="rounded-2xl bg-white py-12 text-center shadow-md px-6">
-            <p className="text-slate-600 font-medium">{copy.cars.pickBranchSub}</p>
-            <p className="text-sm text-brand-green mt-2 font-bold">{copy.cars.pickBranchTitle}</p>
-          </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-md">
             <p className="text-slate-500">{copy.cars.noCarsInBranch}</p>
@@ -200,6 +203,8 @@ export function CarsPage() {
               />
             ))}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>

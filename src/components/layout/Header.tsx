@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { MapPin, Menu, Phone, X } from 'lucide-react'
-import { useCustomerBranch } from '../../context/CustomerBranchContext'
+import { Menu, Phone, X } from 'lucide-react'
 import { NAV_LINKS, TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
 import { Logo } from '../ui/Logo'
 import { copy } from '../../lib/copy'
@@ -11,7 +10,6 @@ import { Button } from '../ui/Button'
 export function Header() {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
-  const { selectedBranch, hasBranch } = useCustomerBranch()
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md safe-top">
@@ -37,13 +35,6 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <a
-            href={hasBranch ? '#choose-branch' : '#choose-branch'}
-            className="flex items-center gap-2 rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-white shadow-md shadow-brand-green/25 hover:bg-brand-green/90 transition-colors"
-          >
-            <MapPin className="h-4 w-4" />
-            {hasBranch && selectedBranch ? selectedBranch.name : copy.cars.pickBranchTitle}
-          </a>
-          <a
             href={TOLL_FREE_LINK}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-green transition-colors"
           >
@@ -56,29 +47,20 @@ export function Header() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
-          <a
-            href="#choose-branch"
-            className="flex max-w-[120px] items-center gap-1 rounded-lg bg-brand-green px-2.5 py-2 text-[10px] font-bold text-white truncate"
-          >
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">
-              {hasBranch && selectedBranch ? selectedBranch.name : copy.cars.chooseBranch}
-            </span>
-          </a>
           <Link to="/branches">
             <Button size="sm" variant="outline" className="min-h-[40px] px-3 text-xs">
               فروعنا
             </Button>
           </Link>
-        <button
-          type="button"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200"
-          onClick={() => setOpen(!open)}
-          aria-label="القائمة"
-          aria-expanded={open}
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          <button
+            type="button"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+            onClick={() => setOpen(!open)}
+            aria-label="القائمة"
+            aria-expanded={open}
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
       </div>
 
@@ -108,7 +90,9 @@ export function Header() {
               <span dir="ltr">{TOLL_FREE}</span>
             </a>
             <Link to="/cars" onClick={() => setOpen(false)} className="mt-2">
-              <Button className="w-full min-h-[48px]" size="lg">{copy.nav.bookNow}</Button>
+              <Button className="w-full min-h-[48px]" size="lg">
+                {copy.nav.bookNow}
+              </Button>
             </Link>
           </nav>
         </div>

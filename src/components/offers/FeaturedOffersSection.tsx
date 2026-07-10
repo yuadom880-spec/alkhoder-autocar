@@ -7,6 +7,7 @@ import { Button } from '../ui/Button'
 import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
 import { isFeaturedOfferActive } from '../../lib/featuredOffers'
 import { copy } from '../../lib/copy'
+import { filterOffersByBranch } from '../../lib/adminBranchFilters'
 import { fetchDisplayedFeaturedOffers } from '../../lib/supabase'
 import type { FeaturedOffer, RentalPeriodType } from '../../lib/types'
 import { cn } from '../../lib/utils'
@@ -18,6 +19,7 @@ interface FeaturedOffersSectionProps {
   showFilters?: boolean
   showHeader?: boolean
   limit?: number
+  branchId?: string | null
 }
 
 export function FeaturedOffersSection({
@@ -25,6 +27,7 @@ export function FeaturedOffersSection({
   showFilters = true,
   showHeader = true,
   limit,
+  branchId = null,
 }: FeaturedOffersSectionProps) {
   const [offers, setOffers] = useState<FeaturedOffer[]>([])
   const [loading, setLoading] = useState(true)
@@ -42,11 +45,14 @@ export function FeaturedOffersSection({
   }, [compact])
 
   const filtered = useMemo(() => {
-    let result = offers.filter(isFeaturedOfferActive)
+    let result = filterOffersByBranch(
+      offers.filter(isFeaturedOfferActive),
+      branchId,
+    )
     if (filter !== 'all') result = result.filter((o) => o.rental_type === filter)
     if (limit) result = result.slice(0, limit)
     return result
-  }, [offers, filter, limit])
+  }, [offers, filter, limit, branchId])
 
   const filters: { value: FilterType; label: string }[] = [
     { value: 'all', label: copy.offers.filterAll },

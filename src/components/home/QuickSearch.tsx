@@ -16,10 +16,6 @@ export function QuickSearch() {
   const [error, setError] = useState('')
 
   const handleSearch = () => {
-    if (!branchId) {
-      setError(copy.cars.branchRequiredSearch)
-      return
-    }
     if (!startDate || !endDate) {
       setError('حدد التواريخ عشان نعرض لك السيارات')
       return
@@ -28,8 +24,11 @@ export function QuickSearch() {
       setError('تاريخ النهاية لازم يكون بعد البداية')
       return
     }
-    sessionStorage.setItem('alkhoder_customer_branch', branchId)
-    const params = new URLSearchParams({ start: startDate, end: endDate, branch: branchId })
+    const params = new URLSearchParams({ start: startDate, end: endDate })
+    if (branchId) {
+      sessionStorage.setItem('alkhoder_customer_branch', branchId)
+      params.set('branch', branchId)
+    }
     navigate(`/cars?${params.toString()}`)
   }
 
@@ -89,9 +88,8 @@ export function QuickSearch() {
                   setBranchId(e.target.value)
                   setError('')
                 }}
-                required
               >
-                <option value="">{copy.cars.selectBranchPlaceholder}</option>
+                <option value="">{copy.cars.allBranches}</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name} — {b.city}
