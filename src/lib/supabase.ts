@@ -65,9 +65,17 @@ function prepareCarPatch(form: Partial<CarFormData>): Partial<CarFormData> {
 }
 
 function formatSupabaseMutationError(error: { code?: string; message?: string }): string {
+  const message = error.message ?? ''
+  if (
+    message.includes('unavailable_branch_ids') ||
+    message.includes('disabled_branch_ids') ||
+    message.includes('schema cache')
+  ) {
+    return 'قاعدة البيانات تحتاج تحديث — افتح Supabase → SQL Editor → انسخ والصق ملف supabase/schema.sql (القسم الفوري في أول الملف) ثم Run. بعدها: Settings → API → Reload schema'
+  }
   if (
     error.code === 'PGRST116' ||
-    error.message?.includes('single JSON object')
+    message.includes('single JSON object')
   ) {
     return 'فشل حفظ التعديل — سجّل الخروج من الإدارة ثم ادخل من جديد'
   }

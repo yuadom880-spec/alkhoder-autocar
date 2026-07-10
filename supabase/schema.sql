@@ -2,16 +2,62 @@
 -- الخضر لتأجير السيارات - Alkhoder AutoCar
 -- ملف SQL الوحيد — انسخه كاملاً والصقه في Supabase SQL Editor ثم Run
 -- آمن للتشغيل المتكرر على قاعدة جديدة أو موجودة (idempotent)
---
--- يشمل كل الترقيات:
---   • الجداول الأساسية (سيارات، حجوزات، عروض، فروع)
---   • توفر الحجز حسب الفرع (get_booking_blocks)
---   • إيقاف العروض اليدوية لفرع محدد (featured_offers.disabled_branch_ids)
---   • إيقاف السيارات لفرع محدد (cars.unavailable_branch_ids)
---   • RLS + Storage + بيانات تجريبية
---
--- لا حاجة لتشغيل ملفات supabase/migrations/ منفصلة — كلها هنا
 -- ============================================================
+
+-- ████████████████████████████████████████████████████████████
+-- ★★★ شغّل هذا القسم أولاً إن ظهر خطأ unavailable_branch_ids ★★★
+-- ████████████████████████████████████████████████████████████
+--
+-- الخطأ: Could not find the 'unavailable_branch_ids' column of 'cars'
+-- الحل: انسخ من هنا إلى NOTIFY والصق في SQL Editor ثم Run
+
+-- ① عمود إيقاف السيارة لفرع واحد فقط (الأساسي)
+ALTER TABLE public.cars
+  ADD COLUMN IF NOT EXISTS unavailable_branch_ids JSONB DEFAULT '[]'::jsonb;
+
+UPDATE public.cars
+SET unavailable_branch_ids = '[]'::jsonb
+WHERE unavailable_branch_ids IS NULL;
+
+ALTER TABLE public.cars
+  ALTER COLUMN unavailable_branch_ids SET DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.cars
+  ALTER COLUMN unavailable_branch_ids SET NOT NULL;
+
+-- ② عمود إيقاف العروض اليدوية لفرع واحد فقط
+ALTER TABLE public.featured_offers
+  ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB DEFAULT '[]'::jsonb;
+
+UPDATE public.featured_offers
+SET disabled_branch_ids = '[]'::jsonb
+WHERE disabled_branch_ids IS NULL;
+
+ALTER TABLE public.featured_offers
+  ALTER COLUMN disabled_branch_ids SET DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.featured_offers
+  ALTER COLUMN disabled_branch_ids SET NOT NULL;
+
+-- ③ إصلاح سيارات أوقفت عالمياً بالخطأ (إيقاف كان لفرع واحد)
+UPDATE public.cars
+SET is_available = true
+WHERE is_available = false
+  AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
+
+-- ④ إعادة تحميل schema cache (مهم جداً بعد إضافة الأعمدة)
+NOTIFY pgrst, 'reload schema';
+
+-- تحقق — لازم يرجع عمود unavailable_branch_ids
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'cars'
+  AND column_name IN ('unavailable_branch_ids', 'branch_ids', 'is_available');
+
+-- ████████████████████████████████████████████████████████████
+-- نهاية القسم الفوري — يمكنك تشغيل باقي الملف بعده أو كاملاً
+-- ████████████████████████████████████████████████████████████
 
 -- ─── دوال مساعدة ───────────────────────────────────────────
 
@@ -392,3 +438,6 @@ SELECT * FROM (VALUES
    'سيارة فاخرة للمناسبات', true, true)
 ) AS v(name, brand, model, year, category, price_per_day, price_per_month, image_url, images, specs, description, is_available, is_featured)
 WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
+
+-- ─── إعادة تحميل schema cache (بعد أي تعديل على الجداول) ───
+NOTIFY pgrst, 'reload schema';
