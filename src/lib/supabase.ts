@@ -362,31 +362,20 @@ export async function fetchBookingBlocks(
   }
 
   const client = requireSupabase()
-  const { data, error } = await client.rpc('get_booking_blocks', {
-    p_car_id: carId ?? null,
-    p_branch_id: branchId ?? null,
-  })
+  let query = client
+    .from(BOOKINGS_TABLE)
+    .select('id, car_id, start_date, end_date, status, branch_id')
+    .in('status', ['pending', 'confirmed'])
 
-  if (error) {
-    // fallback إذا الدالة غير منشأة بعد
-    let query = client
-      .from(BOOKINGS_TABLE)
-      .select('id, car_id, start_date, end_date, status, branch_id')
-      .in('status', ['pending', 'confirmed'])
-    if (carId) query = query.eq('car_id', carId)
-    const { data: rows, error: qErr } = await query
-    if (qErr) throw new Error(formatError(qErr))
-    return ((rows as BookingBlock[]) ?? []).map((b) => ({
-      id: b.id,
-      car_id: b.car_id,
-      start_date: b.start_date,
-      end_date: b.end_date,
-      status: b.status,
-      branch_id: b.branch_id ?? null,
-    }))
+  if (carId) query = query.eq('car_id', carId)
+  if (branchId) {
+    query = query.or(`branch_id.is.null,branch_id.eq.${branchId}`)
   }
 
-  return ((data as BookingBlock[]) ?? []).map((b) => ({
+  const { data: rows, error: qErr } = await query
+  if (qErr) throw new Error(formatError(qErr))
+
+  return ((rows as BookingBlock[]) ?? []).map((b) => ({
     id: b.id,
     car_id: b.car_id,
     start_date: b.start_date,

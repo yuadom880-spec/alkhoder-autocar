@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { Menu, Phone, X } from 'lucide-react'
+import { MapPin, Menu, Phone, X } from 'lucide-react'
+import { useCustomerBranch } from '../../context/CustomerBranchContext'
 import { NAV_LINKS, TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
 import { Logo } from '../ui/Logo'
 import { copy } from '../../lib/copy'
@@ -10,6 +11,7 @@ import { Button } from '../ui/Button'
 export function Header() {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
+  const { selectedBranch, hasBranch } = useCustomerBranch()
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md safe-top">
@@ -35,6 +37,13 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <a
+            href={hasBranch ? '#choose-branch' : '#choose-branch'}
+            className="flex items-center gap-2 rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-white shadow-md shadow-brand-green/25 hover:bg-brand-green/90 transition-colors"
+          >
+            <MapPin className="h-4 w-4" />
+            {hasBranch && selectedBranch ? selectedBranch.name : copy.cars.pickBranchTitle}
+          </a>
+          <a
             href={TOLL_FREE_LINK}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-green transition-colors"
           >
@@ -47,6 +56,15 @@ export function Header() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 lg:hidden">
+          <a
+            href="#choose-branch"
+            className="flex max-w-[120px] items-center gap-1 rounded-lg bg-brand-green px-2.5 py-2 text-[10px] font-bold text-white truncate"
+          >
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">
+              {hasBranch && selectedBranch ? selectedBranch.name : copy.cars.chooseBranch}
+            </span>
+          </a>
           <Link to="/branches">
             <Button size="sm" variant="outline" className="min-h-[40px] px-3 text-xs">
               فروعنا

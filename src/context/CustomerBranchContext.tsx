@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useSearchParams } from 'react-router'
+import { DEMO_BRANCHES } from '../lib/branchesData'
 import { fetchBranches } from '../lib/supabase'
 import type { BranchRecord } from '../lib/types'
 
@@ -19,8 +20,10 @@ interface CustomerBranchContextValue {
   selectedBranch: BranchRecord | null
   hasBranch: boolean
   loading: boolean
+  loadError: string
   setBranchId: (id: string) => void
   clearBranch: () => void
+  reloadBranches: () => void
 }
 
 const CustomerBranchContext = createContext<CustomerBranchContextValue | null>(null)
@@ -29,6 +32,7 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [branches, setBranches] = useState<BranchRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   const branchFromUrl = searchParams.get('branch') ?? ''
   const [branchId, setBranchIdState] = useState(() => {
@@ -36,12 +40,24 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
     return sessionStorage.getItem(CUSTOMER_BRANCH_KEY) ?? ''
   })
 
-  useEffect(() => {
-    fetchBranches({ activeOnly: true })
-      .then(setBranches)
-      .catch(console.error)
+  const loadBranches = useCallback(() => {
+    setLoading(true)
+    setLoadError('')
+    return fetchBranches({ activeOnly: true })
+      .then((data) => {
+        setBranches(data.length > 0 ? data : DEMO_BRANCHES.filter((b) => b.is_active))
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoadError('تعذر تحميل الفروع — نعرض الفروع الافتراضية')
+        setBranches(DEMO_BRANCHES.filter((b) => b.is_active))
+      })
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    loadBranches()
+  }, [loadBranches])
 
   useEffect(() => {
     if (branchFromUrl && branchFromUrl !== branchId) {
@@ -49,17 +65,6 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
       sessionStorage.setItem(CUSTOMER_BRANCH_KEY, branchFromUrl)
     }
   }, [branchFromUrl, branchId])
-
-  useEffect(() => {
-    if (!branchId && branches.length === 1) {
-      const only = branches[0].id
-      setBranchIdState(only)
-      sessionStorage.setItem(CUSTOMER_BRANCH_KEY, only)
-      const params = new URLSearchParams(searchParams)
-      params.set('branch', only)
-      setSearchParams(params, { replace: true })
-    }
-  }, [branches, branchId, searchParams, setSearchParams])
 
   const setBranchId = useCallback(
     (id: string) => {
@@ -74,6 +79,19 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
     },
     [searchParams, setSearchParams],
   )
+
+  useEffect(() => {
+    if (loading || branches.length === 0) return
+
+    if (branchId && !branches.some((b) => b.id === branchId)) {
+      setBranchId('')
+      return
+    }
+
+    if (!branchId && branches.length === 1) {
+      setBranchId(branches[0].id)
+    }
+  }, [loading, branches, branchId, setBranchId])
 
   const clearBranch = useCallback(() => setBranchId(''), [setBranchId])
 
@@ -91,10 +109,22 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
       selectedBranch,
       hasBranch,
       loading,
+      loadError,
       setBranchId,
       clearBranch,
+      reloadBranches: loadBranches,
     }),
-    [branches, branchId, selectedBranch, hasBranch, loading, setBranchId, clearBranch],
+    [
+      branches,
+      branchId,
+      selectedBranch,
+      hasBranch,
+      loading,
+      loadError,
+      setBranchId,
+      clearBranch,
+      loadBranches,
+    ],
   )
 
   return (

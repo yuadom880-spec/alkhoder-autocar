@@ -65,7 +65,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        cacheId: 'alkhoder-branch-v1',
+        cacheId: 'alkhoder-branch-v2',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/admin/],
