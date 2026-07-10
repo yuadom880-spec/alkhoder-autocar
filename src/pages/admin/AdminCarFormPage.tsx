@@ -61,8 +61,11 @@ export function AdminCarFormPage() {
           <CarForm
             initial={car ?? undefined}
             onSubmit={async (data) => {
-              if (isEdit && id) {
-                await updateCar(id, data)
+              if (isEdit && id && car) {
+                await updateCar(id, {
+                  ...data,
+                  unavailable_branch_ids: car.unavailable_branch_ids ?? [],
+                })
               } else {
                 await createCar(data)
               }

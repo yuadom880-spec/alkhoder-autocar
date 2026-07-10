@@ -81,6 +81,10 @@ export function AdminCarsPage() {
   }
 
   const handleToggleAvailable = async (car: Car) => {
+    if (isBranchMode && !branchScopeId) {
+      alert('اختر فرعاً من شريط الأعلى أولاً')
+      return
+    }
     if (!confirmAdminCarAvailabilityToggle(car, branchScopeId)) return
     setToggling(car.id)
     try {

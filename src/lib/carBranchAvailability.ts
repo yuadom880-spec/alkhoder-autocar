@@ -1,7 +1,17 @@
 import type { Car } from './types'
 
+export function normalizeBranchIdForStorage(branchId: string): string {
+  return branchId.trim().toLowerCase()
+}
+
 export function normalizeUnavailableBranchIds(car: Car): string[] {
-  return Array.isArray(car.unavailable_branch_ids) ? car.unavailable_branch_ids : []
+  if (!Array.isArray(car.unavailable_branch_ids)) return []
+  return car.unavailable_branch_ids.map(normalizeBranchIdForStorage)
+}
+
+function isBranchListed(ids: string[], branchId: string): boolean {
+  const target = normalizeBranchIdForStorage(branchId)
+  return ids.some((id) => normalizeBranchIdForStorage(id) === target)
 }
 
 /** هل السيارة موقوفة عالمياً أو في فرع محدد */
@@ -11,7 +21,7 @@ export function isCarUnavailableForBranch(
 ): boolean {
   if (!car.is_available) return true
   if (!branchId) return false
-  return normalizeUnavailableBranchIds(car).includes(branchId)
+  return isBranchListed(normalizeUnavailableBranchIds(car), branchId)
 }
 
 export function isCarAvailableForBranch(car: Car, branchId?: string | null): boolean {
@@ -24,7 +34,8 @@ export function buildCarBranchAvailabilityPatch(
   available: boolean,
 ): Pick<Car, 'is_available' | 'unavailable_branch_ids'> {
   const ids = new Set(normalizeUnavailableBranchIds(car))
-  if (available) ids.delete(branchId)
-  else ids.add(branchId)
+  const normalizedBranchId = normalizeBranchIdForStorage(branchId)
+  if (available) ids.delete(normalizedBranchId)
+  else ids.add(normalizedBranchId)
   return { is_available: true, unavailable_branch_ids: [...ids] }
 }

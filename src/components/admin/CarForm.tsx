@@ -48,6 +48,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     is_featured: true,
     offer: initial?.offer ?? { daily: null, monthly: null },
     branch_ids: defaultBranchIds(initial, isBranchMode ? activeBranchId : null),
+    unavailable_branch_ids: initial?.unavailable_branch_ids ?? [],
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -251,17 +252,19 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.is_available}
-            onChange={(e) => update('is_available', e.target.checked)}
-            className="rounded border-slate-300 text-brand-green focus:ring-brand-green"
-          />
-          متاحة للحجز على الموقع
-        </label>
-      </div>
+      {!isBranchMode && (
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.is_available}
+              onChange={(e) => update('is_available', e.target.checked)}
+              className="rounded border-slate-300 text-brand-green focus:ring-brand-green"
+            />
+            متاحة للحجز في كل الفروع
+          </label>
+        </div>
+      )}
 
       {error && (
         <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>

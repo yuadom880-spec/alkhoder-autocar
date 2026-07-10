@@ -140,12 +140,36 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
 -- إيقاف العرض اليدوي لفرع محدد فقط
 ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 
--- تهيئة أعمدة الفروع (إن كانت NULL من بيانات قديمة)
-UPDATE cars SET unavailable_branch_ids = '[]'::jsonb
-WHERE unavailable_branch_ids IS NULL;
+-- ═══════════════════════════════════════════════════════════
+-- ★ توفر السيارة حسب الفرع (إيقاف فرع واحد فقط) ★
+-- ═══════════════════════════════════════════════════════════
+-- المنطق:
+--   is_available = true                    → متاحة عالمياً (الافتراضي)
+--   unavailable_branch_ids يحتوي فرعك     → غير متاحة في ذلك الفرع فقط
+--   is_available = false                   → غير متاحة في كل الفروع
+--
+-- الإدارة (وضع فرعي): تضيف/تحذف UUID الفرع من unavailable_branch_ids
+-- الموقع (العميل): يقرأ unavailable_branch_ids حسب الفرع المختار
+-- ═══════════════════════════════════════════════════════════
 
+ALTER TABLE cars
+  ALTER COLUMN unavailable_branch_ids SET DEFAULT '[]'::jsonb;
+
+UPDATE cars
+SET unavailable_branch_ids = '[]'::jsonb
+WHERE unavailable_branch_ids IS NULL
+   OR jsonb_typeof(unavailable_branch_ids) <> 'array';
+
+-- إصلاح: إيقاف كان مفروض لفرع واحد لكن تحوّل لإيقاف عالمي (is_available=false)
+UPDATE cars
+SET is_available = true
+WHERE is_available = false
+  AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
+
+-- تهيئة عروض الفروع
 UPDATE featured_offers SET disabled_branch_ids = '[]'::jsonb
-WHERE disabled_branch_ids IS NULL;
+WHERE disabled_branch_ids IS NULL
+   OR jsonb_typeof(disabled_branch_ids) <> 'array';
 
 -- ربط فرع الحجز بجدول الفروع (إن وُجد)
 DO $$
