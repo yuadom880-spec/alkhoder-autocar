@@ -3,8 +3,13 @@ import { useCustomerBranch } from '../../context/CustomerBranchContext'
 import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 
-/** اختيار الفرع في الصفحة الرئيسية — قبل العروض وأسطول السيارات */
-export function HomeBranchPicker() {
+interface HomeBranchPickerProps {
+  /** وجهة زر «شوف كل السيارات» — افتراضياً قسم العروض في الرئيسية */
+  browseTargetId?: string
+}
+
+/** اختيار الفرع — اختياري؛ بدون فرع يُعرض كل الأسطول */
+export function HomeBranchPicker({ browseTargetId = 'home-offers' }: HomeBranchPickerProps) {
   const { branches, selectedBranch, hasBranch, loading, setBranchId } = useCustomerBranch()
 
   if (loading) {
@@ -44,7 +49,7 @@ export function HomeBranchPicker() {
             onClick={() => setBranchId('')}
             className="rounded-xl border border-brand-green/40 bg-white px-4 py-2 text-sm font-bold text-brand-green hover:bg-brand-green/5"
           >
-            {copy.cars.changeBranch}
+            {copy.cars.clearBranch}
           </button>
         </div>
       </section>
@@ -90,6 +95,15 @@ export function HomeBranchPicker() {
               )}
             </button>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href={`#${browseTargetId}`}
+            className="inline-flex items-center justify-center rounded-xl border-2 border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:border-brand-green/40 hover:text-brand-green transition-colors"
+          >
+            {copy.cars.browseAllWithoutBranch}
+          </a>
         </div>
       </div>
     </section>

@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
 
-import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
@@ -45,23 +44,25 @@ export function CarsPage() {
     setAvailableOnly(Boolean(startDate && endDate))
   }, [startDate, endDate])
 
+  const { branchId: selectedBranch, hasBranch } = useCustomerBranch()
+
   useEffect(() => {
-    Promise.all([fetchCars({ availableOnly: false }), fetchBookingBlocks()])
+    setLoading(true)
+    Promise.all([
+      fetchCars({ availableOnly: false }),
+      fetchBookingBlocks(undefined, hasBranch ? selectedBranch : null),
+    ])
       .then(([carsData, blocksData]) => {
         setCars(carsData)
         setBlocks(blocksData)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [])
-
-  const { branchId: selectedBranch, hasBranch } = useCustomerBranch()
+  }, [hasBranch, selectedBranch])
 
   const filtered = useMemo(() => {
-    if (!hasBranch) return []
-
     const result = cars.filter((car) => {
-      if (!carMatchesBranch(car, selectedBranch || null)) return false
+      if (!carMatchesBranch(car, hasBranch ? selectedBranch : null)) return false
       const matchCategory = category === 'all' || car.category === category
       const matchClass = carClass === 'all' || car.car_class === carClass
       const q = search.trim().toLowerCase()
@@ -81,7 +82,7 @@ export function CarsPage() {
         blocks,
         startDate || undefined,
         endDate || undefined,
-        selectedBranch || null,
+        hasBranch ? selectedBranch : null,
       ),
     }))
 
@@ -102,16 +103,15 @@ export function CarsPage() {
         </div>
 
         <div className="mb-8 -mx-4 sm:mx-0">
-          <HomeBranchPicker />
+          <HomeBranchPicker browseTargetId="cars-list" />
         </div>
 
-        {!hasBranch ? (
-          <BranchRequiredPlaceholder />
-        ) : (
-          <>
-            <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
+        <div id="cars-list">
+        {hasBranch && (
+          <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
+        )}
 
-            {startDate && endDate && (
+        {startDate && endDate && (
           <div className="mb-6 flex items-start gap-2 rounded-xl bg-brand-green/5 border border-brand-green/20 px-4 py-3 text-sm">
             <Calendar className="h-4 w-4 text-brand-green shrink-0 mt-0.5" />
             <span className="text-slate-600 leading-relaxed">
@@ -179,7 +179,7 @@ export function CarsPage() {
           </div>
         </div>
 
-            {loading ? (
+        {loading ? (
           <LoadingSpinner />
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-md">
@@ -197,15 +197,14 @@ export function CarsPage() {
                 index={i}
                 startDate={startDate}
                 endDate={endDate}
-                branchId={selectedBranch || undefined}
+                branchId={hasBranch ? selectedBranch || undefined : undefined}
                 rentalType={rentalType}
                 availability={availability}
               />
             ))}
           </div>
         )}
-          </>
-        )}
+        </div>
       </div>
     </div>
   )

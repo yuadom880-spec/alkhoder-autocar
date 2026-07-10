@@ -88,9 +88,6 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    if (!branchId && branches.length === 1) {
-      setBranchId(branches[0].id)
-    }
   }, [loading, branches, branchId, setBranchId])
 
   const clearBranch = useCallback(() => setBranchId(''), [setBranchId])

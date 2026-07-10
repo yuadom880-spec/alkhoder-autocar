@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
@@ -46,17 +45,15 @@ export function OffersPage() {
         </div>
       </section>
 
-      <HomeBranchPicker />
+      <HomeBranchPicker browseTargetId="offers-list" />
 
-      {hasBranch ? (
-        <FeaturedOffersSection compact={false} showHeader={false} branchId={branchId} />
-      ) : (
-        <section className="py-16 lg:py-20 bg-slate-50">
-          <div className="container-main">
-            <BranchRequiredPlaceholder />
-          </div>
-        </section>
-      )}
+      <div id="offers-list">
+      <FeaturedOffersSection
+        compact={false}
+        showHeader={false}
+        branchId={hasBranch ? branchId : null}
+      />
+      </div>
     </>
   )
 }

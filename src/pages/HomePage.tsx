@@ -5,7 +5,6 @@ import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { CarCard } from '../components/cars/CarCard'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
-import { BranchRequiredPlaceholder } from '../components/home/BranchRequiredPlaceholder'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
@@ -50,13 +49,10 @@ export function HomePage() {
   const { branchId, hasBranch } = useCustomerBranch()
 
   useEffect(() => {
-    if (!hasBranch) {
-      setLoading(false)
-      return
-    }
+    setLoading(true)
     Promise.all([
       fetchCars({ availableOnly: false }),
-      fetchBookingBlocks(undefined, branchId || null),
+      fetchBookingBlocks(undefined, hasBranch ? branchId : null),
     ])
       .then(([carsData, blocksData]) => {
         setCars(carsData)
@@ -67,11 +63,17 @@ export function HomePage() {
   }, [hasBranch, branchId])
 
   const fleetCars = useMemo(() => {
-    if (!hasBranch) return []
-    return cars.filter((car) => carMatchesBranch(car, branchId))
+    return cars
+      .filter((car) => carMatchesBranch(car, hasBranch ? branchId : null))
       .map((car) => ({
         car,
-        availability: getCarAvailability(car, blocks, undefined, undefined, branchId),
+        availability: getCarAvailability(
+          car,
+          blocks,
+          undefined,
+          undefined,
+          hasBranch ? branchId : null,
+        ),
       }))
   }, [cars, blocks, branchId, hasBranch])
 
@@ -201,21 +203,11 @@ export function HomePage() {
 
       <HomeBranchPicker />
 
-      {hasBranch ? (
-        <FeaturedOffersSection compact limit={6} branchId={branchId} />
-      ) : (
-        <section className="py-16 lg:py-20 bg-slate-50">
-          <div className="container-main">
-            <div className="mb-8">
-              <h2 className="section-title">{copy.offers.title}</h2>
-              <p className="section-subtitle">{copy.offers.subtitle}</p>
-            </div>
-            <BranchRequiredPlaceholder />
-          </div>
-        </section>
-      )}
+      <div id="home-offers">
+        <FeaturedOffersSection compact limit={6} branchId={hasBranch ? branchId : null} />
+      </div>
 
-      <section className="bg-white py-16 lg:py-20">
+      <section id="home-fleet" className="bg-white py-16 lg:py-20">
         <div className="container-main">
           <div className="mb-10">
             <h2 className="section-title">{copy.home.featured}</h2>
@@ -228,9 +220,11 @@ export function HomePage() {
             <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
           </div>
 
-          {!hasBranch ? (
-            <BranchRequiredPlaceholder />
-          ) : loading ? (
+          {hasBranch && (
+            <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
+          )}
+
+          {loading ? (
             <LoadingSpinner />
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -240,7 +234,7 @@ export function HomePage() {
                   car={car}
                   index={i}
                   rentalType={rentalType}
-                  branchId={branchId || undefined}
+                  branchId={hasBranch ? branchId || undefined : undefined}
                   availability={availability}
                 />
               ))}
