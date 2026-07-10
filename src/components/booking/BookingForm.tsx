@@ -10,7 +10,12 @@ import {
   MessageCircle,
   Phone,
 } from 'lucide-react'
-import type { BookingFormData, BranchRecord } from '../../lib/types'
+import type { BookingFormData, BranchRecord, RentalPeriodType } from '../../lib/types'
+import {
+  calcBookingTotal,
+  calcCalendarMonths,
+  endDateForOneCalendarMonth,
+} from '../../lib/pricing'
 import { copy } from '../../lib/copy'
 import {
   buildPickupTimeValue,
@@ -22,21 +27,17 @@ import {
 } from '../../lib/pickupTime'
 import { TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
 import { formatDisplayPhone } from '../../lib/phone'
-import {
-  calcDays,
-  calcTotalPrice,
-  formatDate,
-  formatPrice,
-  toPhoneLink,
-  toWhatsAppLink,
-} from '../../lib/utils'
+import { calcDays, formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 import { isValidInternationalPhone } from '../../lib/phone'
 import { Button } from '../ui/Button'
 import { CustomerPhoneField } from './CustomerPhoneField'
 import { cn } from '../../lib/utils'
 
+type MonthlyDateMode = 'auto' | 'custom'
+
 interface BookingFormProps {
-  pricePerDay: number
+  unitPrice: number
+  rentalType?: RentalPeriodType
   onSubmit: (data: BookingFormData) => Promise<void>
   initialStartDate?: string
   initialEndDate?: string
@@ -61,7 +62,8 @@ const STEPS = [
 ]
 
 export function BookingForm({
-  pricePerDay,
+  unitPrice,
+  rentalType = 'daily',
   onSubmit,
   initialStartDate = '',
   initialEndDate = '',
@@ -91,6 +93,7 @@ export function BookingForm({
   const [pickupHour, setPickupHour] = useState('')
   const [pickupPeriod, setPickupPeriod] = useState<PickupPeriod>('am')
   const [branchId, setBranchId] = useState(initialBranchId)
+  const [monthlyDateMode, setMonthlyDateMode] = useState<MonthlyDateMode>('auto')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -148,16 +151,37 @@ export function BookingForm({
     }
   }, [initialBranchId, branches])
 
+  const isMonthly = rentalType === 'monthly'
+
   const days =
-    form.start_date && form.end_date ? calcDays(form.start_date, form.end_date) : 0
+    form.start_date && form.end_date && !isMonthly
+      ? calcDays(form.start_date, form.end_date)
+      : 0
+  const months =
+    form.start_date && form.end_date && isMonthly
+      ? calcCalendarMonths(form.start_date, form.end_date)
+      : 0
   const total =
     form.start_date && form.end_date
-      ? calcTotalPrice(pricePerDay, form.start_date, form.end_date)
+      ? calcBookingTotal(unitPrice, form.start_date, form.end_date, rentalType)
       : 0
+
+  const applyMonthlyAutoEnd = (start: string) => {
+    if (!start) return
+    const end = endDateForOneCalendarMonth(start)
+    setForm((prev) => {
+      const next = { ...prev, start_date: start, end_date: end }
+      onDatesChange?.(next.start_date, next.end_date)
+      return next
+    })
+  }
 
   const handleChange = (field: keyof BookingFormData, value: string) => {
     setForm((prev) => {
-      const next = { ...prev, [field]: value }
+      let next = { ...prev, [field]: value }
+      if (isMonthly && monthlyDateMode === 'auto' && field === 'start_date' && value) {
+        next = { ...next, end_date: endDateForOneCalendarMonth(value) }
+      }
       if (field === 'start_date' || field === 'end_date') {
         onDatesChange?.(next.start_date, next.end_date)
       }
@@ -165,6 +189,20 @@ export function BookingForm({
     })
     setError('')
   }
+
+  useEffect(() => {
+    if (!isMonthly || monthlyDateMode !== 'auto' || !form.start_date) return
+    const expectedEnd = endDateForOneCalendarMonth(form.start_date)
+    if (form.end_date !== expectedEnd) {
+      setForm((prev) => {
+        const next = { ...prev, end_date: expectedEnd }
+        onDatesChange?.(next.start_date, next.end_date)
+        return next
+      })
+    }
+  }, [isMonthly, monthlyDateMode, form.start_date, form.end_date, onDatesChange])
+
+
 
   const validateDates = () => {
     if (!form.start_date || !form.end_date) {
@@ -332,10 +370,43 @@ export function BookingForm({
         <div className="space-y-5">
           <div className="space-y-4">
             <h3 className="font-bold text-black">{copy.booking.selectDates}</h3>
+
+            {isMonthly && (
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMonthlyDateMode('auto')
+                    if (form.start_date) applyMonthlyAutoEnd(form.start_date)
+                  }}
+                  className={cn(
+                    'flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-colors',
+                    monthlyDateMode === 'auto'
+                      ? 'border-brand-green bg-brand-green/10 text-brand-green'
+                      : 'border-slate-200 text-slate-600 hover:border-brand-green/40',
+                  )}
+                >
+                  {copy.booking.monthlyModeAuto}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMonthlyDateMode('custom')}
+                  className={cn(
+                    'flex-1 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-colors',
+                    monthlyDateMode === 'custom'
+                      ? 'border-brand-green bg-brand-green/10 text-brand-green'
+                      : 'border-slate-200 text-slate-600 hover:border-brand-green/40',
+                  )}
+                >
+                  {copy.booking.monthlyModeCustom}
+                </button>
+              </div>
+            )}
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="label-field text-black" htmlFor="start_date">
-                  {copy.booking.from} *
+                  {isMonthly ? copy.booking.monthlyStartLabel : copy.booking.from} *
                 </label>
                 <input
                   id="start_date"
@@ -346,20 +417,33 @@ export function BookingForm({
                   onChange={(e) => handleChange('start_date', e.target.value)}
                 />
               </div>
-              <div>
-                <label className="label-field text-black" htmlFor="end_date">
-                  {copy.booking.to} *
-                </label>
-                <input
-                  id="end_date"
-                  type="date"
-                  min={form.start_date || today()}
-                  className="input-field text-black"
-                  value={form.end_date}
-                  onChange={(e) => handleChange('end_date', e.target.value)}
-                />
-              </div>
+              {isMonthly && monthlyDateMode === 'auto' ? (
+                <div>
+                  <label className="label-field text-black">{copy.booking.monthlyAutoEnd}</label>
+                  <div className="input-field text-black bg-slate-50 flex items-center min-h-[48px]">
+                    {form.end_date ? formatDate(form.end_date) : '—'}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="label-field text-black" htmlFor="end_date">
+                    {copy.booking.to} *
+                  </label>
+                  <input
+                    id="end_date"
+                    type="date"
+                    min={form.start_date || today()}
+                    className="input-field text-black"
+                    value={form.end_date}
+                    onChange={(e) => handleChange('end_date', e.target.value)}
+                  />
+                </div>
+              )}
             </div>
+
+            {isMonthly && monthlyDateMode === 'custom' && (
+              <p className="text-xs text-slate-500">{copy.booking.monthlyCustomHint}</p>
+            )}
           </div>
 
           {datesComplete && (
@@ -477,10 +561,20 @@ export function BookingForm({
               {unavailableMessage ?? copy.booking.errors.unavailable}
             </div>
           )}
-          {days > 0 && isDateRangeAvailable !== false && (
+          {total > 0 && isDateRangeAvailable !== false && (
             <div className="rounded-xl bg-brand-green/5 border border-brand-green/20 p-4 text-sm text-slate-600">
-              {formatPrice(pricePerDay)} × {days} {days === 1 ? 'يوم' : 'أيام'} ={' '}
-              <strong className="text-brand-green">{formatPrice(total)}</strong>
+              {isMonthly ? (
+                <>
+                  {formatPrice(unitPrice)} × {months}{' '}
+                  {months === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit} ={' '}
+                  <strong className="text-brand-green">{formatPrice(total)}</strong>
+                </>
+              ) : (
+                <>
+                  {formatPrice(unitPrice)} × {days} {days === 1 ? 'يوم' : 'أيام'} ={' '}
+                  <strong className="text-brand-green">{formatPrice(total)}</strong>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -607,11 +701,13 @@ export function BookingForm({
               onChange={(phone) => handleChange('customer_phone', phone)}
             />
           </div>
-          {days > 0 && (
+          {total > 0 && (
             <div className="rounded-xl bg-brand-green/5 border border-brand-green/20 p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600">
-                  {formatPrice(pricePerDay)} × {days} {days === 1 ? 'يوم' : 'أيام'}
+                  {isMonthly
+                    ? `${formatPrice(unitPrice)} × ${months} ${months === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit}`
+                    : `${formatPrice(unitPrice)} × ${days} ${days === 1 ? 'يوم' : 'أيام'}`}
                 </span>
                 <span className="text-lg font-bold text-brand-green">{formatPrice(total)}</span>
               </div>

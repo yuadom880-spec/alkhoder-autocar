@@ -135,8 +135,7 @@ export function getPromoPricePerDay(offer: FeaturedOffer | null, car: Car): numb
   return offer.price
 }
 
-export function getPromoSuggestedDays(offer: FeaturedOffer | null): number {
-  if (offer?.rental_type === 'monthly') return 30
+export function getPromoSuggestedDays(_offer: FeaturedOffer | null): number {
   return 0
 }
 

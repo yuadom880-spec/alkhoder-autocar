@@ -7,7 +7,7 @@ import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/fea
 import { getCarOffer, isOfferActive } from '../../lib/offers'
 import {
   calcBookingTotal,
-  calcMonths,
+  calcCalendarMonths,
   getCarBasePrice,
   getCarDisplayPrice,
   getPriceUnitLabel,
@@ -43,7 +43,7 @@ export function BookingSummary({
   const unitPrice = priceOverride ?? getCarDisplayPrice(car, effectiveRentalType)
   const basePrice = getCarBasePrice(car, effectiveRentalType)
   const days = startDate && endDate ? calcDays(startDate, endDate) : 0
-  const months = startDate && endDate ? calcMonths(startDate, endDate) : 0
+  const months = startDate && endDate ? calcCalendarMonths(startDate, endDate) : 0
   const total =
     startDate && endDate
       ? calcBookingTotal(unitPrice, startDate, endDate, effectiveRentalType)
