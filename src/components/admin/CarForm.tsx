@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
 import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { CarBranchSelector } from './CarBranchSelector'
@@ -21,7 +22,15 @@ interface CarFormProps {
   onCancel: () => void
 }
 
+function defaultBranchIds(initial: Car | undefined, branchModeId: string | null): string[] {
+  if (initial) return initial.branch_ids ?? []
+  if (branchModeId) return [branchModeId]
+  return []
+}
+
 export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
+  const { isBranchMode, activeBranchId } = useAdminBranch()
+
   const [form, setForm] = useState<CarFormData>({
     name: initial?.name ?? '',
     brand: initial?.brand ?? '',
@@ -38,7 +47,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     is_available: initial?.is_available ?? true,
     is_featured: true,
     offer: initial?.offer ?? { daily: null, monthly: null },
-    branch_ids: initial?.branch_ids ?? [],
+    branch_ids: defaultBranchIds(initial, isBranchMode ? activeBranchId : null),
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Tag } from 'lucide-react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
 import type { Car, FeaturedOffer, FeaturedOfferFormData, RentalPeriodType } from '../../lib/types'
 import { RENTAL_TYPE_LABELS } from '../../lib/featuredOffers'
+import { filterCarsByBranch } from '../../lib/adminBranchFilters'
+import { copy } from '../../lib/copy'
 import { fetchCars, isSupabaseConfigured, uploadCarImage } from '../../lib/supabase'
 import { Button } from '../ui/Button'
 
@@ -13,6 +16,7 @@ interface FeaturedOfferFormProps {
 }
 
 export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOfferFormProps) {
+  const { filterBranchId, isBranchMode } = useAdminBranch()
   const [cars, setCars] = useState<Car[]>([])
   const [form, setForm] = useState<FeaturedOfferFormData>({
     title: initial?.title ?? '',
@@ -36,6 +40,11 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
   useEffect(() => {
     fetchCars().then(setCars).catch(console.error)
   }, [])
+
+  const branchCars = useMemo(
+    () => filterCarsByBranch(cars, filterBranchId),
+    [cars, filterBranchId],
+  )
 
   const update = <K extends keyof FeaturedOfferFormData>(
     key: K,
@@ -177,12 +186,15 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
                 }}
               >
                 <option value="">— بدون —</option>
-                {cars.map((car) => (
+                {branchCars.map((car) => (
                   <option key={car.id} value={car.id}>
                     {car.name}
                   </option>
                 ))}
               </select>
+              {isBranchMode && !form.car_id && (
+                <p className="mt-1.5 text-xs text-amber-700">{copy.admin.offerBranchHint}</p>
+              )}
             </div>
             <div>
               <label className="label-field">رابط مخصص (اختياري)</label>

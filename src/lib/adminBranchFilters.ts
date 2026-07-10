@@ -14,14 +14,14 @@ export function filterCarsByBranch(cars: Car[], branchId: string | null | undefi
   return cars.filter((c) => carMatchesBranch(c, branchId))
 }
 
-/** عروض مرتبطة بسيارات الفرع، أو عروض عامة بدون سيارة */
+/** عروض مرتبطة بسيارات الفرع؛ العروض بدون سيارة = عامة لكل الفروع */
 export function filterOffersByBranch(
   offers: FeaturedOffer[],
   branchId: string | null | undefined,
 ): FeaturedOffer[] {
   if (!branchId) return offers
   return offers.filter((o) => {
-    if (!o.car) return true
+    if (!o.car_id || !o.car) return false
     return carMatchesBranch(o.car, branchId)
   })
 }
