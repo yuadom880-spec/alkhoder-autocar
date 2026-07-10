@@ -40,6 +40,20 @@ export function parseAutoCarOfferId(
   return { rentalType: match[1] as RentalPeriodType, carId: match[2] }
 }
 
+/** هل العرض موقوف في فرع محدد (للوحة الإدارة — بغض النظر عن صلاحية الخصم) */
+export function isFeaturedOfferBranchDisabled(
+  offer: FeaturedOffer,
+  branchId?: string | null,
+): boolean {
+  if (!branchId) return false
+  if (isOfferDisabledForBranch(offer, branchId)) return true
+  if (offer.car_id && offer.car) {
+    const carOffer = getCarOffer(offer.car, offer.rental_type)
+    if (carOffer && isOfferDisabledForBranch(carOffer, branchId)) return true
+  }
+  return false
+}
+
 /** هل العرض ظاهر لفرع معيّن */
 export function isFeaturedOfferVisibleForBranch(
   offer: FeaturedOffer,

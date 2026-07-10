@@ -13,15 +13,13 @@ import {
   getFeaturedOfferPriceLabel,
   isAutoCarFeaturedOffer,
   isFeaturedOfferActive,
-  isFeaturedOfferVisibleForBranch,
-  parseAutoCarOfferId,
+  isFeaturedOfferBranchDisabled,
   RENTAL_TYPE_LABELS,
 } from '../../lib/featuredOffers'
-import { getCarOffer } from '../../lib/offers'
 import {
   deleteFeaturedOffer,
   fetchDisplayedFeaturedOffers,
-  setCarOfferBranchVisibility,
+  setFeaturedOfferVisibilityForBranch,
   updateFeaturedOffer,
 } from '../../lib/supabase'
 import type { FeaturedOffer } from '../../lib/types'
@@ -53,24 +51,12 @@ export function AdminOffersPage() {
 
   const isOfferEnabledHere = (offer: FeaturedOffer) =>
     isBranchMode && branchScopeId
-      ? isFeaturedOfferVisibleForBranch(offer, branchScopeId)
+      ? !isFeaturedOfferBranchDisabled(offer, branchScopeId)
       : offer.is_active
 
   const setOfferVisibilityForBranch = async (offer: FeaturedOffer, visible: boolean) => {
     if (!branchScopeId) throw new Error('اختر فرعاً من شريط الأعلى أولاً')
-
-    const auto = parseAutoCarOfferId(offer.id)
-    if (auto) {
-      await setCarOfferBranchVisibility(auto.carId, auto.rentalType, branchScopeId, visible)
-      return
-    }
-
-    if (offer.car_id && offer.car && getCarOffer(offer.car, offer.rental_type)) {
-      await setCarOfferBranchVisibility(offer.car_id, offer.rental_type, branchScopeId, visible)
-      return
-    }
-
-    await updateFeaturedOffer(offer.id, { is_active: visible }, { branchId: branchScopeId })
+    await setFeaturedOfferVisibilityForBranch(offer, branchScopeId, visible)
   }
 
   const handleDelete = async (offer: FeaturedOffer) => {

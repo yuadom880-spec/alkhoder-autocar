@@ -703,6 +703,29 @@ export async function setCarOfferBranchVisibility(
   return updateCar(carId, { offer: patch })
 }
 
+/** مزامنة إظهار/إخفاء العرض لفرع واحد (عرض السيارة + السجل اليدوي إن وُجد) */
+export async function setFeaturedOfferVisibilityForBranch(
+  offer: FeaturedOffer,
+  branchId: string,
+  visible: boolean,
+): Promise<void> {
+  const auto = parseAutoCarOfferId(offer.id)
+  const rentalType = auto?.rentalType ?? offer.rental_type
+  const carId = auto?.carId ?? offer.car_id
+
+  if (carId) {
+    const car = offer.car ?? (await fetchCarById(carId))
+    const carOffer = car ? normalizeCarOffers(car.offer)[rentalType] : null
+    if (carOffer) {
+      await setCarOfferBranchVisibility(carId, rentalType, branchId, visible)
+    }
+  }
+
+  if (!auto) {
+    await setFeaturedOfferBranchVisibility(offer.id, branchId, visible)
+  }
+}
+
 /** إيقاف/تفعيل عرض يدوي لفرع واحد فقط */
 export async function setFeaturedOfferBranchVisibility(
   offerId: string,
