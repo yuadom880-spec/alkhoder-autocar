@@ -1,7 +1,7 @@
 /**
- * تشغيل ملفات SQL في supabase/migrations/ على قاعدة البيانات
+ * تشغيل supabase/schema.sql على قاعدة البيانات (ملف واحد شامل)
  */
-import { readFileSync, existsSync, readdirSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import pg from 'pg'
@@ -31,15 +31,11 @@ if (!projectRef || !password) {
   process.exit(1)
 }
 
-const migrationsDir = resolve(root, 'supabase/migrations')
-if (!existsSync(migrationsDir)) {
-  console.log('✅ لا توجد migrations')
-  process.exit(0)
+const schemaPath = resolve(root, 'supabase/schema.sql')
+if (!existsSync(schemaPath)) {
+  console.error('\n❌ الملف غير موجود: supabase/schema.sql')
+  process.exit(1)
 }
-
-const files = readdirSync(migrationsDir)
-  .filter((f) => f.endsWith('.sql'))
-  .sort()
 
 const urls = [
   `postgresql://postgres:${encodeURIComponent(password)}@db.${projectRef}.supabase.co:5432/postgres`,
@@ -68,13 +64,11 @@ if (!client) {
 }
 
 try {
-  for (const file of files) {
-    const sql = readFileSync(resolve(migrationsDir, file), 'utf8')
-    console.log(`▶️  ${file}`)
-    await client.query(sql)
-    console.log(`   ✅ تم`)
-  }
-  console.log('\n🎉 اكتملت كل الـ migrations\n')
+  const sql = readFileSync(schemaPath, 'utf8')
+  console.log('▶️  supabase/schema.sql')
+  await client.query(sql)
+  console.log('   ✅ تم')
+  console.log('\n🎉 اكتمل تنفيذ schema.sql\n')
 } catch (err) {
   console.error('❌', err.message)
   process.exit(1)

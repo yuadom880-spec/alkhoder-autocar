@@ -1,3 +1,2 @@
--- إيقاف العروض اليدوية لفرع محدد فقط
-ALTER TABLE featured_offers
-  ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+-- ⚠️ مُدمَج بالكامل في supabase/schema.sql
+-- شغّل schema.sql فقط في Supabase SQL Editor — لا تشغّل هذا الملف

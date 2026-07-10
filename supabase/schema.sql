@@ -1,7 +1,16 @@
 -- ============================================================
 -- الخضر لتأجير السيارات - Alkhoder AutoCar
--- ملف SQL كامل — انسخه والصقه في Supabase SQL Editor
--- آمن للتشغيل على قاعدة جديدة أو موجودة (idempotent)
+-- ملف SQL الوحيد — انسخه كاملاً والصقه في Supabase SQL Editor ثم Run
+-- آمن للتشغيل المتكرر على قاعدة جديدة أو موجودة (idempotent)
+--
+-- يشمل كل الترقيات:
+--   • الجداول الأساسية (سيارات، حجوزات، عروض، فروع)
+--   • توفر الحجز حسب الفرع (get_booking_blocks)
+--   • إيقاف العروض اليدوية لفرع محدد (featured_offers.disabled_branch_ids)
+--   • إيقاف السيارات لفرع محدد (cars.unavailable_branch_ids)
+--   • RLS + Storage + بيانات تجريبية
+--
+-- لا حاجة لتشغيل ملفات supabase/migrations/ منفصلة — كلها هنا
 -- ============================================================
 
 -- ─── دوال مساعدة ───────────────────────────────────────────
@@ -107,14 +116,17 @@ CREATE TABLE IF NOT EXISTS branches (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ─── ترقية الجداول الموجودة (أعمدة قديمة) ──────────────────
+-- ─── ترقية الجداول الموجودة (أعمدة قديمة + الفروع) ─────────
 
+-- سيارات
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS offer JSONB DEFAULT NULL;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS price_per_month NUMERIC(10,2);
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS car_class TEXT DEFAULT 'mid';
+-- توفر السيارة لكل فرع على حدة (إيقاف في فرع واحد لا يؤثر على الباقي)
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS unavailable_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 
+-- حجوزات
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_time TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_offer_id TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_title TEXT DEFAULT NULL;
@@ -124,7 +136,16 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_name TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
 
+-- عروض مميزة
+-- إيقاف العرض اليدوي لفرع محدد فقط
 ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+-- تهيئة أعمدة الفروع (إن كانت NULL من بيانات قديمة)
+UPDATE cars SET unavailable_branch_ids = '[]'::jsonb
+WHERE unavailable_branch_ids IS NULL;
+
+UPDATE featured_offers SET disabled_branch_ids = '[]'::jsonb
+WHERE disabled_branch_ids IS NULL;
 
 -- ربط فرع الحجز بجدول الفروع (إن وُجد)
 DO $$
@@ -195,7 +216,10 @@ CREATE TRIGGER branches_updated_at
   BEFORE UPDATE ON branches
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- ─── دالة التحقق من توفر السيارات ───────────────────────────
+-- ─── دالة التحقق من توفر السيارات (حسب الفرع) ───────────────
+
+-- إزالة النسخة القديمة بمعامل واحد إن وُجدت
+DROP FUNCTION IF EXISTS public.get_booking_blocks(UUID);
 
 CREATE OR REPLACE FUNCTION public.get_booking_blocks(
   p_car_id UUID DEFAULT NULL,
