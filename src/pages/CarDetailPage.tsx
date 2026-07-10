@@ -11,8 +11,11 @@ import { buildBookingQuery } from '../lib/branchFilter'
 import { getCarAvailability } from '../lib/availability'
 import { PromoOfferBanner } from '../components/offers/PromoOfferBanner'
 import { getFeaturedOfferPriceLabel } from '../lib/featuredOffers'
-import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
-import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
+import { BranchFilter } from '../components/cars/BranchFilter'
+import { useCustomerBranch } from '../hooks/useCustomerBranch'
+import { carMatchesBranch } from '../lib/branchFilter'
+import { fetchBookingBlocks, fetchBranches, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
+import type { BookingBlock, BranchRecord, Car, FeaturedOffer } from '../lib/types'
 import { getCarOffer, isOfferActive } from '../lib/offers'
 import { getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
@@ -28,39 +31,53 @@ export function CarDetailPage() {
   const [car, setCar] = useState<Car | null>(null)
   const [promoOffer, setPromoOffer] = useState<FeaturedOffer | null>(null)
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
+  const [branches, setBranches] = useState<BranchRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState(0)
 
   const promoId = searchParams.get('promo') ?? ''
   const start = searchParams.get('start') ?? ''
   const end = searchParams.get('end') ?? ''
-  const branch = searchParams.get('branch') ?? ''
   const { rentalType, setRentalType } = useRentalPeriod()
+  const { branchId, hasBranch, setBranchId } = useCustomerBranch(branches)
 
   const bookUrl = useMemo(
     () =>
-      `/book/${id}${buildBookingQuery({ branch, start, end, promo: promoId, rental: rentalType })}`,
-    [id, start, end, promoId, branch, rentalType],
+      `/book/${id}${buildBookingQuery({ branch: branchId, start, end, promo: promoId, rental: rentalType })}`,
+    [id, start, end, promoId, branchId, rentalType],
   )
 
   useEffect(() => {
     if (!id) return
-    const tasks: Promise<unknown>[] = [fetchCarById(id), fetchBookingBlocks(id)]
+    const tasks: Promise<unknown>[] = [
+      fetchCarById(id),
+      fetchBookingBlocks(id),
+      fetchBranches({ activeOnly: true }),
+    ]
     if (promoId) tasks.push(fetchFeaturedOfferById(promoId))
 
     Promise.all(tasks)
       .then((results) => {
         setCar(results[0] as Car | null)
         setBlocks(results[1] as BookingBlock[])
-        if (promoId && results[2]) setPromoOffer(results[2] as FeaturedOffer)
+        setBranches(results[2] as BranchRecord[])
+        if (promoId && results[3]) setPromoOffer(results[3] as FeaturedOffer)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [id, promoId])
 
+  const carAvailableInBranch = useMemo(
+    () => !car || !hasBranch || carMatchesBranch(car, branchId),
+    [car, hasBranch, branchId],
+  )
+
   const availability = useMemo(
-    () => (car ? getCarAvailability(car, blocks, start || undefined, end || undefined) : null),
-    [car, blocks, start, end],
+    () =>
+      car && hasBranch
+        ? getCarAvailability(car, blocks, start || undefined, end || undefined, branchId)
+        : null,
+    [car, blocks, start, end, branchId, hasBranch],
   )
 
   if (loading) return <LoadingSpinner />
@@ -77,7 +94,7 @@ export function CarDetailPage() {
   }
 
   const images = car.images.length > 0 ? car.images : [car.image_url]
-  const canBook = availability?.available ?? false
+  const canBook = hasBranch && carAvailableInBranch && (availability?.available ?? false)
   const displayPrice =
     promoOffer && promoOffer.price > 0
       ? promoOffer.price
@@ -171,6 +188,21 @@ export function CarDetailPage() {
                 </p>
               )}
 
+              <div className="mb-6">
+                <BranchFilter
+                  branches={branches.filter((b) => !car || carMatchesBranch(car, b.id))}
+                  selectedBranchId={branchId}
+                  onSelect={setBranchId}
+                  required
+                />
+              </div>
+
+              {!carAvailableInBranch && hasBranch && (
+                <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                  {copy.cars.noCarsInBranch}
+                </div>
+              )}
+
               {!promoOffer && (
                 <div className="mb-4">
                   <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
@@ -243,7 +275,11 @@ export function CarDetailPage() {
                 ))}
               </div>
 
-              {canBook ? (
+              {!hasBranch ? (
+                <div className="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center">
+                  <p className="text-amber-800 font-medium">{copy.cars.branchRequiredHint}</p>
+                </div>
+              ) : canBook ? (
                 <Link to={bookUrl} className="hidden lg:block">
                   <Button size="lg" className="w-full">
                     <Calendar className="h-5 w-5" />
@@ -252,8 +288,10 @@ export function CarDetailPage() {
                 </Link>
               ) : (
                 <div className="rounded-2xl bg-red-50 border border-red-200 p-6 text-center">
-                  <p className="text-red-700 font-medium">{unavailableMessage}</p>
-                  {!start && !end && car.is_available && (
+                  <p className="text-red-700 font-medium">
+                    {!carAvailableInBranch ? copy.cars.noCarsInBranch : unavailableMessage}
+                  </p>
+                  {!start && !end && car.is_available && carAvailableInBranch && (
                     <p className="mt-2 text-sm text-red-600/80">{copy.cars.checkDates}</p>
                   )}
                 </div>
@@ -263,7 +301,7 @@ export function CarDetailPage() {
         </div>
       </div>
 
-      {canBook && (
+      {hasBranch && canBook && (
         <div className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur-md p-4 safe-bottom lg:hidden">
           <div className="flex items-center justify-between gap-4 mb-3">
             <div className="min-w-0">

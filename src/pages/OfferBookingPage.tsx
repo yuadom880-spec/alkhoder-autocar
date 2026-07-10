@@ -2,33 +2,45 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { buildBookingQuery } from '../lib/branchFilter'
 import { ArrowRight } from 'lucide-react'
+import { BranchFilter } from '../components/cars/BranchFilter'
 import { PromoOfferBanner } from '../components/offers/PromoOfferBanner'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Button } from '../components/ui/Button'
+import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { copy } from '../lib/copy'
-import { fetchCars, fetchFeaturedOfferById } from '../lib/supabase'
-import type { Car, FeaturedOffer } from '../lib/types'
+import { carMatchesBranch } from '../lib/branchFilter'
+import { fetchBranches, fetchCars, fetchFeaturedOfferById } from '../lib/supabase'
+import type { BranchRecord, Car, FeaturedOffer } from '../lib/types'
 
 export function OfferBookingPage() {
   const { offerId } = useParams<{ offerId: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const branchId = searchParams.get('branch') ?? ''
   const [offer, setOffer] = useState<FeaturedOffer | null>(null)
   const [cars, setCars] = useState<Car[]>([])
+  const [branches, setBranches] = useState<BranchRecord[]>([])
   const [selectedCarId, setSelectedCarId] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const { branchId, hasBranch, setBranchId } = useCustomerBranch(branches)
 
   useEffect(() => {
     if (!offerId) return
-    Promise.all([fetchFeaturedOfferById(offerId), fetchCars({ availableOnly: true })])
-      .then(([offerData, carsData]) => {
+    Promise.all([
+      fetchFeaturedOfferById(offerId),
+      fetchCars({ availableOnly: true }),
+      fetchBranches({ activeOnly: true }),
+    ])
+      .then(([offerData, carsData, branchesData]) => {
         if (!offerData) return
         setOffer(offerData)
         setCars(carsData)
+        setBranches(branchesData)
         if (offerData.car_id) {
+          const branch = searchParams.get('branch') ?? ''
           navigate(
-            `/book/${offerData.car_id}${buildBookingQuery({ branch: branchId, promo: offerData.id })}`,
+            `/book/${offerData.car_id}${buildBookingQuery({ branch, promo: offerData.id })}`,
             { replace: true },
           )
           return
@@ -39,7 +51,7 @@ export function OfferBookingPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [offerId, navigate, branchId])
+  }, [offerId, navigate, searchParams])
 
   if (loading) return <LoadingSpinner />
 
@@ -54,7 +66,15 @@ export function OfferBookingPage() {
     )
   }
 
+  const branchCars = hasBranch
+    ? cars.filter((c) => carMatchesBranch(c, branchId))
+    : cars
+
   const handleContinue = () => {
+    if (!hasBranch) {
+      setError(copy.cars.branchRequiredSearch)
+      return
+    }
     if (!selectedCarId) return
     navigate(`/book/${selectedCarId}${buildBookingQuery({ branch: branchId, promo: offer.id })}`)
   }
@@ -76,23 +96,43 @@ export function OfferBookingPage() {
           <h1 className="text-xl font-bold text-brand-dark">{copy.booking.promoBooking}</h1>
           <p className="text-sm text-slate-600">{copy.booking.promoBookingSub}</p>
 
+          <BranchFilter
+            branches={branches}
+            selectedBranchId={branchId}
+            onSelect={setBranchId}
+            required
+          />
+
           <div>
             <label className="label-field">اختر السيارة *</label>
             <select
               className="input-field"
               value={selectedCarId}
               onChange={(e) => setSelectedCarId(e.target.value)}
+              disabled={!hasBranch}
             >
               <option value="">— اختر سيارة —</option>
-              {cars.map((car) => (
+              {branchCars.map((car) => (
                 <option key={car.id} value={car.id}>
                   {car.name}
                 </option>
               ))}
             </select>
+            {hasBranch && branchCars.length === 0 && (
+              <p className="mt-2 text-sm text-amber-700">{copy.cars.noCarsInBranch}</p>
+            )}
           </div>
 
-          <Button className="w-full" size="lg" disabled={!selectedCarId} onClick={handleContinue}>
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
+          )}
+
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={!selectedCarId || !hasBranch}
+            onClick={handleContinue}
+          >
             متابعة الحجز
           </Button>
         </div>

@@ -19,12 +19,23 @@ export function isBlockingStatus(status: BookingStatus): boolean {
   return BLOCKING_STATUSES.includes(status)
 }
 
+/** فلترة الحجوزات حسب الفرع — null يعني كل الفروع */
+export function filterBlocksByBranch(
+  blocks: BookingBlock[],
+  branchId: string | null | undefined,
+): BookingBlock[] {
+  if (!branchId) return blocks
+  return blocks.filter((b) => !b.branch_id || b.branch_id === branchId)
+}
+
 export function getCarBlocks(
   carId: string,
   blocks: BookingBlock[],
   statuses: BookingStatus[] = BLOCKING_STATUSES,
+  branchId?: string | null,
 ): BookingBlock[] {
-  return blocks.filter((b) => b.car_id === carId && statuses.includes(b.status))
+  const scoped = filterBlocksByBranch(blocks, branchId)
+  return scoped.filter((b) => b.car_id === carId && statuses.includes(b.status))
 }
 
 export function findConflictingBlocks(
@@ -33,8 +44,10 @@ export function findConflictingBlocks(
   endDate: string,
   blocks: BookingBlock[],
   statuses: BookingStatus[] = BLOCKING_STATUSES,
+  branchId?: string | null,
 ): BookingBlock[] {
-  return blocks.filter(
+  const scoped = filterBlocksByBranch(blocks, branchId)
+  return scoped.filter(
     (b) =>
       b.car_id === carId &&
       statuses.includes(b.status) &&
@@ -47,15 +60,16 @@ export function getCarAvailability(
   blocks: BookingBlock[],
   startDate?: string,
   endDate?: string,
+  branchId?: string | null,
 ): CarAvailability {
   if (!car.is_available) {
     return { available: false, reason: 'admin_disabled' }
   }
 
-  const carBlocks = getCarBlocks(car.id, blocks)
+  const carBlocks = getCarBlocks(car.id, blocks, BLOCKING_STATUSES, branchId)
 
   if (startDate && endDate) {
-    const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks)
+    const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks, BLOCKING_STATUSES, branchId)
     if (conflicts.length > 0) {
       const confirmed = conflicts.some((c) => c.status === 'confirmed')
       return {
@@ -101,12 +115,13 @@ export function canBookCar(
   blocks: BookingBlock[],
   startDate: string,
   endDate: string,
+  branchId?: string | null,
 ): { ok: boolean; message?: string } {
   if (!car.is_available) {
     return { ok: false, message: 'هذه السيارة غير متاحة للحجز حالياً' }
   }
 
-  const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks)
+  const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks, BLOCKING_STATUSES, branchId)
   if (conflicts.length > 0) {
     const confirmed = conflicts.some((c) => c.status === 'confirmed')
     return {

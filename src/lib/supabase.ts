@@ -347,10 +347,14 @@ function toBookingBlocks(rows: Booking[]): BookingBlock[] {
       start_date: b.start_date,
       end_date: b.end_date,
       status: b.status,
+      branch_id: b.branch_id ?? null,
     }))
 }
 
-export async function fetchBookingBlocks(carId?: string): Promise<BookingBlock[]> {
+export async function fetchBookingBlocks(
+  carId?: string,
+  branchId?: string | null,
+): Promise<BookingBlock[]> {
   if (!isSupabaseConfigured) {
     let bookings = getDemoBookings()
     if (carId) bookings = bookings.filter((b) => b.car_id === carId)
@@ -360,18 +364,26 @@ export async function fetchBookingBlocks(carId?: string): Promise<BookingBlock[]
   const client = requireSupabase()
   const { data, error } = await client.rpc('get_booking_blocks', {
     p_car_id: carId ?? null,
+    p_branch_id: branchId ?? null,
   })
 
   if (error) {
     // fallback إذا الدالة غير منشأة بعد
     let query = client
       .from(BOOKINGS_TABLE)
-      .select('id, car_id, start_date, end_date, status')
+      .select('id, car_id, start_date, end_date, status, branch_id')
       .in('status', ['pending', 'confirmed'])
     if (carId) query = query.eq('car_id', carId)
     const { data: rows, error: qErr } = await query
     if (qErr) throw new Error(formatError(qErr))
-    return (rows as BookingBlock[]) ?? []
+    return ((rows as BookingBlock[]) ?? []).map((b) => ({
+      id: b.id,
+      car_id: b.car_id,
+      start_date: b.start_date,
+      end_date: b.end_date,
+      status: b.status,
+      branch_id: b.branch_id ?? null,
+    }))
   }
 
   return ((data as BookingBlock[]) ?? []).map((b) => ({
@@ -380,6 +392,7 @@ export async function fetchBookingBlocks(carId?: string): Promise<BookingBlock[]
     start_date: b.start_date,
     end_date: b.end_date,
     status: b.status,
+    branch_id: b.branch_id ?? null,
   }))
 }
 
@@ -408,12 +421,16 @@ export async function createBooking(
   const car = await fetchCarById(carId)
   if (!car) throw new Error('السيارة غير موجودة')
 
-  if (meta.branchId && !carMatchesBranch(car, meta.branchId)) {
+  if (!meta.branchId) {
+    throw new Error('اختر فرع الاستلام قبل إتمام الحجز')
+  }
+
+  if (!carMatchesBranch(car, meta.branchId)) {
     throw new Error('هذه السيارة غير متاحة في الفرع المحدد')
   }
 
-  const blocks = await fetchBookingBlocks(carId)
-  const check = canBookCar(car, blocks, form.start_date, form.end_date)
+  const blocks = await fetchBookingBlocks(carId, meta.branchId)
+  const check = canBookCar(car, blocks, form.start_date, form.end_date, meta.branchId)
   if (!check.ok) throw new Error(check.message ?? 'السيارة غير متاحة في هذه الفترة')
 
   const rentalType: RentalPeriodType = meta.rentalType ?? 'daily'

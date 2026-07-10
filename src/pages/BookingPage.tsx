@@ -136,10 +136,12 @@ export function BookingPage() {
     return getCarDisplayPrice(car, effectiveRentalType)
   }, [car, promoOffer, effectiveRentalType])
 
+  const activeBranchId = selectedBranch?.id ?? (branchId || null)
+
   const bookingCheck = useMemo(() => {
-    if (!car || !dates.start || !dates.end) return null
-    return canBookCar(car, blocks, dates.start, dates.end)
-  }, [car, blocks, dates.start, dates.end])
+    if (!car || !dates.start || !dates.end || !activeBranchId) return null
+    return canBookCar(car, blocks, dates.start, dates.end, activeBranchId)
+  }, [car, blocks, dates.start, dates.end, activeBranchId])
 
   if (loading) return <LoadingSpinner />
 

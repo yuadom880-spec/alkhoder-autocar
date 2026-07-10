@@ -141,6 +141,8 @@ export interface BookingBlock {
   start_date: string
   end_date: string
   status: BookingStatus
+  /** فرع الحجز — null = حجز قديم يحجب كل الفروع */
+  branch_id?: string | null
 }
 
 export type AvailabilityReason = 'available' | 'admin_disabled' | 'booked'

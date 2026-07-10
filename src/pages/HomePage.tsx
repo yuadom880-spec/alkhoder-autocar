@@ -34,6 +34,7 @@ import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { copy } from '../lib/copy'
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
+
 import type { BookingBlock } from '../lib/types'
 import type { Car as CarType } from '../lib/types'
 
@@ -43,10 +44,15 @@ export function HomePage() {
   const [loading, setLoading] = useState(true)
   const { rentalType, setRentalType } = useRentalPeriod()
 
+  const savedBranchId = useMemo(
+    () => sessionStorage.getItem('alkhoder_customer_branch') ?? '',
+    [],
+  )
+
   useEffect(() => {
     Promise.all([
       fetchCars({ availableOnly: false }),
-      fetchBookingBlocks(),
+      fetchBookingBlocks(undefined, savedBranchId || null),
     ])
       .then(([carsData, blocksData]) => {
         setCars(carsData)
@@ -54,15 +60,17 @@ export function HomePage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [])
+  }, [savedBranchId])
 
   const fleetCars = useMemo(
     () =>
       cars.map((car) => ({
         car,
-        availability: getCarAvailability(car, blocks),
+        availability: savedBranchId
+          ? getCarAvailability(car, blocks, undefined, undefined, savedBranchId)
+          : undefined,
       })),
-    [cars, blocks],
+    [cars, blocks, savedBranchId],
   )
 
   return (
@@ -214,6 +222,7 @@ export function HomePage() {
                   car={car}
                   index={i}
                   rentalType={rentalType}
+                  branchId={savedBranchId || undefined}
                   availability={availability}
                 />
               ))}

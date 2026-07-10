@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
 import { BranchFilter } from '../components/cars/BranchFilter'
 import { CarCard } from '../components/cars/CarCard'
@@ -18,10 +19,9 @@ import { fetchBookingBlocks, fetchBranches, fetchCars } from '../lib/supabase'
 import type { BookingBlock, BranchRecord, Car, CarCategory, CarClass } from '../lib/types'
 
 export function CarsPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const startDate = searchParams.get('start') ?? ''
   const endDate = searchParams.get('end') ?? ''
-  const branchParam = searchParams.get('branch') ?? ''
   const offersParam = searchParams.get('offers') === '1'
 
   const [cars, setCars] = useState<Car[]>([])
@@ -34,7 +34,6 @@ export function CarsPage() {
   const [sort, setSort] = useState<FleetSortOption>('default')
   const [offersOnly, setOffersOnly] = useState(offersParam)
   const [availableOnly, setAvailableOnly] = useState(Boolean(startDate && endDate))
-  const [selectedBranch, setSelectedBranch] = useState(branchParam)
   const { rentalType, setRentalType } = useRentalPeriod()
 
   useEffect(() => {
@@ -44,10 +43,6 @@ export function CarsPage() {
   useEffect(() => {
     setAvailableOnly(Boolean(startDate && endDate))
   }, [startDate, endDate])
-
-  useEffect(() => {
-    setSelectedBranch(branchParam)
-  }, [branchParam])
 
   useEffect(() => {
     Promise.all([
@@ -64,15 +59,11 @@ export function CarsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const handleBranchChange = (branchId: string) => {
-    setSelectedBranch(branchId)
-    const params = new URLSearchParams(searchParams)
-    if (branchId) params.set('branch', branchId)
-    else params.delete('branch')
-    setSearchParams(params, { replace: true })
-  }
+  const { branchId: selectedBranch, hasBranch, setBranchId } = useCustomerBranch(branches)
 
   const filtered = useMemo(() => {
+    if (!hasBranch) return []
+
     const result = cars.filter((car) => {
       if (!carMatchesBranch(car, selectedBranch || null)) return false
       const matchCategory = category === 'all' || car.category === category
@@ -89,7 +80,13 @@ export function CarsPage() {
 
     const withAvailability = result.map((car) => ({
       car,
-      availability: getCarAvailability(car, blocks, startDate || undefined, endDate || undefined),
+      availability: getCarAvailability(
+        car,
+        blocks,
+        startDate || undefined,
+        endDate || undefined,
+        selectedBranch || null,
+      ),
     }))
 
     const visible = availableOnly
@@ -97,7 +94,7 @@ export function CarsPage() {
       : withAvailability
 
     return sortFleet(visible, rentalType, sort)
-  }, [cars, blocks, search, category, carClass, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, rentalType])
+  }, [cars, blocks, search, category, carClass, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, hasBranch, rentalType])
 
   return (
     <div className="page-shell">
@@ -112,10 +109,15 @@ export function CarsPage() {
           <BranchFilter
             branches={branches}
             selectedBranchId={selectedBranch}
-            onSelect={handleBranchChange}
+            onSelect={setBranchId}
             loading={loading}
+            required
           />
         </div>
+
+        {hasBranch && (
+          <p className="mb-4 text-xs text-slate-500">{copy.cars.availabilityPerBranch}</p>
+        )}
 
         {startDate && endDate && (
           <div className="mb-6 flex items-start gap-2 rounded-xl bg-brand-green/5 border border-brand-green/20 px-4 py-3 text-sm">
@@ -187,11 +189,13 @@ export function CarsPage() {
 
         {loading ? (
           <LoadingSpinner />
+        ) : !hasBranch ? (
+          <div className="rounded-2xl bg-white py-16 text-center shadow-md px-6">
+            <p className="text-slate-600 font-medium">{copy.cars.branchRequiredHint}</p>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-md">
-            <p className="text-slate-500">
-              {selectedBranch ? copy.cars.noCarsInBranch : copy.cars.noResults}
-            </p>
+            <p className="text-slate-500">{copy.cars.noCarsInBranch}</p>
             {availableOnly && startDate && endDate && (
               <p className="mt-2 text-sm text-slate-400">{copy.cars.showingAvailable}</p>
             )}

@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
-import { getCarBlocks } from '../../lib/availability'
+import { filterBlocksByBranch, getCarBlocks } from '../../lib/availability'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { deleteCar, fetchBookingBlocks, fetchBranches, fetchCars, updateCar } from '../../lib/supabase'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
@@ -39,6 +39,11 @@ export function AdminCarsPage() {
   useEffect(load, [])
 
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  const scopedBlocks = useMemo(
+    () => filterBlocksByBranch(blocks, filterBranchId),
+    [blocks, filterBranchId],
+  )
 
   const visibleCars = useMemo(
     () => filterCarsByBranch(cars, filterBranchId),
@@ -71,7 +76,7 @@ export function AdminCarsPage() {
   }
 
   const getActiveBlocks = (carId: string) =>
-    getCarBlocks(carId, blocks).filter((b) => b.end_date >= today)
+    getCarBlocks(carId, scopedBlocks, undefined, filterBranchId).filter((b) => b.end_date >= today)
 
   return (
     <>
