@@ -11,6 +11,7 @@ import { canBookCar } from '../lib/availability'
 import { copy } from '../lib/copy'
 import { isFeaturedOfferActive } from '../lib/featuredOffers'
 import { getCarDisplayPrice, parseRentalType } from '../lib/pricing'
+import { getEffectivePrice } from '../lib/offers'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { notifyBookingPending } from '../lib/bookingWhatsApp'
@@ -136,6 +137,11 @@ export function BookingPage() {
     return getCarDisplayPrice(car, effectiveRentalType)
   }, [car, promoOffer, effectiveRentalType])
 
+  const dailyPrice = useMemo(() => {
+    if (!car) return 0
+    return getEffectivePrice(car, 'daily')
+  }, [car])
+
   const activeBranchId = selectedBranch?.id ?? (branchId || null)
 
   const bookingCheck = useMemo(() => {
@@ -205,6 +211,7 @@ export function BookingPage() {
             <div className="rounded-2xl bg-white p-4 shadow-md sm:p-6">
               <BookingForm
                 unitPrice={unitPrice}
+                dailyPrice={dailyPrice}
                 rentalType={effectiveRentalType}
                 initialStartDate={dates.start}
                 initialEndDate={dates.end}
@@ -249,6 +256,7 @@ export function BookingPage() {
               pickupTime={pickupTime}
               promoOffer={promoOffer}
               unitPrice={unitPrice}
+              dailyPrice={dailyPrice}
               rentalType={effectiveRentalType}
               branch={selectedBranch}
             />

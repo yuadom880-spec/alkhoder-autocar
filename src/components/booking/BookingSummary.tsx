@@ -4,15 +4,16 @@ import { CarImage } from '../cars/CarImage'
 
 import { copy } from '../../lib/copy'
 import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/featuredOffers'
-import { getCarOffer, isOfferActive } from '../../lib/offers'
+import { getCarOffer, getEffectivePrice, isOfferActive } from '../../lib/offers'
 import {
   calcBookingTotal,
-  calcCalendarMonths,
+  calcMonthlyBookingBreakdown,
   getCarBasePrice,
   getCarDisplayPrice,
   getPriceUnitLabel,
 } from '../../lib/pricing'
 import { calcDays, formatDate, formatPrice } from '../../lib/utils'
+import { MonthlyPriceBreakdown } from './MonthlyPriceBreakdown'
 
 interface BookingSummaryProps {
   car: CarType
@@ -21,6 +22,7 @@ interface BookingSummaryProps {
   pickupTime?: string
   promoOffer?: FeaturedOffer | null
   unitPrice?: number
+  dailyPrice?: number
   rentalType?: RentalPeriodType
   branch?: BranchRecord | null
 }
@@ -32,6 +34,7 @@ export function BookingSummary({
   pickupTime = '',
   promoOffer = null,
   unitPrice: priceOverride,
+  dailyPrice: dailyPriceOverride,
   rentalType = 'daily',
   branch = null,
 }: BookingSummaryProps) {
@@ -41,12 +44,20 @@ export function BookingSummary({
   const hasCarOffer = isOfferActive(car, effectiveRentalType)
   const activeCarOffer = getCarOffer(car, effectiveRentalType)
   const unitPrice = priceOverride ?? getCarDisplayPrice(car, effectiveRentalType)
+  const dailyPrice =
+    dailyPriceOverride ??
+    (effectiveRentalType === 'monthly'
+      ? getEffectivePrice(car, 'daily')
+      : unitPrice)
   const basePrice = getCarBasePrice(car, effectiveRentalType)
   const days = startDate && endDate ? calcDays(startDate, endDate) : 0
-  const months = startDate && endDate ? calcCalendarMonths(startDate, endDate) : 0
+  const monthlyBreakdown =
+    startDate && endDate && isMonthly
+      ? calcMonthlyBookingBreakdown(unitPrice, dailyPrice, startDate, endDate)
+      : null
   const total =
     startDate && endDate
-      ? calcBookingTotal(unitPrice, startDate, endDate, effectiveRentalType)
+      ? calcBookingTotal(unitPrice, startDate, endDate, effectiveRentalType, dailyPrice)
       : 0
   const showDiscount = hasPromo || hasCarOffer
   const unitLabel = getPriceUnitLabel(effectiveRentalType)
@@ -124,32 +135,78 @@ export function BookingSummary({
               <span className="font-medium" dir="ltr">{pickupTime}</span>
             </div>
           )}
-          {isMonthly ? (
-            <div className="flex justify-between text-slate-600">
-              <span>{copy.booking.totalMonths}</span>
-              <span className="font-medium">
-                {months} {months === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit}
-              </span>
-            </div>
-          ) : (
-            <div className="flex justify-between text-slate-600">
-              <span>{copy.booking.totalDays}</span>
-              <span className="font-medium">
-                {days} {days === 1 ? 'يوم' : 'أيام'}
-              </span>
-            </div>
-          )}
-          <div className="flex justify-between text-slate-600">
-            <span>{isMonthly ? copy.booking.pricePerMonth : copy.booking.pricePerDay}</span>
-            <span className={showDiscount ? 'text-red-600 font-medium' : ''}>
-              {formatPrice(unitPrice)}
-              {showDiscount && (
-                <span className="text-slate-400 line-through text-xs mr-1">
-                  {formatPrice(basePrice)}
-                </span>
+          {isMonthly && monthlyBreakdown ? (
+            <>
+              {monthlyBreakdown.fullMonths > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>{copy.booking.totalMonths}</span>
+                  <span className="font-medium">
+                    {monthlyBreakdown.fullMonths}{' '}
+                    {monthlyBreakdown.fullMonths === 1
+                      ? copy.booking.monthUnit
+                      : copy.booking.monthsUnit}
+                  </span>
+                </div>
               )}
-            </span>
-          </div>
+              {monthlyBreakdown.extraDays > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>{copy.booking.extraDays}</span>
+                  <span className="font-medium">
+                    {monthlyBreakdown.extraDays}{' '}
+                    {monthlyBreakdown.extraDays === 1 ? 'يوم' : 'أيام'}
+                  </span>
+                </div>
+              )}
+              {monthlyBreakdown.fullMonths > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>{copy.booking.pricePerMonth}</span>
+                  <span className={showDiscount ? 'text-red-600 font-medium' : ''}>
+                    {formatPrice(unitPrice)}
+                    {showDiscount && (
+                      <span className="text-slate-400 line-through text-xs mr-1">
+                        {formatPrice(basePrice)}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )}
+              {monthlyBreakdown.extraDays > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>{copy.booking.pricePerDay}</span>
+                  <span>{formatPrice(dailyPrice)}</span>
+                </div>
+              )}
+              {monthlyBreakdown.fullMonths === 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>{copy.booking.pricePerDay}</span>
+                  <span>{formatPrice(dailyPrice)}</span>
+                </div>
+              )}
+              <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <MonthlyPriceBreakdown breakdown={monthlyBreakdown} compact />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex justify-between text-slate-600">
+                <span>{copy.booking.totalDays}</span>
+                <span className="font-medium">
+                  {days} {days === 1 ? 'يوم' : 'أيام'}
+                </span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>{copy.booking.pricePerDay}</span>
+                <span className={showDiscount ? 'text-red-600 font-medium' : ''}>
+                  {formatPrice(unitPrice)}
+                  {showDiscount && (
+                    <span className="text-slate-400 line-through text-xs mr-1">
+                      {formatPrice(basePrice)}
+                    </span>
+                  )}
+                </span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between pt-3 border-t border-slate-100">
             <span className="font-bold text-brand-dark">{copy.booking.total}</span>
             <span className={`text-xl font-bold ${showDiscount ? 'text-red-600' : 'text-brand-green'}`}>

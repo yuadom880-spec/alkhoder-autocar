@@ -130,8 +130,11 @@ export const copy = {
     monthlyStartLabel: 'بداية الشهر — من أي يوم؟',
     monthlyAutoEnd: 'نهاية الإيجار (شهر واحد تلقائياً)',
     monthlyModeAuto: 'شهر واحد — يُحسب تلقائياً',
-    monthlyModeCustom: 'تواريخ مخصصة (أكثر من شهر)',
-    monthlyCustomHint: 'حدد من وإلى — كل شهر كامل يُحسب بالتقويم من تاريخ البداية',
+    monthlyModeCustom: 'تواريخ مخصصة (شهر + أيام)',
+    monthlyCustomHint:
+      'كل شهر تقويمي كامل بالسعر الشهري — والأيام الزائدة تُحسب بالسعر اليومي',
+    extraDays: 'أيام إضافية',
+    extraDaysAtDaily: 'بالسعر اليومي',
     from: 'من تاريخ',
     to: 'إلى تاريخ',
     pickupTime: 'موعد الاستلام',

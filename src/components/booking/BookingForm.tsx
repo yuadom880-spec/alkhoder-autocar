@@ -13,9 +13,10 @@ import {
 import type { BookingFormData, BranchRecord, RentalPeriodType } from '../../lib/types'
 import {
   calcBookingTotal,
-  calcCalendarMonths,
+  calcMonthlyBookingBreakdown,
   endDateForOneCalendarMonth,
 } from '../../lib/pricing'
+import { MonthlyPriceBreakdown } from './MonthlyPriceBreakdown'
 import { copy } from '../../lib/copy'
 import {
   buildPickupTimeValue,
@@ -37,6 +38,7 @@ type MonthlyDateMode = 'auto' | 'custom'
 
 interface BookingFormProps {
   unitPrice: number
+  dailyPrice?: number
   rentalType?: RentalPeriodType
   onSubmit: (data: BookingFormData) => Promise<void>
   initialStartDate?: string
@@ -63,6 +65,7 @@ const STEPS = [
 
 export function BookingForm({
   unitPrice,
+  dailyPrice: dailyPriceProp,
   rentalType = 'daily',
   onSubmit,
   initialStartDate = '',
@@ -152,18 +155,19 @@ export function BookingForm({
   }, [initialBranchId, branches])
 
   const isMonthly = rentalType === 'monthly'
+  const dailyPrice = dailyPriceProp ?? unitPrice
 
   const days =
     form.start_date && form.end_date && !isMonthly
       ? calcDays(form.start_date, form.end_date)
       : 0
-  const months =
+  const monthlyBreakdown =
     form.start_date && form.end_date && isMonthly
-      ? calcCalendarMonths(form.start_date, form.end_date)
-      : 0
+      ? calcMonthlyBookingBreakdown(unitPrice, dailyPrice, form.start_date, form.end_date)
+      : null
   const total =
     form.start_date && form.end_date
-      ? calcBookingTotal(unitPrice, form.start_date, form.end_date, rentalType)
+      ? calcBookingTotal(unitPrice, form.start_date, form.end_date, rentalType, dailyPrice)
       : 0
 
   const applyMonthlyAutoEnd = (start: string) => {
@@ -563,12 +567,8 @@ export function BookingForm({
           )}
           {total > 0 && isDateRangeAvailable !== false && (
             <div className="rounded-xl bg-brand-green/5 border border-brand-green/20 p-4 text-sm text-slate-600">
-              {isMonthly ? (
-                <>
-                  {formatPrice(unitPrice)} × {months}{' '}
-                  {months === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit} ={' '}
-                  <strong className="text-brand-green">{formatPrice(total)}</strong>
-                </>
+              {isMonthly && monthlyBreakdown ? (
+                <MonthlyPriceBreakdown breakdown={monthlyBreakdown} />
               ) : (
                 <>
                   {formatPrice(unitPrice)} × {days} {days === 1 ? 'يوم' : 'أيام'} ={' '}
@@ -703,13 +703,17 @@ export function BookingForm({
           </div>
           {total > 0 && (
             <div className="rounded-xl bg-brand-green/5 border border-brand-green/20 p-4">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <span className="text-slate-600">
-                  {isMonthly
-                    ? `${formatPrice(unitPrice)} × ${months} ${months === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit}`
-                    : `${formatPrice(unitPrice)} × ${days} ${days === 1 ? 'يوم' : 'أيام'}`}
+                  {isMonthly && monthlyBreakdown ? (
+                    <MonthlyPriceBreakdown breakdown={monthlyBreakdown} compact />
+                  ) : (
+                    `${formatPrice(unitPrice)} × ${days} ${days === 1 ? 'يوم' : 'أيام'}`
+                  )}
                 </span>
-                <span className="text-lg font-bold text-brand-green">{formatPrice(total)}</span>
+                {!(isMonthly && monthlyBreakdown?.extraDays) && (
+                  <span className="text-lg font-bold text-brand-green">{formatPrice(total)}</span>
+                )}
               </div>
             </div>
           )}

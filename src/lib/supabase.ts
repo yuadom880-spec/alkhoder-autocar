@@ -24,6 +24,7 @@ import type {
 import { resolveDisplayedFeaturedOffers } from './featuredOffers'
 import { normalizeCarOffers, sanitizeCarOffers } from './offers'
 import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
+import { getEffectivePrice } from './offers'
 import { calcDays } from './utils'
 import type { RentalPeriodType } from './types'
 
@@ -424,7 +425,15 @@ export async function createBooking(
 
   const rentalType: RentalPeriodType = meta.rentalType ?? 'daily'
   const totalDays = calcDays(form.start_date, form.end_date)
-  const totalPrice = calcBookingTotal(unitPrice, form.start_date, form.end_date, rentalType)
+  const dailyPrice =
+    rentalType === 'monthly' ? getEffectivePrice(car, 'daily') : unitPrice
+  const totalPrice = calcBookingTotal(
+    unitPrice,
+    form.start_date,
+    form.end_date,
+    rentalType,
+    dailyPrice,
+  )
   const now = new Date().toISOString()
   const id = crypto.randomUUID()
 
