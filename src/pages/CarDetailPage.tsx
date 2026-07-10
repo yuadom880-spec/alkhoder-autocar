@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { CarAvailabilityBadge } from '../components/cars/CarAvailabilityBadge'
 import { getCategoryLabel, getClassLabel } from '../lib/constants'
+import { isCarAvailableForBranch } from '../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../lib/carStatus'
 import { copy } from '../lib/copy'
 import { buildBookingQuery } from '../lib/branchFilter'
@@ -280,7 +281,10 @@ export function CarDetailPage() {
                   <p className="text-red-700 font-medium">
                     {!carAvailableInBranch ? copy.cars.noCarsInBranch : unavailableMessage}
                   </p>
-                  {!start && !end && car.is_available && carAvailableInBranch && (
+                  {!start &&
+                    !end &&
+                    isCarAvailableForBranch(car, hasBranch ? branchId : null) &&
+                    carAvailableInBranch && (
                     <p className="mt-2 text-sm text-red-600/80">{copy.cars.checkDates}</p>
                   )}
                 </div>

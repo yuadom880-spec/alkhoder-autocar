@@ -1,3 +1,4 @@
+import { isCarAvailableForBranch } from './carBranchAvailability'
 import { copy } from './copy'
 import type { Car, CarAvailability } from './types'
 
@@ -17,15 +18,41 @@ export function getCustomerUnavailableLabel(
   return options?.page === 'detail' ? copy.detail.unavailable : copy.cars.unavailable
 }
 
-export function getAdminCarStatusLabel(car: Car): string {
+export function isCarEnabledForAdminScope(car: Car, branchId?: string | null): boolean {
+  if (branchId) return isCarAvailableForBranch(car, branchId)
+  return car.is_available
+}
+
+export function getAdminCarStatusLabel(car: Car, branchId?: string | null): string {
+  if (branchId) {
+    return isCarAvailableForBranch(car, branchId)
+      ? copy.admin.carAvailableHere
+      : copy.admin.carHiddenHere
+  }
   return car.is_available ? copy.admin.carAvailable : copy.admin.carHidden
 }
 
-export function getAdminCarToggleLabel(car: Car): string {
+export function getAdminCarToggleLabel(car: Car, branchId?: string | null): string {
+  if (branchId) {
+    return isCarAvailableForBranch(car, branchId)
+      ? copy.admin.stopBookingHere
+      : copy.admin.enableBookingHere
+  }
   return car.is_available ? copy.admin.stopBooking : copy.admin.enableBooking
 }
 
-export function confirmAdminCarAvailabilityToggle(car: Car): boolean {
+export function confirmAdminCarAvailabilityToggle(
+  car: Car,
+  branchId?: string | null,
+): boolean {
+  if (branchId) {
+    const availableHere = isCarAvailableForBranch(car, branchId)
+    const message = availableHere
+      ? copy.admin.stopBookingBranchConfirm(car.name)
+      : copy.admin.enableBookingBranchConfirm(car.name)
+    return confirm(message)
+  }
+
   const message = car.is_available
     ? copy.admin.stopBookingConfirm(car.name)
     : copy.admin.enableBookingConfirm(car.name)

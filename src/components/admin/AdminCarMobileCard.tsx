@@ -3,7 +3,11 @@ import { Calendar, Edit, Power, Trash2 } from 'lucide-react'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
-import { getAdminCarStatusLabel, getAdminCarToggleLabel } from '../../lib/carStatus'
+import {
+  getAdminCarStatusLabel,
+  getAdminCarToggleLabel,
+  isCarEnabledForAdminScope,
+} from '../../lib/carStatus'
 import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
 import { formatPrice } from '../../lib/utils'
 import { Badge } from '../ui/Badge'
@@ -13,6 +17,7 @@ interface AdminCarMobileCardProps {
   car: Car
   branches: BranchRecord[]
   filterBranchId: string | null
+  branchScopeId: string | null
   activeBlocks: BookingBlock[]
   toggling: boolean
   deleting: boolean
@@ -24,6 +29,7 @@ export function AdminCarMobileCard({
   car,
   branches,
   filterBranchId,
+  branchScopeId,
   activeBlocks,
   toggling,
   deleting,
@@ -68,8 +74,8 @@ export function AdminCarMobileCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        <Badge variant={car.is_available ? 'success' : 'danger'}>
-          {getAdminCarStatusLabel(car)}
+        <Badge variant={isCarEnabledForAdminScope(car, branchScopeId) ? 'success' : 'danger'}>
+          {getAdminCarStatusLabel(car, branchScopeId)}
         </Badge>
         {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
         {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
@@ -96,7 +102,7 @@ export function AdminCarMobileCard({
           onClick={onToggleAvailable}
         >
           <Power className="h-4 w-4" />
-          {getAdminCarToggleLabel(car)}
+          {getAdminCarToggleLabel(car, branchScopeId)}
         </Button>
         <Link to={`/admin/cars/${car.id}/edit`} className="col-span-1">
           <Button size="sm" variant="outline" className="w-full min-h-[44px]">

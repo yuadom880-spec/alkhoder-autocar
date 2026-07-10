@@ -65,6 +65,8 @@ export interface Car {
   offer: CarOffers | null
   /** فروع توفر السيارة — فارغ = كل الفروع */
   branch_ids: string[]
+  /** فروع لا تتوفر فيها السيارة للحجز — باقي الفروع يبقى التوفر شغّال */
+  unavailable_branch_ids?: string[]
   created_at: string
   updated_at: string
 }
@@ -86,6 +88,7 @@ export interface CarFormData {
   is_featured: boolean
   offer: CarOffers | null
   branch_ids: string[]
+  unavailable_branch_ids?: string[]
 }
 
 export interface Booking {

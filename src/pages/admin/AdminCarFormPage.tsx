@@ -4,12 +4,15 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { CarAvailabilityPanel } from '../../components/admin/CarAvailabilityPanel'
 import { CarForm } from '../../components/admin/CarForm'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
-import { createCar, fetchCarById, updateCar } from '../../lib/supabase'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { createCar, fetchCarById, setCarBranchAvailability, updateCar } from '../../lib/supabase'
 import type { Car } from '../../lib/types'
 
 export function AdminCarFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { isBranchMode, activeBranchId, filterBranchId } = useAdminBranch()
+  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
   const isEdit = Boolean(id)
   const [car, setCar] = useState<Car | null>(null)
   const [loading, setLoading] = useState(isEdit)
@@ -44,7 +47,12 @@ export function AdminCarFormPage() {
           <CarAvailabilityPanel
             car={car}
             onToggleAvailable={async (available) => {
-              const updated = await updateCar(car.id, { is_available: available })
+              const updated = branchScopeId
+                ? await setCarBranchAvailability(car.id, branchScopeId, available)
+                : await updateCar(car.id, {
+                    is_available: available,
+                    ...(available ? { unavailable_branch_ids: [] } : {}),
+                  })
               setCar(updated)
             }}
           />

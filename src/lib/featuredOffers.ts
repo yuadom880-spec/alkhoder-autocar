@@ -1,4 +1,5 @@
 import type { Car, FeaturedOffer, RentalPeriodType } from './types'
+import { isCarAvailableForBranch } from './carBranchAvailability'
 import {
   getCarOffer,
   getEffectivePrice,
@@ -79,7 +80,9 @@ export function carToFeaturedOffer(
   rentalType: RentalPeriodType,
   branchId?: string | null,
 ): FeaturedOffer | null {
-  if (!car.is_available || !isOfferActive(car, rentalType, branchId)) return null
+  if (!isCarAvailableForBranch(car, branchId) || !isOfferActive(car, rentalType, branchId)) {
+    return null
+  }
 
   const savings = getOfferSavings(car, rentalType, branchId)
   if (savings <= FEATURED_OFFER_MIN_SAVINGS) return null

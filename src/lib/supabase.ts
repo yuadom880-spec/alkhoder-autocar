@@ -6,6 +6,7 @@ import { DEMO_FEATURED_OFFERS } from './featuredOffersData'
 import { formatError } from './errors'
 import { isDataImageUrl, isPersistedImageUrl } from './imageUrl'
 import { getSupabaseEnv } from './env'
+import { buildCarBranchAvailabilityPatch } from './carBranchAvailability'
 import { carMatchesBranch } from './branchFilter'
 import { canBookCar, isBlockingStatus } from './availability'
 import type {
@@ -31,10 +32,13 @@ import { calcDays } from './utils'
 
 function normalizeCar(car: Car): Car {
   const branch_ids = Array.isArray(car.branch_ids) ? car.branch_ids : []
+  const unavailable_branch_ids = Array.isArray(car.unavailable_branch_ids)
+    ? car.unavailable_branch_ids
+    : []
   const price_per_month = car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)
   const car_class = car.car_class ?? 'mid'
   const offer = sanitizeCarOffers(normalizeCarOffers(car.offer))
-  return { ...car, offer, branch_ids, price_per_month, car_class }
+  return { ...car, offer, branch_ids, unavailable_branch_ids, price_per_month, car_class }
 }
 
 function prepareCarForm(form: CarFormData): CarFormData {
@@ -42,6 +46,7 @@ function prepareCarForm(form: CarFormData): CarFormData {
     ...form,
     offer: sanitizeCarOffers(form.offer),
     branch_ids: form.branch_ids ?? [],
+    unavailable_branch_ids: form.unavailable_branch_ids ?? [],
   }
 }
 
@@ -52,6 +57,9 @@ function prepareCarPatch(form: Partial<CarFormData>): Partial<CarFormData> {
   }
   if (form.branch_ids !== undefined) {
     patch.branch_ids = form.branch_ids ?? []
+  }
+  if (form.unavailable_branch_ids !== undefined) {
+    patch.unavailable_branch_ids = form.unavailable_branch_ids ?? []
   }
   return patch
 }
@@ -301,6 +309,17 @@ export async function updateCar(id: string, form: Partial<CarFormData>): Promise
     .single()
   if (error) throw new Error(formatSupabaseMutationError(error))
   return normalizeCar(row as Car)
+}
+
+/** إيقاف/تفعيل سيارة لفرع واحد فقط */
+export async function setCarBranchAvailability(
+  carId: string,
+  branchId: string,
+  available: boolean,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+  return updateCar(carId, buildCarBranchAvailabilityPatch(car, branchId, available))
 }
 
 export async function deleteCar(id: string): Promise<void> {

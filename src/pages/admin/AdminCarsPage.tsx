@@ -12,7 +12,16 @@ import { Badge } from '../../components/ui/Badge'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { filterBlocksByBranch, getCarBlocks } from '../../lib/availability'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
-import { deleteCar, fetchBookingBlocks, fetchBranches, fetchCars, updateCar } from '../../lib/supabase'
+import { isCarEnabledForAdminScope } from '../../lib/carStatus'
+import { copy } from '../../lib/copy'
+import {
+  deleteCar,
+  fetchBookingBlocks,
+  fetchBranches,
+  fetchCars,
+  setCarBranchAvailability,
+  updateCar,
+} from '../../lib/supabase'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
 import {
   confirmAdminCarAvailabilityToggle,
@@ -23,7 +32,8 @@ import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offer
 import { formatPrice } from '../../lib/utils'
 
 export function AdminCarsPage() {
-  const { filterBranchId, isBranchMode } = useAdminBranch()
+  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
+  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
   const [cars, setCars] = useState<Car[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [branches, setBranches] = useState<BranchRecord[]>([])
@@ -71,10 +81,17 @@ export function AdminCarsPage() {
   }
 
   const handleToggleAvailable = async (car: Car) => {
-    if (!confirmAdminCarAvailabilityToggle(car)) return
+    if (!confirmAdminCarAvailabilityToggle(car, branchScopeId)) return
     setToggling(car.id)
     try {
-      const updated = await updateCar(car.id, { is_available: !car.is_available })
+      const enable = !isCarEnabledForAdminScope(car, branchScopeId)
+      const updated =
+        branchScopeId
+          ? await setCarBranchAvailability(car.id, branchScopeId, enable)
+          : await updateCar(car.id, {
+              is_available: enable,
+              ...(enable ? { unavailable_branch_ids: [] } : {}),
+            })
       setCars((prev) => prev.map((c) => (c.id === car.id ? updated : c)))
     } catch (err) {
       alert(err instanceof Error ? err.message : 'فشل التحديث')
@@ -92,6 +109,13 @@ export function AdminCarsPage() {
       <div className="p-3 sm:p-6 lg:p-8">
         <AdminPageHeader
           title="إدارة السيارات"
+          subtitle={
+            isBranchMode ? (
+              <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                {copy.admin.carBranchAvailabilityHint}
+              </p>
+            ) : undefined
+          }
           action={
             <Link to="/admin/cars/new">
               <Button size="md" className="w-full sm:w-auto">
@@ -124,6 +148,7 @@ export function AdminCarsPage() {
                   car={car}
                   branches={branches}
                   filterBranchId={filterBranchId}
+                  branchScopeId={branchScopeId}
                   activeBlocks={activeBlocks}
                   toggling={toggling === car.id}
                   deleting={deleting === car.id}
@@ -211,8 +236,12 @@ export function AdminCarsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
-                            <Badge variant={car.is_available ? 'success' : 'danger'}>
-                              {getAdminCarStatusLabel(car)}
+                            <Badge
+                              variant={
+                                isCarEnabledForAdminScope(car, branchScopeId) ? 'success' : 'danger'
+                              }
+                            >
+                              {getAdminCarStatusLabel(car, branchScopeId)}
                             </Badge>
                             {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
                             {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
@@ -236,7 +265,7 @@ export function AdminCarsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              title={getAdminCarToggleLabel(car)}
+                              title={getAdminCarToggleLabel(car, branchScopeId)}
                               isLoading={toggling === car.id}
                               onClick={() => handleToggleAvailable(car)}
                             >

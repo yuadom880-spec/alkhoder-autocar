@@ -1,3 +1,4 @@
+import { isCarUnavailableForBranch } from './carBranchAvailability'
 import type { BookingBlock, BookingStatus, Car, CarAvailability } from './types'
 
 /** حالات الحجز التي تحجب السيارة عن العملاء */
@@ -66,7 +67,7 @@ export function getCarAvailability(
   endDate?: string,
   branchId?: string | null,
 ): CarAvailability {
-  if (!car.is_available) {
+  if (isCarUnavailableForBranch(car, branchId)) {
     return { available: false, reason: 'admin_disabled' }
   }
 
@@ -121,7 +122,7 @@ export function canBookCar(
   endDate: string,
   branchId?: string | null,
 ): { ok: boolean; message?: string } {
-  if (!car.is_available) {
+  if (isCarUnavailableForBranch(car, branchId)) {
     return { ok: false, message: 'هذه السيارة غير متاحة للحجز حالياً' }
   }
 

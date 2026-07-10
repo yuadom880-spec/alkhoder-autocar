@@ -4,6 +4,7 @@ import { Calendar, Fuel, Settings2, Users } from 'lucide-react'
 import type { Car, CarAvailability, RentalPeriodType } from '../../lib/types'
 import { buildBookingQuery } from '../../lib/branchFilter'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
+import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
 import { Badge } from '../ui/Badge'
@@ -35,7 +36,7 @@ export function CarCard({
   const detailUrl = `/cars/${car.id}${query}`
   const bookUrl = `/book/${car.id}${query}`
 
-  const canBook = availability?.available ?? car.is_available
+  const canBook = availability?.available ?? isCarAvailableForBranch(car, branchId)
   const overlayLabel = getCustomerUnavailableLabel(availability?.reason)
 
   return (

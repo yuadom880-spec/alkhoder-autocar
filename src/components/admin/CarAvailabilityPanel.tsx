@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Calendar, Power } from 'lucide-react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
 import { fetchBookingBlocks } from '../../lib/supabase'
 import { getCarBlocks } from '../../lib/availability'
 import type { BookingBlock, Car } from '../../lib/types'
@@ -7,6 +8,7 @@ import {
   confirmAdminCarAvailabilityToggle,
   getAdminCarStatusLabel,
   getAdminCarToggleLabel,
+  isCarEnabledForAdminScope,
 } from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
@@ -21,6 +23,9 @@ interface CarAvailabilityPanelProps {
 }
 
 export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailabilityPanelProps) {
+  const { isBranchMode, activeBranchId, filterBranchId } = useAdminBranch()
+  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+  const enabledHere = isCarEnabledForAdminScope(car, branchScopeId)
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(false)
@@ -36,10 +41,10 @@ export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailability
   const activeBlocks = getCarBlocks(car.id, blocks).filter((b) => b.end_date >= today)
 
   const handleToggle = async () => {
-    if (!confirmAdminCarAvailabilityToggle(car)) return
+    if (!confirmAdminCarAvailabilityToggle(car, branchScopeId)) return
     setToggling(true)
     try {
-      await onToggleAvailable(!car.is_available)
+      await onToggleAvailable(!enabledHere)
     } finally {
       setToggling(false)
     }
@@ -51,20 +56,22 @@ export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailability
         <h3 className="font-bold text-brand-dark">{copy.admin.availabilityControl}</h3>
         <Button
           size="sm"
-          variant={car.is_available ? 'outline' : 'primary'}
+          variant={enabledHere ? 'outline' : 'primary'}
           isLoading={toggling}
           onClick={handleToggle}
         >
           <Power className="h-4 w-4" />
-          {getAdminCarToggleLabel(car)}
+          {getAdminCarToggleLabel(car, branchScopeId)}
         </Button>
       </div>
 
-      <p className="text-xs text-slate-500">{copy.admin.availabilityHint}</p>
+      <p className="text-xs text-slate-500">
+        {branchScopeId ? copy.admin.carBranchAvailabilityHint : copy.admin.availabilityHint}
+      </p>
 
       <div className="flex flex-wrap gap-2">
-        <Badge variant={car.is_available ? 'success' : 'danger'}>
-          {getAdminCarStatusLabel(car)}
+        <Badge variant={enabledHere ? 'success' : 'danger'}>
+          {getAdminCarStatusLabel(car, branchScopeId)}
         </Badge>
         {activeBlocks.some((b) => b.status === 'confirmed') && (
           <Badge variant="danger">{copy.admin.bookedNow}</Badge>
