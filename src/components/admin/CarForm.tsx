@@ -267,11 +267,11 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
       )}
 
-      <div className="flex gap-3">
-        <Button type="submit" isLoading={loading}>
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
+        <Button type="submit" isLoading={loading} className="w-full sm:w-auto min-h-[48px]">
           {initial ? 'حفظ التعديلات' : 'إضافة السيارة'}
         </Button>
-        <Button type="button" variant="ghost" onClick={onCancel}>
+        <Button type="button" variant="ghost" onClick={onCancel} className="w-full sm:w-auto min-h-[48px]">
           إلغاء
         </Button>
       </div>

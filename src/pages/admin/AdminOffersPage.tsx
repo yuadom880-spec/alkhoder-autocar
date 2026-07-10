@@ -3,6 +3,8 @@ import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterOffersForAdminByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
 import { Edit, Plus, Power, Star, Trash2 } from 'lucide-react'
+import { AdminOfferMobileCard } from '../../components/admin/AdminOfferMobileCard'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
@@ -112,24 +114,28 @@ export function AdminOffersPage() {
   return (
     <>
       <AdminTopBar title="العروض المميزة" />
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-brand-dark">العروض المميزة</h1>
-            <p className="text-sm text-slate-500 mt-1">إدارة عروض الإيجار اليومي والشهري</p>
-            {isBranchMode && (
-              <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 inline-block">
-                وضع فرعي: إيقاف العرض يخصّ فرعك فقط — باقي الفروع يبقى العرض شغّال
-              </p>
-            )}
-          </div>
-          <Link to="/admin/offers/new">
-            <Button size="sm">
-              <Plus className="h-4 w-4" />
-              إضافة عرض
-            </Button>
-          </Link>
-        </div>
+      <div className="p-3 sm:p-6 lg:p-8">
+        <AdminPageHeader
+          title="العروض المميزة"
+          subtitle={
+            <>
+              <p>إدارة عروض الإيجار اليومي والشهري</p>
+              {isBranchMode && (
+                <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  وضع فرعي: إيقاف العرض يخصّ فرعك فقط
+                </p>
+              )}
+            </>
+          }
+          action={
+            <Link to="/admin/offers/new">
+              <Button size="md" className="w-full sm:w-auto">
+                <Plus className="h-4 w-4" />
+                إضافة عرض
+              </Button>
+            </Link>
+          }
+        />
 
         {loading ? (
           <LoadingSpinner />
@@ -143,7 +149,24 @@ export function AdminOffersPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+          <>
+          <div className="space-y-3 md:hidden">
+            {visibleOffers.map((offer) => (
+              <AdminOfferMobileCard
+                key={offer.id}
+                offer={offer}
+                enabledHere={isOfferEnabledHere(offer)}
+                isBranchMode={isBranchMode}
+                updating={updating === offer.id}
+                deleting={deleting === offer.id}
+                onToggleActive={() => toggleActive(offer)}
+                onToggleFeatured={() => toggleField(offer, 'is_featured')}
+                onDelete={() => handleDelete(offer)}
+              />
+            ))}
+          </div>
+
+          <div className="hidden md:block overflow-hidden rounded-2xl bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-500">
@@ -258,6 +281,7 @@ export function AdminOffersPage() {
               </table>
             </div>
           </div>
+          </>
         )}
       </div>
     </>

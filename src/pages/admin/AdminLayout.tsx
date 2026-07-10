@@ -11,7 +11,7 @@ export function AdminLayout() {
       <AdminBranchProvider>
         <div className="flex min-h-screen bg-slate-50">
           <AdminSidebar />
-          <div className="flex-1 overflow-auto pb-16 lg:pb-0">
+          <div className="flex-1 overflow-auto pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             <AdminSupabaseBanner />
             <Outlet />
           </div>

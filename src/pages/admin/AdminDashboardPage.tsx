@@ -74,19 +74,18 @@ export function AdminDashboardPage() {
     <>
       <AdminTopBar title="لوحة التحكم" />
 
-      <div className="p-4 sm:p-6 lg:p-8">
-        {/* تنبيه الحجوزات الجديدة */}
+      <div className="p-3 sm:p-6 lg:p-8">
         {pending.length > 0 && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4">
-            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <div className="flex-1">
+          <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4 sm:flex-row sm:items-start">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+            <div className="flex-1 min-w-0">
               <p className="font-bold text-amber-800">
                 عندك {pending.length} طلب حجز جديد بانتظار المراجعة!
               </p>
-              <p className="text-sm text-amber-700 mt-1">راجع الطلبات وتواصل مع الزبائن من صفحة الحجوزات</p>
+              <p className="text-sm text-amber-700 mt-1">راجع الطلبات وتواصل مع الزبائن</p>
             </div>
-            <Link to="/admin/bookings">
-              <Button size="sm" variant="secondary">عرض الطلبات</Button>
+            <Link to="/admin/bookings" className="shrink-0">
+              <Button size="md" variant="secondary" className="w-full sm:w-auto">عرض الطلبات</Button>
             </Link>
           </div>
         )}
@@ -117,23 +116,24 @@ export function AdminDashboardPage() {
             </div>
             <div className="divide-y divide-slate-100">
               {pending.map((b) => (
-                <div key={b.id} className="flex flex-wrap items-center gap-4 px-5 py-4 hover:bg-slate-50">
-                  <div className="flex-1 min-w-[200px]">
+                <div key={b.id} className="px-4 py-4 sm:px-5 hover:bg-slate-50">
+                  <div className="mb-3">
                     <p className="font-bold text-brand-dark">{b.customer_name}</p>
                     <p className="text-xs text-slate-500">{b.car?.name} · {formatPrice(b.total_price)}</p>
                     <p className="text-xs text-slate-400 mt-1">
                       {formatDate(b.start_date)} — {formatDate(b.end_date)}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <a href={toPhoneLink(b.customer_phone)}>
-                      <Button size="sm" variant="outline">اتصال</Button>
+                  <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                    <a href={toPhoneLink(b.customer_phone)} className="col-span-1">
+                      <Button size="sm" variant="outline" className="w-full min-h-[44px]">اتصال</Button>
                     </a>
-                    <a href={toWhatsAppLink(b.customer_phone)} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="bg-[#25D366]">واتساب</Button>
+                    <a href={toWhatsAppLink(b.customer_phone)} target="_blank" rel="noopener noreferrer" className="col-span-1">
+                      <Button size="sm" className="w-full min-h-[44px] bg-[#25D366]">واتساب</Button>
                     </a>
                     <Button
                       size="sm"
+                      className="w-full min-h-[44px]"
                       disabled={updating === b.id}
                       onClick={() => handleQuickAction(b.id, 'confirmed')}
                     >
@@ -142,6 +142,7 @@ export function AdminDashboardPage() {
                     <Button
                       size="sm"
                       variant="danger"
+                      className="w-full min-h-[44px]"
                       disabled={updating === b.id}
                       onClick={() => handleQuickAction(b.id, 'rejected')}
                     >
@@ -166,42 +167,68 @@ export function AdminDashboardPage() {
           {visibleBookings.length === 0 ? (
             <p className="p-6 text-sm text-slate-500 text-center">ما فيه حجوزات لحد الحين</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500">
-                  <tr>
-                    <th className="px-5 py-3 text-right font-medium">الزبون</th>
-                    <th className="px-5 py-3 text-right font-medium">التواصل</th>
-                    <th className="px-5 py-3 text-right font-medium">السيارة</th>
-                    <th className="px-5 py-3 text-right font-medium">الفترة</th>
-                    <th className="px-5 py-3 text-right font-medium">المبلغ</th>
-                    <th className="px-5 py-3 text-right font-medium">الحالة</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {visibleBookings.slice(0, 10).map((b) => (
-                    <tr key={b.id} className="hover:bg-slate-50">
-                      <td className="px-5 py-3 font-medium">{b.customer_name}</td>
-                      <td className="px-5 py-3">
-                        <a href={toPhoneLink(b.customer_phone)} dir="ltr" className="text-brand-green hover:underline text-xs">
-                          {b.customer_phone}
-                        </a>
-                      </td>
-                      <td className="px-5 py-3">{b.car?.name ?? '—'}</td>
-                      <td className="px-5 py-3 text-xs whitespace-nowrap">
-                        {formatDate(b.start_date)} — {formatDate(b.end_date)}
-                      </td>
-                      <td className="px-5 py-3 font-medium">{formatPrice(b.total_price)}</td>
-                      <td className="px-5 py-3">
-                        <Badge variant={b.status === 'pending' ? 'warning' : b.status === 'confirmed' ? 'success' : 'default'}>
-                          {BOOKING_STATUS_LABELS[b.status]}
-                        </Badge>
-                      </td>
+            <>
+              <div className="divide-y divide-slate-100 md:hidden">
+                {visibleBookings.slice(0, 10).map((b) => (
+                  <div key={b.id} className="px-4 py-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-bold text-brand-dark">{b.customer_name}</p>
+                        <p className="text-xs text-slate-500">{b.car?.name ?? '—'}</p>
+                      </div>
+                      <Badge variant={b.status === 'pending' ? 'warning' : b.status === 'confirmed' ? 'success' : 'default'}>
+                        {BOOKING_STATUS_LABELS[b.status]}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      {formatDate(b.start_date)} — {formatDate(b.end_date)}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <a href={toPhoneLink(b.customer_phone)} dir="ltr" className="text-brand-green text-xs font-medium">
+                        {b.customer_phone}
+                      </a>
+                      <p className="font-bold text-brand-green">{formatPrice(b.total_price)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-500">
+                    <tr>
+                      <th className="px-5 py-3 text-right font-medium">الزبون</th>
+                      <th className="px-5 py-3 text-right font-medium">التواصل</th>
+                      <th className="px-5 py-3 text-right font-medium">السيارة</th>
+                      <th className="px-5 py-3 text-right font-medium">الفترة</th>
+                      <th className="px-5 py-3 text-right font-medium">المبلغ</th>
+                      <th className="px-5 py-3 text-right font-medium">الحالة</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {visibleBookings.slice(0, 10).map((b) => (
+                      <tr key={b.id} className="hover:bg-slate-50">
+                        <td className="px-5 py-3 font-medium">{b.customer_name}</td>
+                        <td className="px-5 py-3">
+                          <a href={toPhoneLink(b.customer_phone)} dir="ltr" className="text-brand-green hover:underline text-xs">
+                            {b.customer_phone}
+                          </a>
+                        </td>
+                        <td className="px-5 py-3">{b.car?.name ?? '—'}</td>
+                        <td className="px-5 py-3 text-xs whitespace-nowrap">
+                          {formatDate(b.start_date)} — {formatDate(b.end_date)}
+                        </td>
+                        <td className="px-5 py-3 font-medium">{formatPrice(b.total_price)}</td>
+                        <td className="px-5 py-3">
+                          <Badge variant={b.status === 'pending' ? 'warning' : b.status === 'confirmed' ? 'success' : 'default'}>
+                            {BOOKING_STATUS_LABELS[b.status]}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 

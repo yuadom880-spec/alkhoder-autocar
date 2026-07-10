@@ -3,6 +3,8 @@ import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
 import { Calendar, Edit, Plus, Power, Trash2 } from 'lucide-react'
+import { AdminCarMobileCard } from '../../components/admin/AdminCarMobileCard'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
@@ -81,16 +83,18 @@ export function AdminCarsPage() {
   return (
     <>
       <AdminTopBar title="إدارة السيارات" />
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-brand-dark">إدارة السيارات</h1>
-          <Link to="/admin/cars/new">
-            <Button size="sm">
-              <Plus className="h-4 w-4" />
-              إضافة سيارة
-            </Button>
-          </Link>
-        </div>
+      <div className="p-3 sm:p-6 lg:p-8">
+        <AdminPageHeader
+          title="إدارة السيارات"
+          action={
+            <Link to="/admin/cars/new">
+              <Button size="md" className="w-full sm:w-auto">
+                <Plus className="h-4 w-4" />
+                إضافة سيارة
+              </Button>
+            </Link>
+          }
+        />
 
         {loading ? (
           <LoadingSpinner />
@@ -104,7 +108,27 @@ export function AdminCarsPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+          <>
+          <div className="space-y-3 md:hidden">
+            {visibleCars.map((car) => {
+              const activeBlocks = getActiveBlocks(car.id)
+              return (
+                <AdminCarMobileCard
+                  key={car.id}
+                  car={car}
+                  branches={branches}
+                  filterBranchId={filterBranchId}
+                  activeBlocks={activeBlocks}
+                  toggling={toggling === car.id}
+                  deleting={deleting === car.id}
+                  onToggleAvailable={() => handleToggleAvailable(car)}
+                  onDelete={() => handleDelete(car.id, car.name)}
+                />
+              )
+            })}
+          </div>
+
+          <div className="hidden md:block overflow-hidden rounded-2xl bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-500">
@@ -235,6 +259,7 @@ export function AdminCarsPage() {
               </table>
             </div>
           </div>
+          </>
         )}
       </div>
     </>

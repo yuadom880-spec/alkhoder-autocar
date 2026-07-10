@@ -48,7 +48,7 @@ export function BookingAdminCard({
   return (
     <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 bg-slate-50/50 px-5 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 bg-slate-50/50 px-4 py-4 sm:px-5">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h3 className="font-bold text-brand-dark text-lg">{b.customer_name}</h3>
@@ -70,7 +70,7 @@ export function BookingAdminCard({
         <p className="text-xl font-bold text-brand-green">{formatPrice(b.total_price)}</p>
       </div>
 
-      <div className="p-5 grid gap-5 lg:grid-cols-2">
+      <div className="p-4 sm:p-5 grid gap-5 lg:grid-cols-2">
         {/* بيانات التواصل */}
         <div>
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
@@ -107,22 +107,22 @@ export function BookingAdminCard({
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-brand-green/10">
-              <a href={toPhoneLink(b.customer_phone)}>
-                <Button size="sm" variant="outline">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-brand-green/10 sm:flex sm:flex-wrap">
+              <a href={toPhoneLink(b.customer_phone)} className="col-span-1">
+                <Button size="sm" variant="outline" className="w-full min-h-[44px]">
                   <Phone className="h-3.5 w-3.5" />
                   اتصال
                 </Button>
               </a>
-              <a href={toWhatsAppLink(b.customer_phone, whatsappMessage(b))} target="_blank" rel="noopener noreferrer">
-                <Button size="sm" className="bg-[#25D366] hover:bg-[#1fb855]">
+              <a href={toWhatsAppLink(b.customer_phone, whatsappMessage(b))} target="_blank" rel="noopener noreferrer" className="col-span-1">
+                <Button size="sm" className="w-full min-h-[44px] bg-[#25D366] hover:bg-[#1fb855]">
                   <MessageCircle className="h-3.5 w-3.5" />
                   واتساب
                 </Button>
               </a>
               {b.customer_email && (
-                <a href={`mailto:${b.customer_email}`}>
-                  <Button size="sm" variant="ghost">
+                <a href={`mailto:${b.customer_email}`} className="col-span-2 sm:col-span-1">
+                  <Button size="sm" variant="ghost" className="w-full min-h-[44px]">
                     <Mail className="h-3.5 w-3.5" />
                     إيميل
                   </Button>
@@ -207,11 +207,12 @@ export function BookingAdminCard({
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 px-5 py-4 bg-slate-50/30">
+      <div className="border-t border-slate-100 bg-slate-50/30 px-4 py-4 sm:px-5 space-y-3">
         {b.status === 'pending' && (
-          <>
+          <div className="grid grid-cols-2 gap-2">
             <Button
-              size="sm"
+              size="md"
+              className="w-full min-h-[44px]"
               disabled={updating}
               onClick={() => onStatusChange('confirmed')}
             >
@@ -219,38 +220,41 @@ export function BookingAdminCard({
               تأكيد الحجز
             </Button>
             <Button
-              size="sm"
+              size="md"
               variant="danger"
+              className="w-full min-h-[44px]"
               disabled={updating}
               onClick={() => onStatusChange('rejected')}
             >
               <X className="h-4 w-4" />
               رفض
             </Button>
-          </>
+          </div>
         )}
 
-        <select
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm mr-auto"
-          value={b.status}
-          disabled={updating}
-          onChange={(e) => onStatusChange(e.target.value as BookingStatus)}
-        >
-          {(['pending', 'confirmed', 'rejected', 'completed', 'cancelled'] as BookingStatus[]).map((s) => (
-            <option key={s} value={s}>{BOOKING_STATUS_LABELS[s]}</option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <select
+            className="input-field py-3 text-sm w-full sm:flex-1 sm:max-w-xs"
+            value={b.status}
+            disabled={updating}
+            onChange={(e) => onStatusChange(e.target.value as BookingStatus)}
+          >
+            {(['pending', 'confirmed', 'rejected', 'completed', 'cancelled'] as BookingStatus[]).map((s) => (
+              <option key={s} value={s}>{BOOKING_STATUS_LABELS[s]}</option>
+            ))}
+          </select>
 
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-red-600 hover:bg-red-50"
-          disabled={updating}
-          onClick={onDelete}
-        >
-          <Trash2 className="h-4 w-4" />
-          حذف
-        </Button>
+          <Button
+            size="md"
+            variant="outline"
+            className="w-full sm:w-auto text-red-600 hover:bg-red-50 min-h-[44px]"
+            disabled={updating}
+            onClick={onDelete}
+          >
+            <Trash2 className="h-4 w-4" />
+            حذف الحجز
+          </Button>
+        </div>
       </div>
     </div>
   )

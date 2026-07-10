@@ -35,11 +35,11 @@ export function AdminCarFormPage() {
   return (
     <>
       <AdminTopBar title={isEdit ? 'تعديل السيارة' : 'إضافة سيارة'} />
-      <div className="p-4 sm:p-6 lg:p-8">
-      <h1 className="text-xl sm:text-2xl font-bold text-brand-dark mb-6">
+      <div className="p-3 sm:p-6 lg:p-8">
+      <h1 className="text-lg sm:text-2xl font-bold text-brand-dark mb-5">
         {isEdit ? 'تعديل السيارة' : 'إضافة سيارة جديدة'}
       </h1>
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-2xl space-y-4 sm:space-y-6">
         {isEdit && car && (
           <CarAvailabilityPanel
             car={car}
@@ -49,7 +49,7 @@ export function AdminCarFormPage() {
             }}
           />
         )}
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
           <CarForm
             initial={car ?? undefined}
             onSubmit={async (data) => {

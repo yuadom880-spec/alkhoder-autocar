@@ -105,8 +105,8 @@ export function AdminBookingsPage() {
     <>
       <AdminTopBar title="إدارة الحجوزات" />
 
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="p-3 sm:p-6 lg:p-8">
+        <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-bold text-brand-dark sm:text-2xl">طلبات الحجز</h1>
             <p className="text-sm text-slate-500">
@@ -129,12 +129,12 @@ export function AdminBookingsPage() {
 
         {/* Search + Filters */}
         <div className="mb-6 space-y-3">
-          <div className="relative max-w-md">
+          <div className="relative w-full max-w-md">
             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="search"
               placeholder="ابحث بالاسم، الجوال، الإيميل، أو السيارة..."
-              className="input-field pr-10"
+              className="input-field pr-10 py-3 min-h-[48px]"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -161,7 +161,7 @@ export function AdminBookingsPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
             {filters.map((f) => {
               const count =
                 f.value === 'all'
@@ -173,7 +173,7 @@ export function AdminBookingsPage() {
                   type="button"
                   onClick={() => setFilter(f.value)}
                   className={cn(
-                    'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                    'shrink-0 rounded-full px-4 py-2.5 text-xs font-medium transition-colors min-h-[44px]',
                     filter === f.value
                       ? 'bg-brand-green text-white'
                       : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-green/50',
