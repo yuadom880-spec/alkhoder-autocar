@@ -92,6 +92,9 @@ export const copy = {
     branchPromptSub: 'التوفر والعروض يختلفون من فرع لفرع — اضغط على فرعك وشوف اللي يناسبك',
     browseAllWithoutBranch: 'شوف كل السيارات بدون تحديد فرع',
     branchPromptCta: 'اختر فرعك الآن',
+    branchPickerHide: 'إخفاء الفروع',
+    branchPickerCount: (n: number) =>
+      n === 1 ? 'فرع واحد متاح' : `${n} فروع — اختر الأقرب لك`,
     yourBranch: 'فرعك',
     changeBranch: 'تغيير الفرع',
     allBranchesLink: 'عرض كل الفروع على الخريطة',
