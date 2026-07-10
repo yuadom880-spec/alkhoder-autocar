@@ -3,6 +3,11 @@ import { Calendar, Power } from 'lucide-react'
 import { fetchBookingBlocks } from '../../lib/supabase'
 import { getCarBlocks } from '../../lib/availability'
 import type { BookingBlock, Car } from '../../lib/types'
+import {
+  confirmAdminCarAvailabilityToggle,
+  getAdminCarStatusLabel,
+  getAdminCarToggleLabel,
+} from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
 import { formatDate } from '../../lib/utils'
@@ -31,6 +36,7 @@ export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailability
   const activeBlocks = getCarBlocks(car.id, blocks).filter((b) => b.end_date >= today)
 
   const handleToggle = async () => {
+    if (!confirmAdminCarAvailabilityToggle(car)) return
     setToggling(true)
     try {
       await onToggleAvailable(!car.is_available)
@@ -50,13 +56,15 @@ export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailability
           onClick={handleToggle}
         >
           <Power className="h-4 w-4" />
-          {car.is_available ? 'إيقاف التوفر يدوياً' : 'تفعيل التوفر'}
+          {getAdminCarToggleLabel(car)}
         </Button>
       </div>
 
+      <p className="text-xs text-slate-500">{copy.admin.availabilityHint}</p>
+
       <div className="flex flex-wrap gap-2">
         <Badge variant={car.is_available ? 'success' : 'danger'}>
-          {car.is_available ? 'متاحة للحجز' : copy.admin.manualOff}
+          {getAdminCarStatusLabel(car)}
         </Badge>
         {activeBlocks.some((b) => b.status === 'confirmed') && (
           <Badge variant="danger">{copy.admin.bookedNow}</Badge>

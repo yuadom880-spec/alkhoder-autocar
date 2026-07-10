@@ -1,4 +1,5 @@
 import type { CarAvailability } from '../../lib/types'
+import { getCustomerUnavailableLabel } from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
 import { Badge } from '../ui/Badge'
 
@@ -12,7 +13,7 @@ export function CarAvailabilityBadge({
   showDatesHint = false,
 }: CarAvailabilityBadgeProps) {
   if (availability.reason === 'admin_disabled') {
-    return <Badge variant="danger">{copy.cars.adminDisabled}</Badge>
+    return <Badge variant="danger">{getCustomerUnavailableLabel('admin_disabled')}</Badge>
   }
 
   if (!availability.available && availability.reason === 'booked') {

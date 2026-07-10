@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { CarAvailabilityBadge } from '../components/cars/CarAvailabilityBadge'
 import { getCategoryLabel, getClassLabel } from '../lib/constants'
+import { getCustomerUnavailableLabel } from '../lib/carStatus'
 import { copy } from '../lib/copy'
 import { buildBookingQuery } from '../lib/branchFilter'
 import { getCarAvailability } from '../lib/availability'
@@ -98,12 +99,11 @@ export function CarDetailPage() {
     : getPriceUnitLabel(rentalType)
   const hasPromoPrice = Boolean(promoOffer && promoOffer.price > 0)
 
-  const unavailableMessage =
-    availability?.reason === 'booked'
-      ? start && end
-        ? copy.detail.bookedConfirmed
-        : copy.detail.booked
-      : copy.detail.adminDisabled
+  const unavailableMessage = getCustomerUnavailableLabel(availability?.reason, {
+    page: 'detail',
+    startDate: start || undefined,
+    endDate: end || undefined,
+  })
 
   return (
     <>
@@ -136,7 +136,7 @@ export function CarDetailPage() {
                 {!canBook && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40">
                     <span className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white">
-                      {availability?.reason === 'booked' ? copy.cars.booked : copy.cars.unavailable}
+                      {getCustomerUnavailableLabel(availability?.reason)}
                     </span>
                   </div>
                 )}

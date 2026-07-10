@@ -14,6 +14,11 @@ import { filterBlocksByBranch, getCarBlocks } from '../../lib/availability'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { deleteCar, fetchBookingBlocks, fetchBranches, fetchCars, updateCar } from '../../lib/supabase'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
+import {
+  confirmAdminCarAvailabilityToggle,
+  getAdminCarStatusLabel,
+  getAdminCarToggleLabel,
+} from '../../lib/carStatus'
 import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
 import { formatPrice } from '../../lib/utils'
 
@@ -66,6 +71,7 @@ export function AdminCarsPage() {
   }
 
   const handleToggleAvailable = async (car: Car) => {
+    if (!confirmAdminCarAvailabilityToggle(car)) return
     setToggling(car.id)
     try {
       const updated = await updateCar(car.id, { is_available: !car.is_available })
@@ -206,7 +212,7 @@ export function AdminCarsPage() {
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
                             <Badge variant={car.is_available ? 'success' : 'danger'}>
-                              {car.is_available ? 'متاحة' : 'موقوفة'}
+                              {getAdminCarStatusLabel(car)}
                             </Badge>
                             {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
                             {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
@@ -230,7 +236,7 @@ export function AdminCarsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              title="تبديل التوفر"
+                              title={getAdminCarToggleLabel(car)}
                               isLoading={toggling === car.id}
                               onClick={() => handleToggleAvailable(car)}
                             >

@@ -259,7 +259,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             onChange={(e) => update('is_available', e.target.checked)}
             className="rounded border-slate-300 text-brand-green focus:ring-brand-green"
           />
-          متاحة للحجز
+          متاحة للحجز على الموقع
         </label>
       </div>
 
