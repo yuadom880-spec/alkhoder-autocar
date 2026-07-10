@@ -3,7 +3,6 @@ import { CustomerBranchProvider } from '../../context/CustomerBranchContext'
 import { PageSeo } from '../seo/PageSeo'
 import { Footer } from './Footer'
 import { Header } from './Header'
-import { MobileBookingBar } from './MobileBookingBar'
 import { WhatsAppButton } from './WhatsAppButton'
 
 export function Layout() {
@@ -12,11 +11,10 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <PageSeo />
       <Header />
-      <main className="flex-1 pb-[4.25rem] lg:pb-0">
+      <main className="flex-1">
         <Outlet />
       </main>
       <Footer />
-      <MobileBookingBar />
       <WhatsAppButton />
     </div>
     </CustomerBranchProvider>
