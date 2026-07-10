@@ -32,10 +32,9 @@ export function filterOffersByBranch(
   offers: FeaturedOffer[],
   branchId: string | null | undefined,
 ): FeaturedOffer[] {
-  if (!branchId) return offers
   return offers.filter((o) => {
-    if (!o.car_id || !o.car) return false
-    if (!carMatchesBranch(o.car, branchId)) return false
+    if (!o.car_id || !o.car) return !branchId && isFeaturedOfferVisibleForBranch(o, null)
+    if (branchId && !carMatchesBranch(o.car, branchId)) return false
     return isFeaturedOfferVisibleForBranch(o, branchId)
   })
 }

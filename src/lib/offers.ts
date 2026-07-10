@@ -1,5 +1,11 @@
+import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import type { Car, CarOffer, CarOffers, OfferDiscountType, RentalPeriodType } from './types'
 import { formatPrice } from './utils'
+
+function normalizeDisabledBranchIds(ids: string[] | undefined): string[] {
+  if (!Array.isArray(ids)) return []
+  return [...new Set(ids.map(normalizeBranchIdForStorage).filter(Boolean))]
+}
 
 export const DEFAULT_OFFER: CarOffer = {
   active: false,
@@ -19,14 +25,22 @@ export const DEFAULT_OFFERS: CarOffers = {
 
 export function normalizeOffer(offer: CarOffer | null | undefined): CarOffer | null {
   if (!offer) return null
-  const disabledBranchIds = offer.disabled_branch_ids ?? []
+  const disabledBranchIds = normalizeDisabledBranchIds(offer.disabled_branch_ids)
   if (!offer.active) {
     if (disabledBranchIds.length === 0) {
       return offer.active === false ? { ...DEFAULT_OFFER, active: false } : null
     }
-    return { ...DEFAULT_OFFER, ...offer, active: false, disabled_branch_ids: disabledBranchIds }
+    // إيقاف فرعي فقط — يبقى العرض شغّال في باقي الفروع
+    return { ...DEFAULT_OFFER, ...offer, active: true, disabled_branch_ids: disabledBranchIds }
   }
   return { ...DEFAULT_OFFER, ...offer, disabled_branch_ids: disabledBranchIds }
+}
+
+/** موقوف عالمياً — ليس إيقاف فرع واحد */
+export function isOfferGloballyDisabled(offer: CarOffer | null | undefined): boolean {
+  if (!offer) return true
+  if (offer.active) return false
+  return normalizeDisabledBranchIds(offer.disabled_branch_ids).length === 0
 }
 
 /** تحويل العرض القديم (كائن واحد) إلى هيكل يومي/شهري */
@@ -55,7 +69,8 @@ export function isOfferDisabledForBranch(
   branchId?: string | null,
 ): boolean {
   if (!offer || !branchId) return false
-  return (offer.disabled_branch_ids ?? []).includes(branchId)
+  const target = normalizeBranchIdForStorage(branchId)
+  return normalizeDisabledBranchIds(offer.disabled_branch_ids).includes(target)
 }
 
 export function setOfferBranchDisabled(
@@ -63,14 +78,16 @@ export function setOfferBranchDisabled(
   branchId: string,
   disabled: boolean,
 ): CarOffer {
-  const ids = new Set(offer.disabled_branch_ids ?? [])
-  if (disabled) ids.add(branchId)
-  else ids.delete(branchId)
+  const normalizedBranchId = normalizeBranchIdForStorage(branchId)
+  const ids = new Set(normalizeDisabledBranchIds(offer.disabled_branch_ids))
+  if (disabled) ids.add(normalizedBranchId)
+  else ids.delete(normalizedBranchId)
   return { ...offer, active: true, disabled_branch_ids: [...ids] }
 }
 
 function isOfferValid(offer: CarOffer | null, branchId?: string | null): boolean {
-  if (!offer?.active) return false
+  if (!offer) return false
+  if (isOfferGloballyDisabled(offer)) return false
   if (isOfferDisabledForBranch(offer, branchId)) return false
   if (offer.valid_until) {
     const end = new Date(offer.valid_until)
@@ -80,8 +97,14 @@ function isOfferValid(offer: CarOffer | null, branchId?: string | null): boolean
   return true
 }
 
-export function applyOffer(basePrice: number, offer: CarOffer | null): number {
-  if (!offer?.active) return basePrice
+export function applyOffer(
+  basePrice: number,
+  offer: CarOffer | null,
+  branchId?: string | null,
+): number {
+  if (!offer || isOfferGloballyDisabled(offer) || isOfferDisabledForBranch(offer, branchId)) {
+    return basePrice
+  }
 
   let price: number
   switch (offer.discount_type) {
@@ -112,7 +135,7 @@ export function isOfferActive(
     rentalType === 'monthly'
       ? (car.price_per_month ?? car.price_per_day * 25)
       : car.price_per_day
-  return applyOffer(basePrice, offer) < basePrice
+  return applyOffer(basePrice, offer, branchId) < basePrice
 }
 
 export function hasAnyOffer(car: Car, branchId?: string | null): boolean {
@@ -132,7 +155,7 @@ export function getEffectivePrice(
       ? (car.price_per_month ?? car.price_per_day * 25)
       : car.price_per_day
   if (!isOfferValid(offer, branchId)) return basePrice
-  return applyOffer(basePrice, offer)
+  return applyOffer(basePrice, offer, branchId)
 }
 
 export function getOfferBadge(
@@ -200,11 +223,11 @@ export function previewOfferPrice(basePrice: number, offer: CarOffer): number {
 
 function keepStoredOffer(offer: CarOffer | null): CarOffer | null {
   if (!offer) return null
-  const hasDisabledBranches = (offer.disabled_branch_ids?.length ?? 0) > 0
-  if (!offer.active && !hasDisabledBranches) return null
+  if (isOfferGloballyDisabled(offer)) return null
   return {
     ...offer,
-    disabled_branch_ids: offer.disabled_branch_ids ?? [],
+    active: offer.active || normalizeDisabledBranchIds(offer.disabled_branch_ids).length > 0,
+    disabled_branch_ids: normalizeDisabledBranchIds(offer.disabled_branch_ids),
   }
 }
 

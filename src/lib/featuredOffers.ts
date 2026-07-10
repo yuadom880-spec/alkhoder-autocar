@@ -7,6 +7,7 @@ import {
   getOfferSavings,
   isOfferActive,
   isOfferDisabledForBranch,
+  isOfferGloballyDisabled,
 } from './offers'
 import { getCarBasePrice } from './pricing'
 import { formatPrice } from './utils'
@@ -55,23 +56,31 @@ export function isFeaturedOfferBranchDisabled(
   return false
 }
 
+function isFeaturedOfferVisibleForCar(
+  offer: FeaturedOffer,
+  branchId?: string | null,
+): boolean {
+  if (!offer.car_id || !offer.car) return true
+  const carOffer = getCarOffer(offer.car, offer.rental_type)
+  if (!carOffer || isOfferGloballyDisabled(carOffer)) return false
+  if (branchId && isOfferDisabledForBranch(carOffer, branchId)) return false
+  return isOfferActive(offer.car, offer.rental_type, branchId)
+}
+
 /** هل العرض ظاهر لفرع معيّن */
 export function isFeaturedOfferVisibleForBranch(
   offer: FeaturedOffer,
   branchId?: string | null,
 ): boolean {
   if (!isFeaturedOfferActive(offer)) return false
-  if (!branchId) return true
-  if (isOfferDisabledForBranch(offer, branchId)) return false
-  if (!offer.car_id || !offer.car) return true
-  if (isAutoCarFeaturedOffer(offer)) {
-    return isOfferActive(offer.car, offer.rental_type, branchId)
+  if (branchId && isOfferDisabledForBranch(offer, branchId)) return false
+  if (!branchId) {
+    if (offer.car_id && offer.car) {
+      return isFeaturedOfferVisibleForCar(offer, null)
+    }
+    return true
   }
-  const carOffer = getCarOffer(offer.car, offer.rental_type)
-  if (carOffer?.active) {
-    return isOfferActive(offer.car, offer.rental_type, branchId)
-  }
-  return true
+  return isFeaturedOfferVisibleForCar(offer, branchId)
 }
 
 /** تحويل عرض السيارة (يومي/شهري) إلى بطاقة عرض مميز */
@@ -108,6 +117,7 @@ export function carToFeaturedOffer(
     is_featured: true,
     valid_until: carOffer.valid_until,
     sort_order: -Math.round(savings),
+    disabled_branch_ids: carOffer.disabled_branch_ids ?? [],
     created_at: car.created_at,
     updated_at: car.updated_at,
     car,

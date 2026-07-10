@@ -24,6 +24,7 @@ import type {
   RentalPeriodType,
 } from './types'
 import { resolveDisplayedFeaturedOffers } from './featuredOffers'
+import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { normalizeCarOffers, sanitizeCarOffers, setOfferBranchDisabled } from './offers'
 import { parseAutoCarOfferId } from './featuredOffers'
 import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
@@ -189,15 +190,16 @@ async function bookingsWithCars(bookings: Booking[]): Promise<Booking[]> {
 }
 
 function normalizeFeaturedOffer(offer: FeaturedOffer): FeaturedOffer {
+  const disabled_branch_ids = Array.isArray(offer.disabled_branch_ids)
+    ? [...new Set(offer.disabled_branch_ids.map(normalizeBranchIdForStorage).filter(Boolean))]
+    : []
   return {
     ...offer,
     original_price: offer.original_price ?? null,
     car_id: offer.car_id ?? null,
     link_url: offer.link_url ?? null,
     valid_until: offer.valid_until ?? null,
-    disabled_branch_ids: Array.isArray(offer.disabled_branch_ids)
-      ? offer.disabled_branch_ids
-      : [],
+    disabled_branch_ids,
   }
 }
 
@@ -712,6 +714,7 @@ export async function setCarOfferBranchVisibility(
   branchId: string,
   visible: boolean,
 ): Promise<Car> {
+  const normalizedBranchId = normalizeBranchIdForStorage(branchId)
   const car = await fetchCarById(carId)
   if (!car) throw new Error('السيارة غير موجودة')
 
@@ -722,7 +725,7 @@ export async function setCarOfferBranchVisibility(
     throw new Error('لا يوجد عرض على هذه السيارة')
   }
 
-  const nextOffer = setOfferBranchDisabled(current, branchId, !visible)
+  const nextOffer = setOfferBranchDisabled(current, normalizedBranchId, !visible)
   const patch: CarFormData['offer'] = {
     ...offers,
     [rentalType]: nextOffer,
@@ -737,6 +740,7 @@ export async function setFeaturedOfferVisibilityForBranch(
   branchId: string,
   visible: boolean,
 ): Promise<void> {
+  const normalizedBranchId = normalizeBranchIdForStorage(branchId)
   const auto = parseAutoCarOfferId(offer.id)
   const rentalType = auto?.rentalType ?? offer.rental_type
   const carId = auto?.carId ?? offer.car_id
@@ -745,12 +749,22 @@ export async function setFeaturedOfferVisibilityForBranch(
     const car = offer.car ?? (await fetchCarById(carId))
     const carOffer = car ? normalizeCarOffers(car.offer)[rentalType] : null
     if (carOffer) {
-      await setCarOfferBranchVisibility(carId, rentalType, branchId, visible)
+      await setCarOfferBranchVisibility(carId, rentalType, normalizedBranchId, visible)
     }
   }
 
-  if (!auto) {
-    await setFeaturedOfferBranchVisibility(offer.id, branchId, visible)
+  const manualOffers = await fetchFeaturedOffers({ activeOnly: false })
+  const manualMatch = manualOffers.find(
+    (row) =>
+      row.car_id === carId &&
+      row.rental_type === rentalType &&
+      !parseAutoCarOfferId(row.id),
+  )
+
+  if (manualMatch) {
+    await setFeaturedOfferBranchVisibility(manualMatch.id, normalizedBranchId, visible)
+  } else if (!auto) {
+    await setFeaturedOfferBranchVisibility(offer.id, normalizedBranchId, visible)
   }
 }
 
