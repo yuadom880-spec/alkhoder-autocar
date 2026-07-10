@@ -11,11 +11,10 @@ import { buildBookingQuery } from '../lib/branchFilter'
 import { getCarAvailability } from '../lib/availability'
 import { PromoOfferBanner } from '../components/offers/PromoOfferBanner'
 import { getFeaturedOfferPriceLabel } from '../lib/featuredOffers'
-import { BranchFilter } from '../components/cars/BranchFilter'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { carMatchesBranch } from '../lib/branchFilter'
-import { fetchBookingBlocks, fetchBranches, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
-import type { BookingBlock, BranchRecord, Car, FeaturedOffer } from '../lib/types'
+import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
+import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
 import { getCarOffer, isOfferActive } from '../lib/offers'
 import { getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
@@ -31,7 +30,6 @@ export function CarDetailPage() {
   const [car, setCar] = useState<Car | null>(null)
   const [promoOffer, setPromoOffer] = useState<FeaturedOffer | null>(null)
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
-  const [branches, setBranches] = useState<BranchRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState(0)
 
@@ -39,7 +37,7 @@ export function CarDetailPage() {
   const start = searchParams.get('start') ?? ''
   const end = searchParams.get('end') ?? ''
   const { rentalType, setRentalType } = useRentalPeriod()
-  const { branchId, hasBranch, setBranchId } = useCustomerBranch(branches)
+  const { branchId, hasBranch } = useCustomerBranch()
 
   const bookUrl = useMemo(
     () =>
@@ -49,19 +47,14 @@ export function CarDetailPage() {
 
   useEffect(() => {
     if (!id) return
-    const tasks: Promise<unknown>[] = [
-      fetchCarById(id),
-      fetchBookingBlocks(id),
-      fetchBranches({ activeOnly: true }),
-    ]
+    const tasks: Promise<unknown>[] = [fetchCarById(id), fetchBookingBlocks(id)]
     if (promoId) tasks.push(fetchFeaturedOfferById(promoId))
 
     Promise.all(tasks)
       .then((results) => {
         setCar(results[0] as Car | null)
         setBlocks(results[1] as BookingBlock[])
-        setBranches(results[2] as BranchRecord[])
-        if (promoId && results[3]) setPromoOffer(results[3] as FeaturedOffer)
+        if (promoId && results[2]) setPromoOffer(results[2] as FeaturedOffer)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -187,15 +180,6 @@ export function CarDetailPage() {
                   {copy.cars.datesSelected}: {formatDate(start)} — {formatDate(end)}
                 </p>
               )}
-
-              <div className="mb-6">
-                <BranchFilter
-                  branches={branches.filter((b) => !car || carMatchesBranch(car, b.id))}
-                  selectedBranchId={branchId}
-                  onSelect={setBranchId}
-                  required
-                />
-              </div>
 
               {!carAvailableInBranch && hasBranch && (
                 <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">

@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { Calendar, MapPin, Search } from 'lucide-react'
+import { useCustomerBranch } from '../../hooks/useCustomerBranch'
 import { copy } from '../../lib/copy'
-import { fetchBranches } from '../../lib/supabase'
-import type { BranchRecord } from '../../lib/types'
 import { Button } from '../ui/Button'
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -13,15 +12,8 @@ export function QuickSearch() {
   const navigate = useNavigate()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [branchId, setBranchId] = useState('')
-  const [branches, setBranches] = useState<BranchRecord[]>([])
+  const { branches, branchId, setBranchId } = useCustomerBranch()
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    fetchBranches({ activeOnly: true })
-      .then(setBranches)
-      .catch(console.error)
-  }, [])
 
   const handleSearch = () => {
     if (!branchId) {

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
-import { BranchFilter } from '../components/cars/BranchFilter'
+
 import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
@@ -15,8 +15,8 @@ import { copy } from '../lib/copy'
 import { sortFleet, type FleetSortOption } from '../lib/fleetSort'
 import { formatDate } from '../lib/utils'
 import { hasAnyOffer } from '../lib/offers'
-import { fetchBookingBlocks, fetchBranches, fetchCars } from '../lib/supabase'
-import type { BookingBlock, BranchRecord, Car, CarCategory, CarClass } from '../lib/types'
+import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
+import type { BookingBlock, Car, CarCategory, CarClass } from '../lib/types'
 
 export function CarsPage() {
   const [searchParams] = useSearchParams()
@@ -25,7 +25,6 @@ export function CarsPage() {
   const offersParam = searchParams.get('offers') === '1'
 
   const [cars, setCars] = useState<Car[]>([])
-  const [branches, setBranches] = useState<BranchRecord[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -45,21 +44,16 @@ export function CarsPage() {
   }, [startDate, endDate])
 
   useEffect(() => {
-    Promise.all([
-      fetchCars({ availableOnly: false }),
-      fetchBookingBlocks(),
-      fetchBranches({ activeOnly: true }),
-    ])
-      .then(([carsData, blocksData, branchesData]) => {
+    Promise.all([fetchCars({ availableOnly: false }), fetchBookingBlocks()])
+      .then(([carsData, blocksData]) => {
         setCars(carsData)
         setBlocks(blocksData)
-        setBranches(branchesData)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
-  const { branchId: selectedBranch, hasBranch, setBranchId } = useCustomerBranch(branches)
+  const { branchId: selectedBranch, hasBranch } = useCustomerBranch()
 
   const filtered = useMemo(() => {
     if (!hasBranch) return []
@@ -103,16 +97,6 @@ export function CarsPage() {
           <h1 className="section-title">{copy.cars.title}</h1>
           <p className="section-subtitle">{copy.cars.subtitle}</p>
           <PricesIncludeVatNote />
-        </div>
-
-        <div className="mb-6">
-          <BranchFilter
-            branches={branches}
-            selectedBranchId={selectedBranch}
-            onSelect={setBranchId}
-            loading={loading}
-            required
-          />
         </div>
 
         {hasBranch && (
@@ -190,8 +174,9 @@ export function CarsPage() {
         {loading ? (
           <LoadingSpinner />
         ) : !hasBranch ? (
-          <div className="rounded-2xl bg-white py-16 text-center shadow-md px-6">
-            <p className="text-slate-600 font-medium">{copy.cars.branchRequiredHint}</p>
+          <div className="rounded-2xl bg-white py-12 text-center shadow-md px-6">
+            <p className="text-slate-600 font-medium">{copy.cars.pickBranchSub}</p>
+            <p className="text-sm text-brand-green mt-2 font-bold">{copy.cars.pickBranchTitle}</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-md">
