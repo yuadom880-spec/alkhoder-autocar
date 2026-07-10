@@ -69,9 +69,10 @@ function formatSupabaseMutationError(error: { code?: string; message?: string })
   if (
     message.includes('unavailable_branch_ids') ||
     message.includes('disabled_branch_ids') ||
-    message.includes('schema cache')
+    message.includes('schema cache') ||
+    message.includes('Could not find')
   ) {
-    return 'قاعدة البيانات تحتاج تحديث — افتح Supabase → SQL Editor → انسخ والصق ملف supabase/schema.sql (القسم الفوري في أول الملف) ثم Run. بعدها: Settings → API → Reload schema'
+    return 'تحديث schema cache مطلوب — شغّل القسم 1 من supabase/schema.sql في SQL Editor (يحتوي NOTIFY pgrst). إن استمر الخطأ: Supabase → Settings → API → Reload schema'
   }
   if (
     error.code === 'PGRST116' ||

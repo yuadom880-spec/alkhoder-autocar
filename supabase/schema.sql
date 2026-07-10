@@ -1,14 +1,18 @@
 -- ════════════════════════════════════════════════════════════════════════════
 -- الخضر لتأجير السيارات — Alkhoder AutoCar
--- الإصدار: 4.0 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
+-- الإصدار: 4.1 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
 -- ════════════════════════════════════════════════════════════════════════════
 -- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
 -- آمن للتشغيل المتكرر — لن يحذف بياناتك
+--
+-- إذا أضفت العمود يدوياً وظهر تحذير schema cache:
+--   انسخ القسم 1 فقط (من هنا حتى NOTIFY) والصقه وشغّله — يكفي
+--   ثم: Supabase → Settings → API → Reload schema (إن استمر التحذير)
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
--- │ القسم 1: إصلاح فوري — إيقاف السيارة/العرض لفرع واحد فقط                │
--- │ إذا ظهر: Could not find 'unavailable_branch_ids' column → شغّل هذا أولاً │
+-- │ القسم 1: إصلاح فوري — أعمدة الفروع + إعادة تحميل schema cache           │
+-- │ يحل: Could not find 'unavailable_branch_ids' + تحذير schema cache       │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 ALTER TABLE public.cars
@@ -16,7 +20,8 @@ ALTER TABLE public.cars
 
 UPDATE public.cars
 SET unavailable_branch_ids = '[]'::jsonb
-WHERE unavailable_branch_ids IS NULL;
+WHERE unavailable_branch_ids IS NULL
+   OR jsonb_typeof(unavailable_branch_ids) <> 'array';
 
 ALTER TABLE public.cars
   ALTER COLUMN unavailable_branch_ids SET DEFAULT '[]'::jsonb;
@@ -29,7 +34,8 @@ ALTER TABLE public.featured_offers
 
 UPDATE public.featured_offers
 SET disabled_branch_ids = '[]'::jsonb
-WHERE disabled_branch_ids IS NULL;
+WHERE disabled_branch_ids IS NULL
+   OR jsonb_typeof(disabled_branch_ids) <> 'array';
 
 ALTER TABLE public.featured_offers
   ALTER COLUMN disabled_branch_ids SET DEFAULT '[]'::jsonb;
@@ -43,12 +49,21 @@ SET is_available = true
 WHERE is_available = false
   AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
 
--- تحقق: لازم يظهر unavailable_branch_ids
-SELECT column_name, data_type
-FROM information_schema.columns
-WHERE table_schema = 'public'
-  AND table_name = 'cars'
-  AND column_name = 'unavailable_branch_ids';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'cars'
+      AND column_name = 'unavailable_branch_ids'
+  ) THEN
+    RAISE EXCEPTION 'فشل: عمود cars.unavailable_branch_ids غير موجود';
+  END IF;
+  RAISE NOTICE 'تم — cars.unavailable_branch_ids جاهز. جاري reload schema cache...';
+END $$;
+
+-- مهم: يزيل تحذير schema cache بعد إضافة عمود جديد
+NOTIFY pgrst, 'reload schema';
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 2: دوال مساعدة                                                    │
@@ -392,5 +407,5 @@ WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 NOTIFY pgrst, 'reload schema';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- نهاية الملف — الإصدار 4.0
+-- نهاية الملف — الإصدار 4.1
 -- ════════════════════════════════════════════════════════════════════════════

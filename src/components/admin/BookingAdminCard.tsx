@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import {
   Calendar,
   Car,
   Check,
+  ChevronUp,
   CreditCard,
+  Eye,
   Mail,
   MapPin,
   MessageCircle,
@@ -31,6 +34,8 @@ interface BookingAdminCardProps {
   updating: boolean
   onStatusChange: (status: BookingStatus) => void
   onDelete: () => void
+  /** يبدأ مطوي — للوحة التحكم قبل مراجعة التفاصيل */
+  startCollapsed?: boolean
 }
 
 function whatsappMessage(b: Booking): string {
@@ -44,7 +49,94 @@ export function BookingAdminCard({
   updating,
   onStatusChange,
   onDelete,
+  startCollapsed = false,
 }: BookingAdminCardProps) {
+  const [expanded, setExpanded] = useState(!startCollapsed)
+
+  if (!expanded) {
+    return (
+      <div className="rounded-2xl bg-white shadow-sm overflow-hidden border border-amber-100">
+        <div className="px-4 py-4 sm:px-5 space-y-3">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="font-bold text-brand-dark text-lg">{b.customer_name}</h3>
+                <Badge variant={statusVariant[b.status]}>{BOOKING_STATUS_LABELS[b.status]}</Badge>
+              </div>
+              <p className="text-sm text-slate-600">{b.car?.name ?? '—'}</p>
+              {b.branch_name && (
+                <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  {b.branch_name}
+                  {b.branch_city ? ` — ${b.branch_city}` : ''}
+                </p>
+              )}
+            </div>
+            <p className="text-lg font-bold text-brand-green shrink-0">{formatPrice(b.total_price)}</p>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2 text-sm">
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <p className="text-[10px] text-slate-400 mb-0.5">الجوال</p>
+              <a
+                href={toPhoneLink(b.customer_phone)}
+                dir="ltr"
+                className="font-bold text-brand-dark hover:text-brand-green"
+              >
+                {b.customer_phone}
+              </a>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
+              <p className="text-[10px] text-slate-400 mb-0.5">الفترة</p>
+              <p className="font-medium">
+                {formatDate(b.start_date)} — {formatDate(b.end_date)}
+              </p>
+            </div>
+            {b.pickup_time && (
+              <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 sm:col-span-2">
+                <p className="text-[10px] text-amber-600 mb-0.5">موعد الاستلام</p>
+                <p className="font-medium text-amber-900" dir="ltr">{b.pickup_time}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="w-full min-h-[44px] col-span-2 sm:col-span-1"
+              onClick={() => setExpanded(true)}
+            >
+              <Eye className="h-4 w-4" />
+              عرض التفاصيل
+            </Button>
+            <a href={toPhoneLink(b.customer_phone)} className="col-span-1">
+              <Button size="sm" variant="outline" className="w-full min-h-[44px]">
+                <Phone className="h-4 w-4" />
+                اتصال
+              </Button>
+            </a>
+            <a
+              href={toWhatsAppLink(b.customer_phone, whatsappMessage(b))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="col-span-1"
+            >
+              <Button size="sm" className="w-full min-h-[44px] bg-[#25D366] hover:bg-[#1fb855]">
+                <MessageCircle className="h-4 w-4" />
+                واتساب
+              </Button>
+            </a>
+          </div>
+
+          <p className="text-xs text-amber-700 text-center">
+            راجع التفاصيل وتواصل مع الزبون قبل التأكيد أو الرفض
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
       {/* Header */}
@@ -67,7 +159,15 @@ export function BookingAdminCard({
             </p>
           )}
         </div>
-        <p className="text-xl font-bold text-brand-green">{formatPrice(b.total_price)}</p>
+        <div className="flex items-center gap-2 shrink-0">
+          {startCollapsed && (
+            <Button size="sm" variant="ghost" onClick={() => setExpanded(false)}>
+              <ChevronUp className="h-4 w-4" />
+              إخفاء
+            </Button>
+          )}
+          <p className="text-xl font-bold text-brand-green">{formatPrice(b.total_price)}</p>
+        </div>
       </div>
 
       <div className="p-4 sm:p-5 grid gap-5 lg:grid-cols-2">

@@ -2,16 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch, filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
-import { AlertCircle, Calendar, Car as CarIcon, Check, Clock, TrendingUp, X } from 'lucide-react'
+import { AlertCircle, Calendar, Car as CarIcon, Clock, TrendingUp } from 'lucide-react'
+import { BookingAdminCard } from '../../components/admin/BookingAdminCard'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
 import { handleBookingStatusNotification } from '../../lib/bookingWhatsApp'
-import { fetchBookings, fetchCars, updateBookingStatus } from '../../lib/supabase'
-import type { Booking, Car } from '../../lib/types'
-import { formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
+import { deleteBooking, fetchBookings, fetchCars, updateBookingStatus } from '../../lib/supabase'
+import type { Booking, BookingStatus, Car } from '../../lib/types'
+import { formatDate, formatPrice, toPhoneLink } from '../../lib/utils'
 
 export function AdminDashboardPage() {
   const { filterBranchId } = useAdminBranch()
@@ -47,7 +48,7 @@ export function AdminDashboardPage() {
   const pending = visibleBookings.filter((b) => b.status === 'pending')
   const confirmed = visibleBookings.filter((b) => b.status === 'confirmed')
 
-  const handleQuickAction = async (id: string, status: 'confirmed' | 'rejected') => {
+  const handleStatusChange = async (id: string, status: BookingStatus) => {
     setUpdating(id)
     const previous = bookings.find((b) => b.id === id)
     try {
@@ -58,6 +59,16 @@ export function AdminDashboardPage() {
       alert(err instanceof Error ? err.message : 'فشل التحديث')
     } finally {
       setUpdating(null)
+    }
+  }
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`هل تبي تحذف حجز "${name}"؟`)) return
+    try {
+      await deleteBooking(id)
+      setBookings((prev) => prev.filter((b) => b.id !== id))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'فشل الحذف')
     }
   }
 
@@ -114,42 +125,16 @@ export function AdminDashboardPage() {
                 عرض الكل
               </Link>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="space-y-4 p-4 sm:p-5">
               {pending.map((b) => (
-                <div key={b.id} className="px-4 py-4 sm:px-5 hover:bg-slate-50">
-                  <div className="mb-3">
-                    <p className="font-bold text-brand-dark">{b.customer_name}</p>
-                    <p className="text-xs text-slate-500">{b.car?.name} · {formatPrice(b.total_price)}</p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {formatDate(b.start_date)} — {formatDate(b.end_date)}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                    <a href={toPhoneLink(b.customer_phone)} className="col-span-1">
-                      <Button size="sm" variant="outline" className="w-full min-h-[44px]">اتصال</Button>
-                    </a>
-                    <a href={toWhatsAppLink(b.customer_phone)} target="_blank" rel="noopener noreferrer" className="col-span-1">
-                      <Button size="sm" className="w-full min-h-[44px] bg-[#25D366]">واتساب</Button>
-                    </a>
-                    <Button
-                      size="sm"
-                      className="w-full min-h-[44px]"
-                      disabled={updating === b.id}
-                      onClick={() => handleQuickAction(b.id, 'confirmed')}
-                    >
-                      <Check className="h-4 w-4" /> تأكيد
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      className="w-full min-h-[44px]"
-                      disabled={updating === b.id}
-                      onClick={() => handleQuickAction(b.id, 'rejected')}
-                    >
-                      <X className="h-4 w-4" /> رفض
-                    </Button>
-                  </div>
-                </div>
+                <BookingAdminCard
+                  key={b.id}
+                  booking={b}
+                  startCollapsed
+                  updating={updating === b.id}
+                  onStatusChange={(status) => handleStatusChange(b.id, status)}
+                  onDelete={() => handleDelete(b.id, b.customer_name)}
+                />
               ))}
             </div>
           </div>
