@@ -17,17 +17,25 @@ export function getCarBasePrice(car: Car, rentalType: RentalPeriodType): number 
   return car.price_per_day
 }
 
-/** السعر المعروض للعميل مع تطبيق العروض حسب نوع الإيجار */
-export function getCarDisplayPrice(car: Car, rentalType: RentalPeriodType): number {
-  return getEffectivePrice(car, rentalType)
+/** السعر المعروض للعميل مع تطبيق العروض حسب نوع الإيجار والفرع */
+export function getCarDisplayPrice(
+  car: Car,
+  rentalType: RentalPeriodType,
+  branchId?: string | null,
+): number {
+  return getEffectivePrice(car, rentalType, branchId)
 }
 
 export function getPriceUnitLabel(rentalType: RentalPeriodType): string {
   return rentalType === 'monthly' ? '/ شهر' : '/ يوم'
 }
 
-export function getSortPrice(car: Car, rentalType: RentalPeriodType): number {
-  return getCarDisplayPrice(car, rentalType)
+export function getSortPrice(
+  car: Car,
+  rentalType: RentalPeriodType,
+  branchId?: string | null,
+): number {
+  return getCarDisplayPrice(car, rentalType, branchId)
 }
 
 /** إضافة أيام لتاريخ YYYY-MM-DD */

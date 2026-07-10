@@ -29,6 +29,8 @@ export interface CarOffer {
   discount_value: number
   valid_until: string | null
   description: string
+  /** فروع لا يظهر فيها العرض — باقي الفروع يبقى العرض شغّال */
+  disabled_branch_ids?: string[]
 }
 
 export interface CarOffers {

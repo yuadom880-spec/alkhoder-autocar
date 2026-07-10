@@ -19,13 +19,17 @@ export function isBlockingStatus(status: BookingStatus): boolean {
   return BLOCKING_STATUSES.includes(status)
 }
 
-/** فلترة الحجوزات حسب الفرع — null يعني كل الفروع */
+/**
+ * فلترة الحجوزات حسب الفرع.
+ * - مع فرع: حجوزات ذلك الفرع فقط (كل فرع مستقل).
+ * - بدون فرع: لا نحسب حجوزات فرع محدد — يظهر التوفر بعد اختيار الفرع.
+ */
 export function filterBlocksByBranch(
   blocks: BookingBlock[],
   branchId: string | null | undefined,
 ): BookingBlock[] {
-  if (!branchId) return blocks
-  return blocks.filter((b) => !b.branch_id || b.branch_id === branchId)
+  if (!branchId) return blocks.filter((b) => !b.branch_id)
+  return blocks.filter((b) => b.branch_id === branchId)
 }
 
 export function getCarBlocks(

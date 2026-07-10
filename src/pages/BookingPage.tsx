@@ -134,13 +134,15 @@ export function BookingPage() {
     if (promoOffer && isFeaturedOfferActive(promoOffer) && promoOffer.price > 0) {
       return promoOffer.price
     }
-    return getCarDisplayPrice(car, effectiveRentalType)
-  }, [car, promoOffer, effectiveRentalType])
+    const branch = selectedBranch?.id ?? (branchId || null)
+    return getCarDisplayPrice(car, effectiveRentalType, branch)
+  }, [car, promoOffer, effectiveRentalType, selectedBranch, branchId])
 
   const dailyPrice = useMemo(() => {
     if (!car) return 0
-    return getEffectivePrice(car, 'daily')
-  }, [car])
+    const branch = selectedBranch?.id ?? (branchId || null)
+    return getEffectivePrice(car, 'daily', branch)
+  }, [car, selectedBranch, branchId])
 
   const activeBranchId = selectedBranch?.id ?? (branchId || null)
 

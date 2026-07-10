@@ -71,7 +71,8 @@ export function CarsPage() {
         car.name.toLowerCase().includes(q) ||
         car.brand.toLowerCase().includes(q) ||
         car.model.toLowerCase().includes(q)
-      const matchOffer = !offersOnly || hasAnyOffer(car)
+      const matchOffer =
+        !offersOnly || hasAnyOffer(car, hasBranch ? selectedBranch : null)
       return matchCategory && matchClass && matchSearch && matchOffer
     })
 
@@ -90,7 +91,7 @@ export function CarsPage() {
       ? withAvailability.filter((item) => item.availability.available)
       : withAvailability
 
-    return sortFleet(visible, rentalType, sort)
+    return sortFleet(visible, rentalType, sort, hasBranch ? selectedBranch : null)
   }, [cars, blocks, search, category, carClass, sort, offersOnly, availableOnly, startDate, endDate, selectedBranch, hasBranch, rentalType])
 
   return (

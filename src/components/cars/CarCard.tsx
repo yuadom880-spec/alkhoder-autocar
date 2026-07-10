@@ -52,7 +52,7 @@ export function CarCard({
       <Link to={detailUrl}>
         <CarImage src={car.image_url} alt={car.name} variant="card">
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
-            <OfferBadge car={car} rentalType={rentalType} />
+            <OfferBadge car={car} rentalType={rentalType} branchId={branchId} />
             <Badge>{getCategoryLabel(car.category)}</Badge>
             <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
             {availability && (
@@ -83,7 +83,7 @@ export function CarCard({
                 {car.brand} · {car.year}
               </p>
             </div>
-            <CarPrice car={car} size="sm" rentalType={rentalType} />
+            <CarPrice car={car} size="sm" rentalType={rentalType} branchId={branchId} />
           </div>
         </Link>
 

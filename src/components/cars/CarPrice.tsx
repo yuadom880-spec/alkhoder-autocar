@@ -6,6 +6,7 @@ import { cn, formatPrice } from '../../lib/utils'
 interface CarPriceProps {
   car: Car
   rentalType?: RentalPeriodType
+  branchId?: string | null
   size?: 'sm' | 'md' | 'lg'
   showSavings?: boolean
   className?: string
@@ -20,15 +21,16 @@ const sizes = {
 export function CarPrice({
   car,
   rentalType = 'daily',
+  branchId = null,
   size = 'md',
   showSavings = false,
   className,
 }: CarPriceProps) {
   const s = sizes[size]
   const basePrice = getCarBasePrice(car, rentalType)
-  const effective = getEffectivePrice(car, rentalType)
-  const hasOffer = isOfferActive(car, rentalType)
-  const badge = getOfferBadge(car, rentalType)
+  const effective = getEffectivePrice(car, rentalType, branchId)
+  const hasOffer = isOfferActive(car, rentalType, branchId)
+  const badge = getOfferBadge(car, rentalType, branchId)
   const unitLabel = getPriceUnitLabel(rentalType)
 
   return (
@@ -44,7 +46,7 @@ export function CarPrice({
           <p className={cn('text-slate-400 line-through', s.old)}>{formatPrice(basePrice)}</p>
           {showSavings && (
             <p className="text-[10px] text-green-700 font-medium">
-              وفّر {formatPrice(getOfferSavings(car, rentalType))}
+              وفّر {formatPrice(getOfferSavings(car, rentalType, branchId))}
             </p>
           )}
         </>
@@ -59,11 +61,13 @@ export function CarPrice({
 export function OfferBadge({
   car,
   rentalType = 'daily',
+  branchId = null,
 }: {
   car: Car
   rentalType?: RentalPeriodType
+  branchId?: string | null
 }) {
-  const badge = getOfferBadge(car, rentalType)
+  const badge = getOfferBadge(car, rentalType, branchId)
   if (!badge) return null
   return (
     <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold text-white shadow">

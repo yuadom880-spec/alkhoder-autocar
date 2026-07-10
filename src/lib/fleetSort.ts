@@ -7,14 +7,21 @@ export function sortFleet(
   items: { car: Car; availability: CarAvailability }[],
   rentalType: RentalPeriodType,
   sort: FleetSortOption,
+  branchId?: string | null,
 ): { car: Car; availability: CarAvailability }[] {
   let visible = [...items]
 
   if (sort === 'price-asc') {
-    visible.sort((a, b) => getSortPrice(a.car, rentalType) - getSortPrice(b.car, rentalType))
+    visible.sort(
+      (a, b) =>
+        getSortPrice(a.car, rentalType, branchId) - getSortPrice(b.car, rentalType, branchId),
+    )
   }
   if (sort === 'price-desc') {
-    visible.sort((a, b) => getSortPrice(b.car, rentalType) - getSortPrice(a.car, rentalType))
+    visible.sort(
+      (a, b) =>
+        getSortPrice(b.car, rentalType, branchId) - getSortPrice(a.car, rentalType, branchId),
+    )
   }
   if (sort === 'default') {
     visible.sort((a, b) => {

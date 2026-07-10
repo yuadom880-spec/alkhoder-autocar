@@ -155,11 +155,11 @@ export function AdminCarsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div>
-                            <p className={isOfferActive(car, 'daily') ? 'font-medium text-red-600' : 'font-medium'}>
-                              {formatPrice(getEffectivePrice(car, 'daily'))}
+                            <p className={isOfferActive(car, 'daily', filterBranchId) ? 'font-medium text-red-600' : 'font-medium'}>
+                              {formatPrice(getEffectivePrice(car, 'daily', filterBranchId))}
                               <span className="text-[10px] text-slate-400 mr-1">/ يوم</span>
                             </p>
-                            {isOfferActive(car, 'daily') && (
+                            {isOfferActive(car, 'daily', filterBranchId) && (
                               <p className="text-xs text-slate-400 line-through">
                                 {formatPrice(car.price_per_day)}
                               </p>
@@ -168,11 +168,11 @@ export function AdminCarsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div>
-                            <p className={isOfferActive(car, 'monthly') ? 'font-medium text-red-600' : 'font-medium'}>
-                              {formatPrice(getEffectivePrice(car, 'monthly'))}
+                            <p className={isOfferActive(car, 'monthly', filterBranchId) ? 'font-medium text-red-600' : 'font-medium'}>
+                              {formatPrice(getEffectivePrice(car, 'monthly', filterBranchId))}
                               <span className="text-[10px] text-slate-400 mr-1">/ شهر</span>
                             </p>
-                            {isOfferActive(car, 'monthly') && (
+                            {isOfferActive(car, 'monthly', filterBranchId) && (
                               <p className="text-xs text-slate-400 line-through">
                                 {formatPrice(car.price_per_month)}
                               </p>
@@ -187,11 +187,11 @@ export function AdminCarsPage() {
                             {hasConfirmed && <Badge variant="danger">محجوزة</Badge>}
                             {hasPending && <Badge variant="warning">طلبات معلقة</Badge>}
 
-                            {isOfferActive(car, 'daily') && (
-                              <Badge variant="danger">{getOfferBadge(car, 'daily')}</Badge>
+                            {isOfferActive(car, 'daily', filterBranchId) && (
+                              <Badge variant="danger">{getOfferBadge(car, 'daily', filterBranchId)}</Badge>
                             )}
-                            {isOfferActive(car, 'monthly') && (
-                              <Badge variant="danger">{getOfferBadge(car, 'monthly')}</Badge>
+                            {isOfferActive(car, 'monthly', filterBranchId) && (
+                              <Badge variant="danger">{getOfferBadge(car, 'monthly', filterBranchId)}</Badge>
                             )}
                             {activeBlocks.length > 0 && (
                               <Badge variant="info">

@@ -90,7 +90,7 @@ export function CarDetailPage() {
   const displayPrice =
     promoOffer && promoOffer.price > 0
       ? promoOffer.price
-      : getCarDisplayPrice(car, rentalType)
+      : getCarDisplayPrice(car, rentalType, hasBranch ? branchId : null)
   const priceUnit = promoOffer
     ? promoOffer.rental_type === 'monthly'
       ? copy.cars.perMonth
@@ -161,7 +161,7 @@ export function CarDetailPage() {
 
             <div>
               <div className="mb-4 flex flex-wrap gap-2">
-                <OfferBadge car={car} rentalType={rentalType} />
+                <OfferBadge car={car} rentalType={rentalType} branchId={hasBranch ? branchId : null} />
                 <Badge>{getCategoryLabel(car.category)}</Badge>
                 <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
                 {availability && (
@@ -193,11 +193,11 @@ export function CarDetailPage() {
                 </div>
               )}
 
-              <div className={`mb-6 rounded-xl p-4 border ${hasPromoPrice || isOfferActive(car, rentalType) ? 'bg-red-50 border-red-200' : 'bg-brand-green/5 border-brand-green/20'}`}>
+              <div className={`mb-6 rounded-xl p-4 border ${hasPromoPrice || isOfferActive(car, rentalType, hasBranch ? branchId : null) ? 'bg-red-50 border-red-200' : 'bg-brand-green/5 border-brand-green/20'}`}>
                 {promoOffer?.title && (
                   <p className="text-sm font-bold text-red-600 mb-2">{promoOffer.title}</p>
                 )}
-                {!promoOffer && getCarOffer(car, rentalType)?.title && isOfferActive(car, rentalType) && (
+                {!promoOffer && getCarOffer(car, rentalType)?.title && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
                   <p className="text-sm font-bold text-red-600 mb-2">{getCarOffer(car, rentalType)?.title}</p>
                 )}
                 {hasPromoPrice && promoOffer ? (
@@ -220,12 +220,12 @@ export function CarDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <CarPrice car={car} size="lg" showSavings rentalType={rentalType} />
+                  <CarPrice car={car} size="lg" showSavings rentalType={rentalType} branchId={hasBranch ? branchId : null} />
                 )}
                 {promoOffer?.description && (
                   <p className="text-xs text-slate-500 mt-2">{promoOffer.description}</p>
                 )}
-                {!promoOffer && getCarOffer(car, rentalType)?.description && isOfferActive(car, rentalType) && (
+                {!promoOffer && getCarOffer(car, rentalType)?.description && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
                   <p className="text-xs text-slate-500 mt-2">{getCarOffer(car, rentalType)?.description}</p>
                 )}
               </div>
@@ -295,7 +295,7 @@ export function CarDetailPage() {
           <div className="flex items-center justify-between gap-4 mb-3">
             <div className="min-w-0">
               <p className="text-xs text-slate-500 truncate">{car.name}</p>
-              <p className={`font-bold ${hasPromoPrice || isOfferActive(car, rentalType) ? 'text-red-600' : 'text-brand-green'}`}>
+              <p className={`font-bold ${hasPromoPrice || isOfferActive(car, rentalType, hasBranch ? branchId : null) ? 'text-red-600' : 'text-brand-green'}`}>
                 {formatPrice(displayPrice)}{priceUnit}
               </p>
             </div>

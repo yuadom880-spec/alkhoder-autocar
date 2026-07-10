@@ -31,18 +31,44 @@ export function isAutoCarFeaturedOffer(offer: FeaturedOffer): boolean {
   return offer.id.startsWith('car-offer-')
 }
 
-/** تحويل عرض السيارة (يومي/شهري) إلى بطاقة عرض مميز */
-export function carToFeaturedOffer(car: Car, rentalType: RentalPeriodType): FeaturedOffer | null {
-  if (!car.is_available || !isOfferActive(car, rentalType)) return null
+export function parseAutoCarOfferId(
+  id: string,
+): { carId: string; rentalType: RentalPeriodType } | null {
+  const match = id.match(/^car-offer-(daily|monthly)-(.+)$/)
+  if (!match) return null
+  return { rentalType: match[1] as RentalPeriodType, carId: match[2] }
+}
 
-  const savings = getOfferSavings(car, rentalType)
+/** هل العرض ظاهر لفرع معيّن (للعروض التلقائية من السيارات) */
+export function isFeaturedOfferVisibleForBranch(
+  offer: FeaturedOffer,
+  branchId?: string | null,
+): boolean {
+  if (!isFeaturedOfferActive(offer)) return false
+  if (!branchId) return true
+  if (!offer.car_id || !offer.car) return false
+  if (isAutoCarFeaturedOffer(offer)) {
+    return isOfferActive(offer.car, offer.rental_type, branchId)
+  }
+  return true
+}
+
+/** تحويل عرض السيارة (يومي/شهري) إلى بطاقة عرض مميز */
+export function carToFeaturedOffer(
+  car: Car,
+  rentalType: RentalPeriodType,
+  branchId?: string | null,
+): FeaturedOffer | null {
+  if (!car.is_available || !isOfferActive(car, rentalType, branchId)) return null
+
+  const savings = getOfferSavings(car, rentalType, branchId)
   if (savings <= FEATURED_OFFER_MIN_SAVINGS) return null
 
   const carOffer = getCarOffer(car, rentalType)
   if (!carOffer) return null
 
   const basePrice = getCarBasePrice(car, rentalType)
-  const effectivePrice = getEffectivePrice(car, rentalType)
+  const effectivePrice = getEffectivePrice(car, rentalType, branchId)
 
   return {
     id: `car-offer-${rentalType}-${car.id}`,
@@ -50,7 +76,7 @@ export function carToFeaturedOffer(car: Car, rentalType: RentalPeriodType): Feat
     description: carOffer.description.trim() || `${car.name} — ${RENTAL_TYPE_LABELS[rentalType]}`,
     rental_type: rentalType,
     image_url: car.image_url,
-    badge_text: getOfferBadge(car, rentalType) ?? '',
+    badge_text: getOfferBadge(car, rentalType, branchId) ?? '',
     price: effectivePrice,
     original_price: basePrice,
     car_id: car.id,

@@ -9,6 +9,7 @@ export const DEFAULT_OFFER: CarOffer = {
   discount_value: 0,
   valid_until: null,
   description: '',
+  disabled_branch_ids: [],
 }
 
 export const DEFAULT_OFFERS: CarOffers = {
@@ -44,8 +45,28 @@ export function getCarOffer(car: Car, rentalType: RentalPeriodType): CarOffer | 
   return rentalType === 'monthly' ? offers.monthly : offers.daily
 }
 
-function isOfferValid(offer: CarOffer | null): boolean {
+export function isOfferDisabledForBranch(
+  offer: CarOffer | null | undefined,
+  branchId?: string | null,
+): boolean {
+  if (!offer || !branchId) return false
+  return (offer.disabled_branch_ids ?? []).includes(branchId)
+}
+
+export function setOfferBranchDisabled(
+  offer: CarOffer,
+  branchId: string,
+  disabled: boolean,
+): CarOffer {
+  const ids = new Set(offer.disabled_branch_ids ?? [])
+  if (disabled) ids.add(branchId)
+  else ids.delete(branchId)
+  return { ...offer, disabled_branch_ids: [...ids] }
+}
+
+function isOfferValid(offer: CarOffer | null, branchId?: string | null): boolean {
   if (!offer?.active) return false
+  if (isOfferDisabledForBranch(offer, branchId)) return false
   if (offer.valid_until) {
     const end = new Date(offer.valid_until)
     end.setHours(23, 59, 59, 999)
@@ -75,9 +96,13 @@ export function applyOffer(basePrice: number, offer: CarOffer | null): number {
   return Math.max(0, Math.round(price * 100) / 100)
 }
 
-export function isOfferActive(car: Car, rentalType: RentalPeriodType = 'daily'): boolean {
+export function isOfferActive(
+  car: Car,
+  rentalType: RentalPeriodType = 'daily',
+  branchId?: string | null,
+): boolean {
   const offer = getCarOffer(car, rentalType)
-  if (!isOfferValid(offer)) return false
+  if (!isOfferValid(offer, branchId)) return false
   const basePrice =
     rentalType === 'monthly'
       ? (car.price_per_month ?? car.price_per_day * 25)
@@ -85,22 +110,32 @@ export function isOfferActive(car: Car, rentalType: RentalPeriodType = 'daily'):
   return applyOffer(basePrice, offer) < basePrice
 }
 
-export function hasAnyOffer(car: Car): boolean {
-  return isOfferActive(car, 'daily') || isOfferActive(car, 'monthly')
+export function hasAnyOffer(car: Car, branchId?: string | null): boolean {
+  return (
+    isOfferActive(car, 'daily', branchId) || isOfferActive(car, 'monthly', branchId)
+  )
 }
 
-export function getEffectivePrice(car: Car, rentalType: RentalPeriodType = 'daily'): number {
+export function getEffectivePrice(
+  car: Car,
+  rentalType: RentalPeriodType = 'daily',
+  branchId?: string | null,
+): number {
   const offer = getCarOffer(car, rentalType)
   const basePrice =
     rentalType === 'monthly'
       ? (car.price_per_month ?? car.price_per_day * 25)
       : car.price_per_day
-  if (!isOfferValid(offer)) return basePrice
+  if (!isOfferValid(offer, branchId)) return basePrice
   return applyOffer(basePrice, offer)
 }
 
-export function getOfferBadge(car: Car, rentalType: RentalPeriodType = 'daily'): string | null {
-  if (!isOfferActive(car, rentalType)) return null
+export function getOfferBadge(
+  car: Car,
+  rentalType: RentalPeriodType = 'daily',
+  branchId?: string | null,
+): string | null {
+  if (!isOfferActive(car, rentalType, branchId)) return null
   const offer = getCarOffer(car, rentalType)
   if (!offer) return null
   if (offer.badge_text.trim()) return offer.badge_text.trim()
@@ -117,13 +152,17 @@ export function getOfferBadge(car: Car, rentalType: RentalPeriodType = 'daily'):
   }
 }
 
-export function getOfferSavings(car: Car, rentalType: RentalPeriodType = 'daily'): number {
-  if (!isOfferActive(car, rentalType)) return 0
+export function getOfferSavings(
+  car: Car,
+  rentalType: RentalPeriodType = 'daily',
+  branchId?: string | null,
+): number {
+  if (!isOfferActive(car, rentalType, branchId)) return 0
   const basePrice =
     rentalType === 'monthly'
       ? (car.price_per_month ?? car.price_per_day * 25)
       : car.price_per_day
-  return Math.round((basePrice - getEffectivePrice(car, rentalType)) * 100) / 100
+  return Math.round((basePrice - getEffectivePrice(car, rentalType, branchId)) * 100) / 100
 }
 
 export const ADMIN_OFFER_DISCOUNT_TYPES = ['percent', 'fixed'] as const
@@ -154,10 +193,20 @@ export function previewOfferPrice(basePrice: number, offer: CarOffer): number {
   return applyOffer(basePrice, offer)
 }
 
+function keepStoredOffer(offer: CarOffer | null): CarOffer | null {
+  if (!offer) return null
+  const hasDisabledBranches = (offer.disabled_branch_ids?.length ?? 0) > 0
+  if (!offer.active && !hasDisabledBranches) return null
+  return {
+    ...offer,
+    disabled_branch_ids: offer.disabled_branch_ids ?? [],
+  }
+}
+
 export function sanitizeCarOffers(offers: CarOffers | null): CarOffers | null {
   const normalized = normalizeCarOffers(offers)
-  const daily = normalized.daily?.active ? normalized.daily : null
-  const monthly = normalized.monthly?.active ? normalized.monthly : null
+  const daily = keepStoredOffer(normalized.daily)
+  const monthly = keepStoredOffer(normalized.monthly)
   if (!daily && !monthly) return null
   return { daily, monthly }
 }

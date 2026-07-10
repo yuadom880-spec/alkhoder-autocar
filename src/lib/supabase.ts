@@ -20,13 +20,14 @@ import type {
   BranchRecord,
   FeaturedOffer,
   FeaturedOfferFormData,
+  RentalPeriodType,
 } from './types'
 import { resolveDisplayedFeaturedOffers } from './featuredOffers'
-import { normalizeCarOffers, sanitizeCarOffers } from './offers'
+import { normalizeCarOffers, sanitizeCarOffers, setOfferBranchDisabled } from './offers'
+import { parseAutoCarOfferId } from './featuredOffers'
 import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
 import { getEffectivePrice } from './offers'
 import { calcDays } from './utils'
-import type { RentalPeriodType } from './types'
 
 function normalizeCar(car: Car): Car {
   const branch_ids = Array.isArray(car.branch_ids) ? car.branch_ids : []
@@ -369,9 +370,7 @@ export async function fetchBookingBlocks(
     .in('status', ['pending', 'confirmed'])
 
   if (carId) query = query.eq('car_id', carId)
-  if (branchId) {
-    query = query.or(`branch_id.is.null,branch_id.eq.${branchId}`)
-  }
+  if (branchId) query = query.eq('branch_id', branchId)
 
   const { data: rows, error: qErr } = await query
   if (qErr) throw new Error(formatError(qErr))
@@ -675,10 +674,66 @@ export async function createFeaturedOffer(form: FeaturedOfferFormData): Promise<
   return normalizeFeaturedOffer(row as FeaturedOffer)
 }
 
+/** إيقاف/تفعيل عرض سيارة لفرع واحد فقط (بدون التأثير على باقي الفروع) */
+export async function setCarOfferBranchVisibility(
+  carId: string,
+  rentalType: RentalPeriodType,
+  branchId: string,
+  visible: boolean,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+
+  const offers = normalizeCarOffers(car.offer)
+  const current = rentalType === 'monthly' ? offers.monthly : offers.daily
+
+  if (!current?.active) {
+    throw new Error('لا يوجد عرض مفعّل على هذه السيارة')
+  }
+
+  const nextOffer = setOfferBranchDisabled(current, branchId, !visible)
+  const patch: CarFormData['offer'] = {
+    ...offers,
+    [rentalType]: nextOffer,
+  }
+
+  return updateCar(carId, { offer: patch })
+}
+
+/** إيقاف عرض السيارة (يومي/شهري) من كل الفروع */
+export async function setCarOfferGlobalActive(
+  carId: string,
+  rentalType: RentalPeriodType,
+  active: boolean,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+
+  const offers = normalizeCarOffers(car.offer)
+  const current = rentalType === 'monthly' ? offers.monthly : offers.daily
+  if (!current) throw new Error('لا يوجد عرض على هذه السيارة')
+
+  const nextOffer = active
+    ? { ...current, active: true, disabled_branch_ids: [] }
+    : { ...current, active: false }
+
+  return updateCar(carId, {
+    offer: { ...offers, [rentalType]: nextOffer },
+  })
+}
+
 export async function updateFeaturedOffer(
   id: string,
   form: Partial<FeaturedOfferFormData>,
 ): Promise<FeaturedOffer> {
+  const auto = parseAutoCarOfferId(id)
+  if (auto && form.is_active !== undefined) {
+    const car = await setCarOfferGlobalActive(auto.carId, auto.rentalType, form.is_active)
+    const rebuilt = resolveDisplayedFeaturedOffers([], [car], { activeOnly: false })
+    const match = rebuilt.find((o) => o.id === id)
+    if (match) return match
+    throw new Error('تعذّر تحديث عرض السيارة')
+  }
   const patch: Record<string, unknown> = { ...form }
   if (form.car_id !== undefined) patch.car_id = form.car_id || null
   if (form.link_url !== undefined) patch.link_url = form.link_url.trim() || null
@@ -713,7 +768,20 @@ export async function updateFeaturedOffer(
   return normalizeFeaturedOffer(row as FeaturedOffer)
 }
 
-export async function deleteFeaturedOffer(id: string): Promise<void> {
+export async function deleteFeaturedOffer(
+  id: string,
+  options: { branchId?: string | null } = {},
+): Promise<void> {
+  const auto = parseAutoCarOfferId(id)
+  if (auto && options.branchId) {
+    await setCarOfferBranchVisibility(auto.carId, auto.rentalType, options.branchId, false)
+    return
+  }
+  if (auto) {
+    await setCarOfferGlobalActive(auto.carId, auto.rentalType, false)
+    return
+  }
+
   if (!isSupabaseConfigured) {
     saveDemoOffers(getDemoOffers().filter((o) => o.id !== id))
     return

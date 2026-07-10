@@ -41,13 +41,15 @@ export function BookingSummary({
   const hasPromo = Boolean(promoOffer && isFeaturedOfferActive(promoOffer))
   const effectiveRentalType = hasPromo && promoOffer ? promoOffer.rental_type : rentalType
   const isMonthly = effectiveRentalType === 'monthly'
-  const hasCarOffer = isOfferActive(car, effectiveRentalType)
+  const offerBranchId = branch?.id ?? null
+  const hasCarOffer = isOfferActive(car, effectiveRentalType, offerBranchId)
   const activeCarOffer = getCarOffer(car, effectiveRentalType)
-  const unitPrice = priceOverride ?? getCarDisplayPrice(car, effectiveRentalType)
+  const unitPrice =
+    priceOverride ?? getCarDisplayPrice(car, effectiveRentalType, offerBranchId)
   const dailyPrice =
     dailyPriceOverride ??
     (effectiveRentalType === 'monthly'
-      ? getEffectivePrice(car, 'daily')
+      ? getEffectivePrice(car, 'daily', offerBranchId)
       : unitPrice)
   const basePrice = getCarBasePrice(car, effectiveRentalType)
   const days = startDate && endDate ? calcDays(startDate, endDate) : 0
