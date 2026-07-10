@@ -65,14 +65,33 @@ export default defineConfig({
         ],
       },
       workbox: {
-        cacheId: 'alkhoder-branch-v2',
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
+        cacheId: 'alkhoder-branch-v3',
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        globIgnores: [
+          '**/profile/**',
+          '**/العملاء/**',
+          '**/الموظفين/**',
+          '**/*.{png,jpg,jpeg,webp,mp4,pdf}',
+        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/admin/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        navigationPreload: true,
         runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-network',
+              expiration: {
+                maxEntries: 16,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+              networkTimeoutSeconds: 4,
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
