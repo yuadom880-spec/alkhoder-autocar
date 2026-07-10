@@ -1,17 +1,16 @@
--- ============================================================
--- الخضر لتأجير السيارات - Alkhoder AutoCar
--- ملف SQL الوحيد — انسخه كاملاً والصقه في Supabase SQL Editor ثم Run
--- آمن للتشغيل المتكرر على قاعدة جديدة أو موجودة (idempotent)
--- ============================================================
+-- ════════════════════════════════════════════════════════════════════════════
+-- الخضر لتأجير السيارات — Alkhoder AutoCar
+-- الإصدار: 4.0 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
+-- ════════════════════════════════════════════════════════════════════════════
+-- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
+-- آمن للتشغيل المتكرر — لن يحذف بياناتك
+-- ════════════════════════════════════════════════════════════════════════════
 
--- ████████████████████████████████████████████████████████████
--- ★★★ شغّل هذا القسم أولاً إن ظهر خطأ unavailable_branch_ids ★★★
--- ████████████████████████████████████████████████████████████
---
--- الخطأ: Could not find the 'unavailable_branch_ids' column of 'cars'
--- الحل: انسخ من هنا إلى NOTIFY والصق في SQL Editor ثم Run
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 1: إصلاح فوري — إيقاف السيارة/العرض لفرع واحد فقط                │
+-- │ إذا ظهر: Could not find 'unavailable_branch_ids' column → شغّل هذا أولاً │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
--- ① عمود إيقاف السيارة لفرع واحد فقط (الأساسي)
 ALTER TABLE public.cars
   ADD COLUMN IF NOT EXISTS unavailable_branch_ids JSONB DEFAULT '[]'::jsonb;
 
@@ -25,7 +24,6 @@ ALTER TABLE public.cars
 ALTER TABLE public.cars
   ALTER COLUMN unavailable_branch_ids SET NOT NULL;
 
--- ② عمود إيقاف العروض اليدوية لفرع واحد فقط
 ALTER TABLE public.featured_offers
   ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB DEFAULT '[]'::jsonb;
 
@@ -39,27 +37,22 @@ ALTER TABLE public.featured_offers
 ALTER TABLE public.featured_offers
   ALTER COLUMN disabled_branch_ids SET NOT NULL;
 
--- ③ إصلاح سيارات أوقفت عالمياً بالخطأ (إيقاف كان لفرع واحد)
+-- إصلاح سيارات أوقفت عالمياً بالخطأ
 UPDATE public.cars
 SET is_available = true
 WHERE is_available = false
   AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
 
--- ④ إعادة تحميل schema cache (مهم جداً بعد إضافة الأعمدة)
-NOTIFY pgrst, 'reload schema';
-
--- تحقق — لازم يرجع عمود unavailable_branch_ids
+-- تحقق: لازم يظهر unavailable_branch_ids
 SELECT column_name, data_type
 FROM information_schema.columns
 WHERE table_schema = 'public'
   AND table_name = 'cars'
-  AND column_name IN ('unavailable_branch_ids', 'branch_ids', 'is_available');
+  AND column_name = 'unavailable_branch_ids';
 
--- ████████████████████████████████████████████████████████████
--- نهاية القسم الفوري — يمكنك تشغيل باقي الملف بعده أو كاملاً
--- ████████████████████████████████████████████████████████████
-
--- ─── دوال مساعدة ───────────────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 2: دوال مساعدة                                                    │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -69,7 +62,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ─── جدول السيارات ─────────────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 3: الجداول الأساسية                                               │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 CREATE TABLE IF NOT EXISTS cars (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,8 +88,6 @@ CREATE TABLE IF NOT EXISTS cars (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
-
--- ─── جدول الحجوزات ─────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS bookings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -122,8 +115,6 @@ CREATE TABLE IF NOT EXISTS bookings (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ─── جدول العروض المميزة ───────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS featured_offers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -144,8 +135,6 @@ CREATE TABLE IF NOT EXISTS featured_offers (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ─── جدول الفروع ───────────────────────────────────────────
-
 CREATE TABLE IF NOT EXISTS branches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -162,17 +151,16 @@ CREATE TABLE IF NOT EXISTS branches (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ─── ترقية الجداول الموجودة (أعمدة قديمة + الفروع) ─────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 4: ترقية الجداول الموجودة (أعمدة قديمة)                           │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
--- سيارات
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS offer JSONB DEFAULT NULL;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS price_per_month NUMERIC(10,2);
 ALTER TABLE cars ADD COLUMN IF NOT EXISTS car_class TEXT DEFAULT 'mid';
--- توفر السيارة لكل فرع على حدة (إيقاف في فرع واحد لا يؤثر على الباقي)
-ALTER TABLE cars ADD COLUMN IF NOT EXISTS unavailable_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS unavailable_branch_ids JSONB DEFAULT '[]'::jsonb;
 
--- حجوزات
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pickup_time TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_offer_id TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS promo_title TEXT DEFAULT NULL;
@@ -182,48 +170,19 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_name TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
 
--- عروض مميزة
--- إيقاف العرض اليدوي لفرع محدد فقط
-ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB DEFAULT '[]'::jsonb;
 
--- ═══════════════════════════════════════════════════════════
--- ★ توفر السيارة حسب الفرع (إيقاف فرع واحد فقط) ★
--- ═══════════════════════════════════════════════════════════
--- المنطق:
---   is_available = true                    → متاحة عالمياً (الافتراضي)
---   unavailable_branch_ids يحتوي فرعك     → غير متاحة في ذلك الفرع فقط
---   is_available = false                   → غير متاحة في كل الفروع
---
--- الإدارة (وضع فرعي): تضيف/تحذف UUID الفرع من unavailable_branch_ids
--- الموقع (العميل): يقرأ unavailable_branch_ids حسب الفرع المختار
--- ═══════════════════════════════════════════════════════════
+UPDATE cars SET unavailable_branch_ids = '[]'::jsonb
+WHERE unavailable_branch_ids IS NULL OR jsonb_typeof(unavailable_branch_ids) <> 'array';
 
-ALTER TABLE cars
-  ALTER COLUMN unavailable_branch_ids SET DEFAULT '[]'::jsonb;
-
-UPDATE cars
-SET unavailable_branch_ids = '[]'::jsonb
-WHERE unavailable_branch_ids IS NULL
-   OR jsonb_typeof(unavailable_branch_ids) <> 'array';
-
--- إصلاح: إيقاف كان مفروض لفرع واحد لكن تحوّل لإيقاف عالمي (is_available=false)
-UPDATE cars
-SET is_available = true
-WHERE is_available = false
-  AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
-
--- تهيئة عروض الفروع
 UPDATE featured_offers SET disabled_branch_ids = '[]'::jsonb
-WHERE disabled_branch_ids IS NULL
-   OR jsonb_typeof(disabled_branch_ids) <> 'array';
+WHERE disabled_branch_ids IS NULL OR jsonb_typeof(disabled_branch_ids) <> 'array';
 
--- ربط فرع الحجز بجدول الفروع (إن وُجد)
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE constraint_name = 'bookings_branch_id_fkey'
-      AND table_name = 'bookings'
+    WHERE constraint_name = 'bookings_branch_id_fkey' AND table_name = 'bookings'
   ) THEN
     ALTER TABLE bookings
       ADD CONSTRAINT bookings_branch_id_fkey
@@ -231,64 +190,53 @@ BEGIN
   END IF;
 END $$;
 
--- ─── ترحيل البيانات القديمة ────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 5: ترحيل البيانات القديمة                                          │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
--- تصنيفات قديمة → التصنيفات الجديدة
-UPDATE cars SET category = 'sedan'   WHERE category = 'economy';
-UPDATE cars SET category = 'suv'     WHERE category IN ('family', 'luxury');
-UPDATE cars SET category = 'sedan'   WHERE category = 'sports';
-UPDATE cars SET category = 'van'     WHERE category = 'commercial';
+UPDATE cars SET category = 'sedan' WHERE category = 'economy';
+UPDATE cars SET category = 'suv'   WHERE category IN ('family', 'luxury');
+UPDATE cars SET category = 'sedan' WHERE category = 'sports';
+UPDATE cars SET category = 'van'   WHERE category = 'commercial';
 
--- السعر الشهري للسيارات القديمة
-UPDATE cars
-SET price_per_month = ROUND(price_per_day * 25, 2)
-WHERE price_per_month IS NULL;
-
+UPDATE cars SET price_per_month = ROUND(price_per_day * 25, 2) WHERE price_per_month IS NULL;
 ALTER TABLE cars ALTER COLUMN price_per_month SET DEFAULT 0;
 
--- نوع الإيجار للحجوزات القديمة
 UPDATE bookings SET rental_type = 'daily' WHERE rental_type IS NULL;
-
--- فئة السيارة للبيانات القديمة
 UPDATE cars SET car_class = 'mid' WHERE car_class IS NULL;
 
--- ─── قيود التصنيف (التصنيفات الحالية) ──────────────────────
-
 ALTER TABLE cars DROP CONSTRAINT IF EXISTS cars_category_check;
-ALTER TABLE cars
-  ADD CONSTRAINT cars_category_check
+ALTER TABLE cars ADD CONSTRAINT cars_category_check
   CHECK (category IN ('sedan', 'hatchback', 'crossover', 'suv', 'van', 'pickup'));
 
 ALTER TABLE cars DROP CONSTRAINT IF EXISTS cars_car_class_check;
-ALTER TABLE cars
-  ADD CONSTRAINT cars_car_class_check
+ALTER TABLE cars ADD CONSTRAINT cars_car_class_check
   CHECK (car_class IN ('economy', 'mid', 'family', 'executive', 'luxury', 'sports'));
 
--- ─── Triggers ───────────────────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 6: Triggers                                                         │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 DROP TRIGGER IF EXISTS cars_updated_at ON cars;
-CREATE TRIGGER cars_updated_at
-  BEFORE UPDATE ON cars
+CREATE TRIGGER cars_updated_at BEFORE UPDATE ON cars
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS bookings_updated_at ON bookings;
-CREATE TRIGGER bookings_updated_at
-  BEFORE UPDATE ON bookings
+CREATE TRIGGER bookings_updated_at BEFORE UPDATE ON bookings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS featured_offers_updated_at ON featured_offers;
-CREATE TRIGGER featured_offers_updated_at
-  BEFORE UPDATE ON featured_offers
+CREATE TRIGGER featured_offers_updated_at BEFORE UPDATE ON featured_offers
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 DROP TRIGGER IF EXISTS branches_updated_at ON branches;
-CREATE TRIGGER branches_updated_at
-  BEFORE UPDATE ON branches
+CREATE TRIGGER branches_updated_at BEFORE UPDATE ON branches
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- ─── دالة التحقق من توفر السيارات (حسب الفرع) ───────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 7: توفر الحجز حسب الفرع                                            │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
--- إزالة النسخة القديمة بمعامل واحد إن وُجدت
 DROP FUNCTION IF EXISTS public.get_booking_blocks(UUID);
 
 CREATE OR REPLACE FUNCTION public.get_booking_blocks(
@@ -312,16 +260,14 @@ AS $$
   FROM bookings b
   WHERE b.status IN ('pending', 'confirmed')
     AND (p_car_id IS NULL OR b.car_id = p_car_id)
-    AND (
-      p_branch_id IS NULL
-      OR b.branch_id IS NULL
-      OR b.branch_id = p_branch_id
-    );
+    AND (p_branch_id IS NULL OR b.branch_id IS NULL OR b.branch_id = p_branch_id);
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_booking_blocks(UUID, UUID) TO anon, authenticated;
 
--- ─── Row Level Security ─────────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 8: Row Level Security                                               │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 ALTER TABLE cars ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
@@ -364,26 +310,24 @@ DROP POLICY IF EXISTS "bookings_admin_delete" ON bookings;
 CREATE POLICY "bookings_admin_delete" ON bookings FOR DELETE TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "branches_public_read" ON branches;
-CREATE POLICY "branches_public_read" ON branches
-  FOR SELECT USING (true);
+CREATE POLICY "branches_public_read" ON branches FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "branches_public_insert" ON branches;
-CREATE POLICY "branches_public_insert" ON branches
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY "branches_public_insert" ON branches FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "branches_public_update" ON branches;
-CREATE POLICY "branches_public_update" ON branches
-  FOR UPDATE USING (true);
+CREATE POLICY "branches_public_update" ON branches FOR UPDATE USING (true);
 
 DROP POLICY IF EXISTS "branches_public_delete" ON branches;
-CREATE POLICY "branches_public_delete" ON branches
-  FOR DELETE USING (true);
+CREATE POLICY "branches_public_delete" ON branches FOR DELETE USING (true);
 
 DROP POLICY IF EXISTS "branches_admin_all" ON branches;
 CREATE POLICY "branches_admin_all" ON branches
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- ─── Storage (صور السيارات) ─────────────────────────────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 9: Storage (صور السيارات)                                          │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('car-images', 'car-images', true)
@@ -413,7 +357,9 @@ DROP POLICY IF EXISTS "car_images_admin_delete" ON storage.objects;
 CREATE POLICY "car_images_admin_delete" ON storage.objects
   FOR DELETE TO authenticated USING (bucket_id = 'car-images');
 
--- ─── بيانات تجريبية (فقط إذا جدول السيارات فاضي) ───────────
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 10: بيانات تجريبية (فقط إذا جدول السيارات فاضي)                    │
+-- └──────────────────────────────────────────────────────────────────────────┘
 
 INSERT INTO cars (
   name, brand, model, year, category,
@@ -439,5 +385,12 @@ SELECT * FROM (VALUES
 ) AS v(name, brand, model, year, category, price_per_day, price_per_month, image_url, images, specs, description, is_available, is_featured)
 WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 
--- ─── إعادة تحميل schema cache (بعد أي تعديل على الجداول) ───
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 11: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
 NOTIFY pgrst, 'reload schema';
+
+-- ════════════════════════════════════════════════════════════════════════════
+-- نهاية الملف — الإصدار 4.0
+-- ════════════════════════════════════════════════════════════════════════════
