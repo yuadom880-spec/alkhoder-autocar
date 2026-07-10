@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { filterBookingsByBranch, filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
-import { AlertCircle, Calendar, Car, Check, Clock, TrendingUp, X } from 'lucide-react'
+import { AlertCircle, Calendar, Car as CarIcon, Check, Clock, TrendingUp, X } from 'lucide-react'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Button } from '../../components/ui/Button'
@@ -8,12 +10,12 @@ import { Badge } from '../../components/ui/Badge'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
 import { handleBookingStatusNotification } from '../../lib/bookingWhatsApp'
 import { fetchBookings, fetchCars, updateBookingStatus } from '../../lib/supabase'
-import type { Booking } from '../../lib/types'
+import type { Booking, Car } from '../../lib/types'
 import { formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 
 export function AdminDashboardPage() {
-  const [carsCount, setCarsCount] = useState(0)
-  const [availableCount, setAvailableCount] = useState(0)
+  const { filterBranchId } = useAdminBranch()
+  const [cars, setCars] = useState<Car[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
@@ -21,9 +23,8 @@ export function AdminDashboardPage() {
   const load = () => {
     setLoading(true)
     Promise.all([fetchCars(), fetchBookings()])
-      .then(([cars, bks]) => {
-        setCarsCount(cars.length)
-        setAvailableCount(cars.filter((c) => c.is_available).length)
+      .then(([carsData, bks]) => {
+        setCars(carsData)
         setBookings(bks)
       })
       .catch(console.error)
@@ -32,8 +33,19 @@ export function AdminDashboardPage() {
 
   useEffect(load, [])
 
-  const pending = bookings.filter((b) => b.status === 'pending')
-  const confirmed = bookings.filter((b) => b.status === 'confirmed')
+  const visibleCars = useMemo(
+    () => filterCarsByBranch(cars, filterBranchId),
+    [cars, filterBranchId],
+  )
+  const visibleBookings = useMemo(
+    () => filterBookingsByBranch(bookings, filterBranchId),
+    [bookings, filterBranchId],
+  )
+
+  const carsCount = visibleCars.length
+  const availableCount = visibleCars.filter((c) => c.is_available).length
+  const pending = visibleBookings.filter((b) => b.status === 'pending')
+  const confirmed = visibleBookings.filter((b) => b.status === 'confirmed')
 
   const handleQuickAction = async (id: string, status: 'confirmed' | 'rejected') => {
     setUpdating(id)
@@ -52,9 +64,9 @@ export function AdminDashboardPage() {
   if (loading) return <><AdminTopBar /><LoadingSpinner /></>
 
   const stats = [
-    { label: 'إجمالي السيارات', value: carsCount, icon: Car, color: 'text-brand-green', link: '/admin/cars' },
+    { label: 'إجمالي السيارات', value: carsCount, icon: CarIcon, color: 'text-brand-green', link: '/admin/cars' },
     { label: 'سيارات متاحة', value: availableCount, icon: TrendingUp, color: 'text-blue-600', link: '/admin/cars' },
-    { label: 'إجمالي الحجوزات', value: bookings.length, icon: Calendar, color: 'text-brand-gold', link: '/admin/bookings' },
+    { label: 'إجمالي الحجوزات', value: visibleBookings.length, icon: Calendar, color: 'text-brand-gold', link: '/admin/bookings' },
     { label: 'بانتظار المراجعة', value: pending.length, icon: Clock, color: 'text-amber-600', link: '/admin/bookings' },
   ]
 
@@ -151,7 +163,7 @@ export function AdminDashboardPage() {
             </Link>
           </div>
 
-          {bookings.length === 0 ? (
+          {visibleBookings.length === 0 ? (
             <p className="p-6 text-sm text-slate-500 text-center">ما فيه حجوزات لحد الحين</p>
           ) : (
             <div className="overflow-x-auto">
@@ -167,7 +179,7 @@ export function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {bookings.slice(0, 10).map((b) => (
+                  {visibleBookings.slice(0, 10).map((b) => (
                     <tr key={b.id} className="hover:bg-slate-50">
                       <td className="px-5 py-3 font-medium">{b.customer_name}</td>
                       <td className="px-5 py-3">
@@ -195,7 +207,7 @@ export function AdminDashboardPage() {
 
         {confirmed.length > 0 && (
           <p className="mt-4 text-xs text-slate-400 text-center">
-            {confirmed.length} حجز مؤكد · {bookings.length} إجمالي
+            {confirmed.length} حجز مؤكد · {visibleBookings.length} إجمالي
           </p>
         )}
       </div>

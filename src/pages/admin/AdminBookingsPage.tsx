@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { RefreshCw, Search } from 'lucide-react'
 import { BookingAdminCard } from '../../components/admin/BookingAdminCard'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
@@ -23,6 +25,7 @@ const filters: { value: FilterStatus; label: string }[] = [
 ]
 
 export function AdminBookingsPage() {
+  const { filterBranchId, isBranchMode, activeBranch } = useAdminBranch()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
@@ -50,8 +53,13 @@ export function AdminBookingsPage() {
     fetchBranches({ activeOnly: false }).then(setBranches).catch(console.error)
   }, [])
 
+  const branchScopedBookings = useMemo(
+    () => filterBookingsByBranch(bookings, filterBranchId),
+    [bookings, filterBranchId],
+  )
+
   const filtered = useMemo(() => {
-    return bookings.filter((b) => {
+    return branchScopedBookings.filter((b) => {
       const matchStatus = filter === 'all' || b.status === filter
       const q = search.trim().toLowerCase()
       const matchSearch =
@@ -65,9 +73,9 @@ export function AdminBookingsPage() {
       const matchBranch = !branchFilter || b.branch_id === branchFilter
       return matchStatus && matchSearch && matchBranch
     })
-  }, [bookings, filter, search, branchFilter])
+  }, [branchScopedBookings, filter, search, branchFilter])
 
-  const pendingCount = bookings.filter((b) => b.status === 'pending').length
+  const pendingCount = branchScopedBookings.filter((b) => b.status === 'pending').length
 
   const handleStatusChange = async (id: string, status: BookingStatus) => {
     setUpdating(id)
@@ -102,7 +110,10 @@ export function AdminBookingsPage() {
           <div>
             <h1 className="text-xl font-bold text-brand-dark sm:text-2xl">طلبات الحجز</h1>
             <p className="text-sm text-slate-500">
-              {bookings.length} حجز
+              {branchScopedBookings.length} حجز
+              {isBranchMode && activeBranch && (
+                <span className="mr-1 text-brand-green"> — {activeBranch.name}</span>
+              )}
               {pendingCount > 0 && (
                 <span className="mr-2 text-amber-600 font-medium">
                   · {pendingCount} بانتظار المراجعة
@@ -129,31 +140,33 @@ export function AdminBookingsPage() {
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <label htmlFor="branch-booking-filter" className="text-xs text-slate-500 shrink-0">
-              {copy.admin.filterByBranch}:
-            </label>
-            <select
-              id="branch-booking-filter"
-              className="input-field py-2 text-sm max-w-xs"
-              value={branchFilter}
-              onChange={(e) => setBranchFilter(e.target.value)}
-            >
-              <option value="">{copy.admin.allBranchesFilter}</option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name} — {b.city}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!isBranchMode && (
+            <div className="flex flex-wrap items-center gap-3">
+              <label htmlFor="branch-booking-filter" className="text-xs text-slate-500 shrink-0">
+                {copy.admin.filterByBranch}:
+              </label>
+              <select
+                id="branch-booking-filter"
+                className="input-field py-2 text-sm max-w-xs"
+                value={branchFilter}
+                onChange={(e) => setBranchFilter(e.target.value)}
+              >
+                <option value="">{copy.admin.allBranchesFilter}</option>
+                {branches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} — {b.city}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             {filters.map((f) => {
               const count =
                 f.value === 'all'
-                  ? bookings.length
-                  : bookings.filter((b) => b.status === f.value).length
+                  ? branchScopedBookings.length
+                  : branchScopedBookings.filter((b) => b.status === f.value).length
               return (
                 <button
                   key={f.value}
@@ -184,7 +197,7 @@ export function AdminBookingsPage() {
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
             <p className="text-slate-500">
-              {bookings.length === 0 ? 'ما فيه حجوزات لحد الحين' : 'ما لقينا نتائج'}
+              {branchScopedBookings.length === 0 ? 'ما فيه حجوزات لحد الحين' : 'ما لقينا نتائج'}
             </p>
           </div>
         ) : (

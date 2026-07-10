@@ -247,6 +247,13 @@ export const copy = {
     carBranches: 'الفروع المتاحة',
     carBranchesHint: 'اتركه فارغاً = السيارة تظهر في كل الفروع',
     carBranchesRequired: 'حدد فرعاً واحداً على الأقل، أو اترك الكل لعرضها في كل الفروع',
+    myBranchButton: 'فرعي',
+    pickYourBranch: 'اختر فرعك',
+    enterBranchMode: 'دخول وضع فرعي',
+    exitBranchMode: 'عرض الكل',
+    branchModeActive: 'وضع فرعي —',
+    switchBranch: 'تبديل الفرع',
+    branchModeHint: 'كل البيانات المعروضة خاصة بفرعك فقط',
   },
   footer: {
     brandAlt: 'الخضر لتأجير السيارات — عبدالمجيد الخضر لتأجير السيارات',

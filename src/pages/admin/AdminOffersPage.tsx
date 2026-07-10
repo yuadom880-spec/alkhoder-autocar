@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { filterOffersByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
 import { Edit, Plus, Power, Star, Trash2 } from 'lucide-react'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
@@ -15,6 +17,7 @@ import type { FeaturedOffer } from '../../lib/types'
 import { formatDate } from '../../lib/utils'
 
 export function AdminOffersPage() {
+  const { filterBranchId, isBranchMode } = useAdminBranch()
   const [offers, setOffers] = useState<FeaturedOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -29,6 +32,11 @@ export function AdminOffersPage() {
   }
 
   useEffect(load, [])
+
+  const visibleOffers = useMemo(
+    () => filterOffersByBranch(offers, filterBranchId),
+    [offers, filterBranchId],
+  )
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`هل تريد حذف عرض "${title}"؟`)) return
@@ -76,9 +84,11 @@ export function AdminOffersPage() {
 
         {loading ? (
           <LoadingSpinner />
-        ) : offers.length === 0 ? (
+        ) : visibleOffers.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500 mb-4">لا توجد عروض</p>
+            <p className="text-slate-500 mb-4">
+              {isBranchMode ? 'لا توجد عروض لسيارات فرعك' : 'لا توجد عروض'}
+            </p>
             <Link to="/admin/offers/new">
               <Button>إضافة أول عرض</Button>
             </Link>
@@ -97,7 +107,7 @@ export function AdminOffersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {offers.map((offer) => (
+                  {visibleOffers.map((offer) => (
                     <tr key={offer.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router'
 import { Calendar, Car, LayoutDashboard, MapPin, Tag } from 'lucide-react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
 import { cn } from '../../lib/utils'
 
 const links = [
@@ -12,10 +13,15 @@ const links = [
 
 export function AdminMobileNav() {
   const { pathname } = useLocation()
+  const { isBranchMode } = useAdminBranch()
+
+  const navLinks = isBranchMode
+    ? links.filter((l) => l.path !== '/admin/branches')
+    : links
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 flex border-t border-slate-200 bg-white lg:hidden">
-      {links.map((link) => {
+      {navLinks.map((link) => {
         const active = link.exact ? pathname === link.path : pathname.startsWith(link.path)
         return (
           <Link

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
 import { Calendar, Edit, Plus, Power, Trash2 } from 'lucide-react'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
@@ -14,6 +16,7 @@ import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offer
 import { formatPrice } from '../../lib/utils'
 
 export function AdminCarsPage() {
+  const { filterBranchId, isBranchMode } = useAdminBranch()
   const [cars, setCars] = useState<Car[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [branches, setBranches] = useState<BranchRecord[]>([])
@@ -36,6 +39,11 @@ export function AdminCarsPage() {
   useEffect(load, [])
 
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  const visibleCars = useMemo(
+    () => filterCarsByBranch(cars, filterBranchId),
+    [cars, filterBranchId],
+  )
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل تريد حذف "${name}"؟`)) return
@@ -81,9 +89,11 @@ export function AdminCarsPage() {
 
         {loading ? (
           <LoadingSpinner />
-        ) : cars.length === 0 ? (
+        ) : visibleCars.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500 mb-4">لا توجد سيارات</p>
+            <p className="text-slate-500 mb-4">
+              {isBranchMode ? 'لا توجد سيارات في فرعك' : 'لا توجد سيارات'}
+            </p>
             <Link to="/admin/cars/new">
               <Button>إضافة أول سيارة</Button>
             </Link>
@@ -105,7 +115,7 @@ export function AdminCarsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {cars.map((car) => {
+                  {visibleCars.map((car) => {
                     const activeBlocks = getActiveBlocks(car.id)
                     const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')
                     const hasPending = activeBlocks.some((b) => b.status === 'pending')

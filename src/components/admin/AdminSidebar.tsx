@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Calendar, Car, LayoutDashboard, LogOut, ExternalLink, MapPin, Tag } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { LOGO_URL, SITE_NAME } from '../../lib/constants'
 import { fetchBookings } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
@@ -17,13 +19,21 @@ const links = [
 export function AdminSidebar() {
   const { pathname } = useLocation()
   const { logout } = useAuth()
+  const { filterBranchId, isBranchMode } = useAdminBranch()
   const [pendingCount, setPendingCount] = useState(0)
+
+  const navLinks = isBranchMode
+    ? links.filter((l) => l.path !== '/admin/branches')
+    : links
 
   useEffect(() => {
     fetchBookings()
-      .then((bks) => setPendingCount(bks.filter((b) => b.status === 'pending').length))
+      .then((bks) => {
+        const scoped = filterBookingsByBranch(bks, filterBranchId)
+        setPendingCount(scoped.filter((b) => b.status === 'pending').length)
+      })
       .catch(() => {})
-  }, [pathname])
+  }, [pathname, filterBranchId])
 
   return (
     <aside className="w-64 shrink-0 border-l border-slate-200 bg-white hidden lg:flex flex-col">
@@ -34,7 +44,7 @@ export function AdminSidebar() {
       </div>
 
       <nav className="flex-1 p-3 space-y-1">
-        {links.map((link) => {
+        {navLinks.map((link) => {
           const active = link.exact ? pathname === link.path : pathname.startsWith(link.path)
           return (
             <Link
