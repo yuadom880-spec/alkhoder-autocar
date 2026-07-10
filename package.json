@@ -20,6 +20,7 @@
     "portfolio:pdf": "node scripts/generate-portfolio-pdf.mjs",
     "report:pdf": "node scripts/generate-report-pdf.mjs",
     "report:employees": "node scripts/generate-employee-admin-guide.mjs",
+    "report:employees-customer": "node scripts/generate-employee-customer-guide.mjs",
     "poster:pdf": "node scripts/generate-branch-poster-pdf.mjs"
   },
   "dependencies": {
