@@ -61,6 +61,12 @@ function isFeaturedOfferVisibleForCar(
   branchId?: string | null,
 ): boolean {
   if (!offer.car_id || !offer.car) return true
+
+  if (!isCarAvailableForBranch(offer.car, branchId)) return false
+
+  // عرض يدوي بسعر مستقل — لا يحتاج خصماً على السيارة
+  if (!isAutoCarFeaturedOffer(offer)) return true
+
   const carOffer = getCarOffer(offer.car, offer.rental_type)
   if (!carOffer || isOfferGloballyDisabled(carOffer)) return false
   if (branchId && isOfferDisabledForBranch(carOffer, branchId)) return false

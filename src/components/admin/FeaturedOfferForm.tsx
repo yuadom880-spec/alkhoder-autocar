@@ -16,7 +16,7 @@ interface FeaturedOfferFormProps {
 }
 
 export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOfferFormProps) {
-  const { filterBranchId, isBranchMode } = useAdminBranch()
+  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
   const [cars, setCars] = useState<Car[]>([])
   const [form, setForm] = useState<FeaturedOfferFormData>({
     title: initial?.title ?? '',
@@ -32,6 +32,9 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
     is_featured: initial?.is_featured ?? false,
     valid_until: initial?.valid_until ?? '',
     sort_order: initial?.sort_order ?? 0,
+    branch_ids:
+      initial?.branch_ids ??
+      (isBranchMode && activeBranchId ? [activeBranchId] : []),
   })
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -104,6 +107,11 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
           <span className="font-bold text-brand-dark">بيانات العرض المميز</span>
         </div>
         <div className="p-5 space-y-4">
+          {isBranchMode && (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {copy.admin.offerBranchHint}
+            </p>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="label-field">عنوان العرض *</label>
@@ -192,9 +200,7 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
                   </option>
                 ))}
               </select>
-              {isBranchMode && !form.car_id && (
-                <p className="mt-1.5 text-xs text-amber-700">{copy.admin.offerBranchHint}</p>
-              )}
+
             </div>
             <div>
               <label className="label-field">رابط مخصص (اختياري)</label>

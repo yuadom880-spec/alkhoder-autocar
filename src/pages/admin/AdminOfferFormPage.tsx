@@ -3,16 +3,20 @@ import { useNavigate, useParams } from 'react-router'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { FeaturedOfferForm } from '../../components/admin/FeaturedOfferForm'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
+import { useAdminBranch } from '../../context/AdminBranchContext'
+import { normalizeBranchIdForStorage } from '../../lib/carBranchAvailability'
 import {
   createFeaturedOffer,
   fetchFeaturedOfferById,
   updateFeaturedOffer,
 } from '../../lib/supabase'
-import type { FeaturedOffer } from '../../lib/types'
+import type { FeaturedOffer, FeaturedOfferFormData } from '../../lib/types'
 
 export function AdminOfferFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { isBranchMode, activeBranchId, filterBranchId } = useAdminBranch()
+  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
   const isEdit = Boolean(id)
   const [offer, setOffer] = useState<FeaturedOffer | null>(null)
   const [loading, setLoading] = useState(isEdit)
@@ -46,10 +50,14 @@ export function AdminOfferFormPage() {
           <FeaturedOfferForm
             initial={offer ?? undefined}
             onSubmit={async (data) => {
+              const payload: FeaturedOfferFormData = {
+                ...data,
+                branch_ids: resolveOfferBranchIds(data, offer, branchScopeId),
+              }
               if (isEdit && id) {
-                await updateFeaturedOffer(id, data)
+                await updateFeaturedOffer(id, payload)
               } else {
-                await createFeaturedOffer(data)
+                await createFeaturedOffer(payload)
               }
               navigate('/admin/offers')
             }}
@@ -59,4 +67,15 @@ export function AdminOfferFormPage() {
       </div>
     </>
   )
+}
+
+function resolveOfferBranchIds(
+  data: FeaturedOfferFormData,
+  existing: FeaturedOffer | null,
+  branchScopeId: string | null,
+): string[] {
+  if (branchScopeId) {
+    return [normalizeBranchIdForStorage(branchScopeId)]
+  }
+  return data.branch_ids ?? existing?.branch_ids ?? []
 }

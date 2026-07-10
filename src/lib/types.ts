@@ -177,6 +177,8 @@ export interface FeaturedOffer {
   sort_order: number
   /** فروع لا يظهر فيها العرض اليدوي — باقي الفروع يبقى العرض شغّال */
   disabled_branch_ids?: string[]
+  /** فروع يظهر فيها العرض — فارغ = كل الفروع (أو حسب السيارة المرتبطة) */
+  branch_ids?: string[]
   created_at: string
   updated_at: string
   car?: Car
@@ -225,4 +227,5 @@ export interface FeaturedOfferFormData {
   is_featured: boolean
   valid_until: string
   sort_order: number
+  branch_ids?: string[]
 }

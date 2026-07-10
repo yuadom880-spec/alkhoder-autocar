@@ -70,6 +70,7 @@ function formatSupabaseMutationError(error: { code?: string; message?: string })
   if (
     message.includes('unavailable_branch_ids') ||
     message.includes('disabled_branch_ids') ||
+    message.includes('branch_ids') ||
     message.includes('schema cache') ||
     message.includes('Could not find')
   ) {
@@ -193,6 +194,9 @@ function normalizeFeaturedOffer(offer: FeaturedOffer): FeaturedOffer {
   const disabled_branch_ids = Array.isArray(offer.disabled_branch_ids)
     ? [...new Set(offer.disabled_branch_ids.map(normalizeBranchIdForStorage).filter(Boolean))]
     : []
+  const branch_ids = Array.isArray(offer.branch_ids)
+    ? [...new Set(offer.branch_ids.map(normalizeBranchIdForStorage).filter(Boolean))]
+    : []
   return {
     ...offer,
     original_price: offer.original_price ?? null,
@@ -200,6 +204,7 @@ function normalizeFeaturedOffer(offer: FeaturedOffer): FeaturedOffer {
     link_url: offer.link_url ?? null,
     valid_until: offer.valid_until ?? null,
     disabled_branch_ids,
+    branch_ids,
   }
 }
 
@@ -234,6 +239,7 @@ function prepareOfferForm(form: FeaturedOfferFormData) {
     link_url: form.link_url.trim() || null,
     valid_until: form.valid_until || null,
     badge_text: form.badge_text.trim(),
+    branch_ids: form.branch_ids ?? [],
   }
 }
 

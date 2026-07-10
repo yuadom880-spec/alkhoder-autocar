@@ -1,4 +1,4 @@
-import { carMatchesBranch } from './branchFilter'
+import { carMatchesBranch, offerMatchesBranch } from './branchFilter'
 import { isFeaturedOfferVisibleForBranch } from './featuredOffers'
 import type { Booking, Car, FeaturedOffer } from './types'
 
@@ -21,20 +21,15 @@ export function filterOffersForAdminByBranch(
   branchId: string | null | undefined,
 ): FeaturedOffer[] {
   if (!branchId) return offers
-  return offers.filter((o) => {
-    if (!o.car_id || !o.car) return false
-    return carMatchesBranch(o.car, branchId)
-  })
+  return offers.filter((o) => offerMatchesBranch(o, branchId))
 }
 
-/** عروض مرتبطة بسيارات الفرع — مع احترام إيقاف العرض لفرع محدد فقط */
+/** عروض الفرع — مع احترام إيقاف العرض لفرع محدد فقط */
 export function filterOffersByBranch(
   offers: FeaturedOffer[],
   branchId: string | null | undefined,
 ): FeaturedOffer[] {
-  return offers.filter((o) => {
-    if (!o.car_id || !o.car) return !branchId && isFeaturedOfferVisibleForBranch(o, null)
-    if (branchId && !carMatchesBranch(o.car, branchId)) return false
-    return isFeaturedOfferVisibleForBranch(o, branchId)
-  })
+  return offers.filter(
+    (o) => offerMatchesBranch(o, branchId) && isFeaturedOfferVisibleForBranch(o, branchId),
+  )
 }

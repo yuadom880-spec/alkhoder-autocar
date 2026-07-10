@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════════════════
 -- الخضر لتأجير السيارات — Alkhoder AutoCar
--- الإصدار: 4.1 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
+-- الإصدار: 4.2 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
 -- ════════════════════════════════════════════════════════════════════════════
 -- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
 -- آمن للتشغيل المتكرر — لن يحذف بياناتك
@@ -42,6 +42,20 @@ ALTER TABLE public.featured_offers
 
 ALTER TABLE public.featured_offers
   ALTER COLUMN disabled_branch_ids SET NOT NULL;
+
+ALTER TABLE public.featured_offers
+  ADD COLUMN IF NOT EXISTS branch_ids JSONB DEFAULT '[]'::jsonb;
+
+UPDATE public.featured_offers
+SET branch_ids = '[]'::jsonb
+WHERE branch_ids IS NULL
+   OR jsonb_typeof(branch_ids) <> 'array';
+
+ALTER TABLE public.featured_offers
+  ALTER COLUMN branch_ids SET DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.featured_offers
+  ALTER COLUMN branch_ids SET NOT NULL;
 
 -- إصلاح سيارات أوقفت عالمياً بالخطأ
 UPDATE public.cars
@@ -146,6 +160,7 @@ CREATE TABLE IF NOT EXISTS featured_offers (
   valid_until DATE DEFAULT NULL,
   sort_order INTEGER DEFAULT 0,
   disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
+  branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -186,12 +201,16 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
 
 ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS branch_ids JSONB DEFAULT '[]'::jsonb;
 
 UPDATE cars SET unavailable_branch_ids = '[]'::jsonb
 WHERE unavailable_branch_ids IS NULL OR jsonb_typeof(unavailable_branch_ids) <> 'array';
 
 UPDATE featured_offers SET disabled_branch_ids = '[]'::jsonb
 WHERE disabled_branch_ids IS NULL OR jsonb_typeof(disabled_branch_ids) <> 'array';
+
+UPDATE featured_offers SET branch_ids = '[]'::jsonb
+WHERE branch_ids IS NULL OR jsonb_typeof(branch_ids) <> 'array';
 
 DO $$
 BEGIN
@@ -407,5 +426,5 @@ WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 NOTIFY pgrst, 'reload schema';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- نهاية الملف — الإصدار 4.1
+-- نهاية الملف — الإصدار 4.2
 -- ════════════════════════════════════════════════════════════════════════════

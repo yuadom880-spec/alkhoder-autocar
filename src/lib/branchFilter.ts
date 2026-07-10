@@ -1,11 +1,36 @@
-import type { BranchRecord, Car } from './types'
+import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import type { BranchRecord, Car, FeaturedOffer } from './types'
+
+function branchListIncludes(ids: string[], branchId: string): boolean {
+  const target = normalizeBranchIdForStorage(branchId)
+  return ids.some((id) => normalizeBranchIdForStorage(id) === target)
+}
 
 /** سيارة بدون فروع محددة = متاحة في كل الفروع */
 export function carMatchesBranch(car: Car, branchId: string | null | undefined): boolean {
   if (!branchId) return true
   const ids = car.branch_ids ?? []
   if (ids.length === 0) return true
-  return ids.includes(branchId)
+  return branchListIncludes(ids, branchId)
+}
+
+/** عرض بدون فروع محددة = يظهر في كل الفروع (أو حسب سيارته المرتبطة) */
+export function offerMatchesBranch(
+  offer: FeaturedOffer,
+  branchId: string | null | undefined,
+): boolean {
+  const offerBranches = offer.branch_ids ?? []
+  if (branchId) {
+    if (offerBranches.length > 0) return branchListIncludes(offerBranches, branchId)
+    if (offer.car) return carMatchesBranch(offer.car, branchId)
+    return true
+  }
+  if (offerBranches.length > 0) return false
+  if (offer.car) {
+    const carBranches = offer.car.branch_ids ?? []
+    if (carBranches.length > 0) return false
+  }
+  return true
 }
 
 export function filterCarsByBranch(cars: Car[], branchId: string | null | undefined): Car[] {
