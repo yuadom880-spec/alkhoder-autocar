@@ -18,10 +18,15 @@ export const DEFAULT_OFFERS: CarOffers = {
 }
 
 export function normalizeOffer(offer: CarOffer | null | undefined): CarOffer | null {
-  if (!offer || !offer.active) {
-    return offer?.active === false ? { ...DEFAULT_OFFER, active: false } : null
+  if (!offer) return null
+  const disabledBranchIds = offer.disabled_branch_ids ?? []
+  if (!offer.active) {
+    if (disabledBranchIds.length === 0) {
+      return offer.active === false ? { ...DEFAULT_OFFER, active: false } : null
+    }
+    return { ...DEFAULT_OFFER, ...offer, active: false, disabled_branch_ids: disabledBranchIds }
   }
-  return { ...DEFAULT_OFFER, ...offer }
+  return { ...DEFAULT_OFFER, ...offer, disabled_branch_ids: disabledBranchIds }
 }
 
 /** تحويل العرض القديم (كائن واحد) إلى هيكل يومي/شهري */
@@ -46,7 +51,7 @@ export function getCarOffer(car: Car, rentalType: RentalPeriodType): CarOffer | 
 }
 
 export function isOfferDisabledForBranch(
-  offer: CarOffer | null | undefined,
+  offer: { disabled_branch_ids?: string[] } | null | undefined,
   branchId?: string | null,
 ): boolean {
   if (!offer || !branchId) return false
@@ -61,7 +66,7 @@ export function setOfferBranchDisabled(
   const ids = new Set(offer.disabled_branch_ids ?? [])
   if (disabled) ids.add(branchId)
   else ids.delete(branchId)
-  return { ...offer, disabled_branch_ids: [...ids] }
+  return { ...offer, active: true, disabled_branch_ids: [...ids] }
 }
 
 function isOfferValid(offer: CarOffer | null, branchId?: string | null): boolean {

@@ -5,6 +5,7 @@ import {
   getOfferBadge,
   getOfferSavings,
   isOfferActive,
+  isOfferDisabledForBranch,
 } from './offers'
 import { getCarBasePrice } from './pricing'
 import { formatPrice } from './utils'
@@ -39,15 +40,20 @@ export function parseAutoCarOfferId(
   return { rentalType: match[1] as RentalPeriodType, carId: match[2] }
 }
 
-/** هل العرض ظاهر لفرع معيّن (للعروض التلقائية من السيارات) */
+/** هل العرض ظاهر لفرع معيّن */
 export function isFeaturedOfferVisibleForBranch(
   offer: FeaturedOffer,
   branchId?: string | null,
 ): boolean {
   if (!isFeaturedOfferActive(offer)) return false
   if (!branchId) return true
-  if (!offer.car_id || !offer.car) return false
+  if (isOfferDisabledForBranch(offer, branchId)) return false
+  if (!offer.car_id || !offer.car) return true
   if (isAutoCarFeaturedOffer(offer)) {
+    return isOfferActive(offer.car, offer.rental_type, branchId)
+  }
+  const carOffer = getCarOffer(offer.car, offer.rental_type)
+  if (carOffer?.active) {
     return isOfferActive(offer.car, offer.rental_type, branchId)
   }
   return true
@@ -111,7 +117,7 @@ export function mergeFeaturedOffers(
 ): FeaturedOffer[] {
   const manualKeys = new Set(
     manualOffers
-      .filter((offer) => offer.car_id)
+      .filter((offer) => offer.car_id && isFeaturedOfferActive(offer))
       .map((offer) => `${offer.car_id}-${offer.rental_type}`),
   )
 

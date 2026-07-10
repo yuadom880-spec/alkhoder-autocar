@@ -178,6 +178,9 @@ function normalizeFeaturedOffer(offer: FeaturedOffer): FeaturedOffer {
     car_id: offer.car_id ?? null,
     link_url: offer.link_url ?? null,
     valid_until: offer.valid_until ?? null,
+    disabled_branch_ids: Array.isArray(offer.disabled_branch_ids)
+      ? offer.disabled_branch_ids
+      : [],
   }
 }
 
@@ -687,8 +690,8 @@ export async function setCarOfferBranchVisibility(
   const offers = normalizeCarOffers(car.offer)
   const current = rentalType === 'monthly' ? offers.monthly : offers.daily
 
-  if (!current?.active) {
-    throw new Error('لا يوجد عرض مفعّل على هذه السيارة')
+  if (!current) {
+    throw new Error('لا يوجد عرض على هذه السيارة')
   }
 
   const nextOffer = setOfferBranchDisabled(current, branchId, !visible)
@@ -698,6 +701,58 @@ export async function setCarOfferBranchVisibility(
   }
 
   return updateCar(carId, { offer: patch })
+}
+
+/** إيقاف/تفعيل عرض يدوي لفرع واحد فقط */
+export async function setFeaturedOfferBranchVisibility(
+  offerId: string,
+  branchId: string,
+  visible: boolean,
+): Promise<FeaturedOffer> {
+  const offer = await fetchFeaturedOfferById(offerId)
+  if (!offer) throw new Error('العرض غير موجود')
+
+  const nextOffer = setOfferBranchDisabled(
+    {
+      active: offer.is_active,
+      title: offer.title,
+      badge_text: offer.badge_text,
+      discount_type: 'custom_price',
+      discount_value: offer.price,
+      valid_until: offer.valid_until,
+      description: offer.description,
+      disabled_branch_ids: offer.disabled_branch_ids,
+    },
+    branchId,
+    !visible,
+  )
+
+  if (!isSupabaseConfigured) {
+    const offers = getDemoOffers()
+    const idx = offers.findIndex((o) => o.id === offerId)
+    if (idx === -1) throw new Error('العرض غير موجود')
+    offers[idx] = {
+      ...offers[idx],
+      is_active: true,
+      disabled_branch_ids: nextOffer.disabled_branch_ids,
+      updated_at: new Date().toISOString(),
+    }
+    saveDemoOffers(offers)
+    return offers[idx]
+  }
+
+  const client = requireSupabase()
+  const { data: row, error } = await client
+    .from(OFFERS_TABLE)
+    .update({
+      is_active: true,
+      disabled_branch_ids: nextOffer.disabled_branch_ids,
+    })
+    .eq('id', offerId)
+    .select('*, car:cars(*)')
+    .single()
+  if (error) throw new Error(formatError(error))
+  return normalizeFeaturedOffer(row as FeaturedOffer)
 }
 
 /** إيقاف عرض السيارة (يومي/شهري) من كل الفروع */
@@ -715,24 +770,50 @@ export async function setCarOfferGlobalActive(
 
   const nextOffer = active
     ? { ...current, active: true, disabled_branch_ids: [] }
-    : { ...current, active: false }
+    : {
+        ...current,
+        active: false,
+        disabled_branch_ids: current.disabled_branch_ids ?? [],
+      }
 
   return updateCar(carId, {
     offer: { ...offers, [rentalType]: nextOffer },
   })
 }
 
+export interface UpdateFeaturedOfferOptions {
+  branchId?: string | null
+}
+
 export async function updateFeaturedOffer(
   id: string,
   form: Partial<FeaturedOfferFormData>,
+  options: UpdateFeaturedOfferOptions = {},
 ): Promise<FeaturedOffer> {
   const auto = parseAutoCarOfferId(id)
   if (auto && form.is_active !== undefined) {
+    if (options.branchId) {
+      const car = await setCarOfferBranchVisibility(
+        auto.carId,
+        auto.rentalType,
+        options.branchId,
+        form.is_active,
+      )
+      const rebuilt = resolveDisplayedFeaturedOffers([], [car], { activeOnly: false })
+      const match = rebuilt.find((o) => o.id === id)
+      if (match) return match
+      throw new Error('تعذّر تحديث عرض السيارة')
+    }
+
     const car = await setCarOfferGlobalActive(auto.carId, auto.rentalType, form.is_active)
     const rebuilt = resolveDisplayedFeaturedOffers([], [car], { activeOnly: false })
     const match = rebuilt.find((o) => o.id === id)
     if (match) return match
     throw new Error('تعذّر تحديث عرض السيارة')
+  }
+
+  if (form.is_active !== undefined && options.branchId) {
+    return setFeaturedOfferBranchVisibility(id, options.branchId, form.is_active)
   }
   const patch: Record<string, unknown> = { ...form }
   if (form.car_id !== undefined) patch.car_id = form.car_id || null
@@ -779,6 +860,11 @@ export async function deleteFeaturedOffer(
   }
   if (auto) {
     await setCarOfferGlobalActive(auto.carId, auto.rentalType, false)
+    return
+  }
+
+  if (options.branchId) {
+    await setFeaturedOfferBranchVisibility(id, options.branchId, false)
     return
   }
 

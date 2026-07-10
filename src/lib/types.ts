@@ -172,6 +172,8 @@ export interface FeaturedOffer {
   is_featured: boolean
   valid_until: string | null
   sort_order: number
+  /** فروع لا يظهر فيها العرض اليدوي — باقي الفروع يبقى العرض شغّال */
+  disabled_branch_ids?: string[]
   created_at: string
   updated_at: string
   car?: Car

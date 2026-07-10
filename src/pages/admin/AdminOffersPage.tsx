@@ -17,9 +17,10 @@ import {
   parseAutoCarOfferId,
   RENTAL_TYPE_LABELS,
 } from '../../lib/featuredOffers'
+import { getCarOffer } from '../../lib/offers'
 import {
   deleteFeaturedOffer,
-  fetchFeaturedOffers,
+  fetchDisplayedFeaturedOffers,
   setCarOfferBranchVisibility,
   updateFeaturedOffer,
 } from '../../lib/supabase'
@@ -27,7 +28,7 @@ import type { FeaturedOffer } from '../../lib/types'
 import { formatDate } from '../../lib/utils'
 
 export function AdminOffersPage() {
-  const { filterBranchId, isBranchMode } = useAdminBranch()
+  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
   const [offers, setOffers] = useState<FeaturedOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -35,7 +36,7 @@ export function AdminOffersPage() {
 
   const load = () => {
     setLoading(true)
-    fetchFeaturedOffers({ includeCars: true })
+    fetchDisplayedFeaturedOffers({ includeCars: true })
       .then(setOffers)
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -48,20 +49,40 @@ export function AdminOffersPage() {
     [offers, filterBranchId],
   )
 
+  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+
   const isOfferEnabledHere = (offer: FeaturedOffer) =>
-    isBranchMode && filterBranchId
-      ? isFeaturedOfferVisibleForBranch(offer, filterBranchId)
+    isBranchMode && branchScopeId
+      ? isFeaturedOfferVisibleForBranch(offer, branchScopeId)
       : offer.is_active
 
+  const setOfferVisibilityForBranch = async (offer: FeaturedOffer, visible: boolean) => {
+    if (!branchScopeId) throw new Error('اختر فرعاً من شريط الأعلى أولاً')
+
+    const auto = parseAutoCarOfferId(offer.id)
+    if (auto) {
+      await setCarOfferBranchVisibility(auto.carId, auto.rentalType, branchScopeId, visible)
+      return
+    }
+
+    if (offer.car_id && offer.car && getCarOffer(offer.car, offer.rental_type)) {
+      await setCarOfferBranchVisibility(offer.car_id, offer.rental_type, branchScopeId, visible)
+      return
+    }
+
+    await updateFeaturedOffer(offer.id, { is_active: visible }, { branchId: branchScopeId })
+  }
+
   const handleDelete = async (offer: FeaturedOffer) => {
-    const branchNote =
-      isBranchMode && filterBranchId
-        ? ` من فرعك فقط`
-        : ''
+    const branchNote = isBranchMode && branchScopeId ? ` من فرعك فقط` : ''
     if (!confirm(`هل تريد إيقاف عرض "${offer.title}"${branchNote}؟`)) return
     setDeleting(offer.id)
     try {
-      await deleteFeaturedOffer(offer.id, { branchId: filterBranchId })
+      if (isBranchMode && branchScopeId) {
+        await setOfferVisibilityForBranch(offer, false)
+      } else {
+        await deleteFeaturedOffer(offer.id)
+      }
       load()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'فشل الحذف')
@@ -73,21 +94,19 @@ export function AdminOffersPage() {
   const toggleActive = async (offer: FeaturedOffer) => {
     setUpdating(offer.id)
     try {
-      const auto = parseAutoCarOfferId(offer.id)
-      if (auto && isBranchMode && filterBranchId) {
-        await setCarOfferBranchVisibility(
-          auto.carId,
-          auto.rentalType,
-          filterBranchId,
-          !isOfferEnabledHere(offer),
-        )
+      const enable = !isOfferEnabledHere(offer)
+
+      if (isBranchMode) {
+        if (!branchScopeId) {
+          alert('اختر فرعاً من شريط الأعلى أولاً')
+          return
+        }
+        await setOfferVisibilityForBranch(offer, enable)
         load()
         return
       }
 
-      const updated = await updateFeaturedOffer(offer.id, {
-        is_active: !offer.is_active,
-      })
+      const updated = await updateFeaturedOffer(offer.id, { is_active: enable })
       setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)))
     } catch (err) {
       alert(err instanceof Error ? err.message : 'فشل التحديث')

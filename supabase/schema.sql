@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS featured_offers (
   is_featured BOOLEAN DEFAULT false,
   valid_until DATE DEFAULT NULL,
   sort_order INTEGER DEFAULT 0,
+  disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -120,6 +121,8 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_id UUID DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_name TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
+
+ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 -- ربط فرع الحجز بجدول الفروع (إن وُجد)
 DO $$
