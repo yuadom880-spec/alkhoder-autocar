@@ -1,4 +1,5 @@
-import { carMatchesBranch, offerMatchesBranch } from './branchFilter'
+import { carMatchesBranch } from './branchFilter'
+import { offerMatchesBranch } from './featuredOfferBranch'
 import { isFeaturedOfferVisibleForBranch } from './featuredOffers'
 import type { Booking, Car, FeaturedOffer } from './types'
 

@@ -228,4 +228,5 @@ export interface FeaturedOfferFormData {
   valid_until: string
   sort_order: number
   branch_ids?: string[]
+  disabled_branch_ids?: string[]
 }

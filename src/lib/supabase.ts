@@ -240,6 +240,7 @@ function prepareOfferForm(form: FeaturedOfferFormData) {
     valid_until: form.valid_until || null,
     badge_text: form.badge_text.trim(),
     branch_ids: form.branch_ids ?? [],
+    disabled_branch_ids: form.disabled_branch_ids ?? [],
   }
 }
 

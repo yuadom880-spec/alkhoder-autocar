@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useSearchParams } from 'react-router'
+import { branchRecordMatchesId } from '../lib/branchFilter'
 import { DEMO_BRANCHES } from '../lib/branchesData'
 import { fetchBranches } from '../lib/supabase'
 import type { BranchRecord } from '../lib/types'
@@ -83,21 +84,22 @@ export function CustomerBranchProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading || branches.length === 0) return
 
-    if (branchId && !branches.some((b) => b.id === branchId)) {
+    if (branchId && !branches.some((b) => branchRecordMatchesId(b, branchId))) {
       setBranchId('')
-      return
     }
-
   }, [loading, branches, branchId, setBranchId])
 
   const clearBranch = useCallback(() => setBranchId(''), [setBranchId])
 
   const selectedBranch = useMemo(
-    () => branches.find((b) => b.id === branchId) ?? null,
+    () => branches.find((b) => branchRecordMatchesId(b, branchId)) ?? null,
     [branches, branchId],
   )
 
-  const hasBranch = Boolean(branchId && selectedBranch)
+  const hasBranch = Boolean(
+    branchId &&
+      (selectedBranch || branches.some((b) => branchRecordMatchesId(b, branchId))),
+  )
 
   const value = useMemo(
     () => ({

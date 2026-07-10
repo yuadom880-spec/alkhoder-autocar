@@ -4,13 +4,13 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { FeaturedOfferForm } from '../../components/admin/FeaturedOfferForm'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { useAdminBranch } from '../../context/AdminBranchContext'
-import { normalizeBranchIdForStorage } from '../../lib/carBranchAvailability'
+import { buildFeaturedOfferBranchScope } from '../../lib/featuredOfferBranch'
 import {
   createFeaturedOffer,
   fetchFeaturedOfferById,
   updateFeaturedOffer,
 } from '../../lib/supabase'
-import type { FeaturedOffer, FeaturedOfferFormData } from '../../lib/types'
+import type { FeaturedOffer } from '../../lib/types'
 
 export function AdminOfferFormPage() {
   const { id } = useParams<{ id: string }>()
@@ -50,10 +50,7 @@ export function AdminOfferFormPage() {
           <FeaturedOfferForm
             initial={offer ?? undefined}
             onSubmit={async (data) => {
-              const payload: FeaturedOfferFormData = {
-                ...data,
-                branch_ids: resolveOfferBranchIds(data, offer, branchScopeId),
-              }
+              const payload = await buildFeaturedOfferBranchScope(data, offer, branchScopeId)
               if (isEdit && id) {
                 await updateFeaturedOffer(id, payload)
               } else {
@@ -67,15 +64,4 @@ export function AdminOfferFormPage() {
       </div>
     </>
   )
-}
-
-function resolveOfferBranchIds(
-  data: FeaturedOfferFormData,
-  existing: FeaturedOffer | null,
-  branchScopeId: string | null,
-): string[] {
-  if (branchScopeId) {
-    return [normalizeBranchIdForStorage(branchScopeId)]
-  }
-  return data.branch_ids ?? existing?.branch_ids ?? []
 }

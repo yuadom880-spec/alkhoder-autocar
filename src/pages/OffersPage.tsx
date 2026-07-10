@@ -7,7 +7,7 @@ import { SAVINGS_OFFER_IMAGE_FALLBACK, SUMMER_VIDEO } from '../lib/constants'
 import { copy } from '../lib/copy'
 
 export function OffersPage() {
-  const { branchId, hasBranch } = useCustomerBranch()
+  const { branchId } = useCustomerBranch()
   return (
     <>
       <section className="page-shell bg-gradient-to-bl from-brand-dark via-brand-navy to-brand-slate text-white">
@@ -49,7 +49,7 @@ export function OffersPage() {
       <FeaturedOffersSection
         compact={false}
         showHeader={false}
-        branchId={hasBranch ? branchId : null}
+        branchId={branchId || null}
       />
       </div>
     </>

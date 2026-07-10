@@ -80,6 +80,10 @@ export function isFeaturedOfferVisibleForBranch(
 ): boolean {
   if (!isFeaturedOfferActive(offer)) return false
   if (branchId && isOfferDisabledForBranch(offer, branchId)) return false
+
+  // عرض يدوي من الإدارة — مستقل عن خصم/توفر السيارة
+  if (!isAutoCarFeaturedOffer(offer)) return true
+
   if (!branchId) {
     if (offer.car_id && offer.car) {
       return isFeaturedOfferVisibleForCar(offer, null)

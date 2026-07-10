@@ -204,7 +204,7 @@ export function HomePage() {
       <HomeBranchPicker />
 
       <div id="home-offers">
-        <FeaturedOffersSection compact limit={6} branchId={hasBranch ? branchId : null} />
+        <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
       </div>
 
       <section id="home-fleet" className="bg-white py-16 lg:py-20">
