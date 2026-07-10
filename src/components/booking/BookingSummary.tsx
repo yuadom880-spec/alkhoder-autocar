@@ -1,6 +1,7 @@
 import { Calendar, Car, MapPin, Tag } from 'lucide-react'
 import type { BranchRecord, Car as CarType, FeaturedOffer, RentalPeriodType } from '../../lib/types'
 import { CarImage } from '../cars/CarImage'
+import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
 import { copy } from '../../lib/copy'
 import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/featuredOffers'
 import { getCarOffer, isOfferActive } from '../../lib/offers'
@@ -155,6 +156,7 @@ export function BookingSummary({
               {formatPrice(total)}
             </span>
           </div>
+          <PricesIncludeVatNote className="mt-3 w-full justify-center" />
         </div>
       ) : (
         <p className="text-sm text-slate-400 flex items-center gap-2">

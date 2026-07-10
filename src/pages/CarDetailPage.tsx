@@ -17,6 +17,7 @@ import { getCarOffer, isOfferActive } from '../lib/offers'
 import { getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
+import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { formatDate, formatPrice } from '../lib/utils'
@@ -212,6 +213,7 @@ export function CarDetailPage() {
                 {!promoOffer && getCarOffer(car, rentalType)?.description && isOfferActive(car, rentalType) && (
                   <p className="text-xs text-slate-500 mt-2">{getCarOffer(car, rentalType)?.description}</p>
                 )}
+                <PricesIncludeVatNote className="mt-3" />
               </div>
 
               <p className="text-slate-600 leading-relaxed mb-6">{car.description}</p>
