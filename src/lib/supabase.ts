@@ -8,7 +8,7 @@ import { isDataImageUrl, isPersistedImageUrl } from './imageUrl'
 import { getSupabaseEnv } from './env'
 import { buildCarBranchAvailabilityPatch } from './carBranchAvailability'
 import { carMatchesBranch } from './branchFilter'
-import { canBookCar, isBlockingStatus } from './availability'
+import { canBookCar, isActiveBookingStatus } from './availability'
 import type {
   Booking,
   BookingBlock,
@@ -382,7 +382,7 @@ export async function uploadCarImage(file: File, folder = 'cars'): Promise<strin
 
 function toBookingBlocks(rows: Booking[]): BookingBlock[] {
   return rows
-    .filter((b) => isBlockingStatus(b.status))
+    .filter((b) => isActiveBookingStatus(b.status))
     .map((b) => ({
       id: b.id,
       car_id: b.car_id,

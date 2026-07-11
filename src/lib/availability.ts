@@ -1,8 +1,11 @@
 import { isCarUnavailableForBranch } from './carBranchAvailability'
 import type { BookingBlock, BookingStatus, Car, CarAvailability } from './types'
 
-/** حالات الحجز التي تحجب السيارة عن العملاء */
-export const BLOCKING_STATUSES: BookingStatus[] = ['pending', 'confirmed']
+/** حجوزات نشطة تُعرض في لوحة الإدارة والتقويم */
+export const ACTIVE_BOOKING_STATUSES: BookingStatus[] = ['pending', 'confirmed']
+
+/** حالات تمنع حجزاً جديداً — المؤكد فقط؛ الطلبات قيد المراجعة لا تحجب */
+export const BLOCKING_STATUSES: BookingStatus[] = ['confirmed']
 
 /** حالات الحجز المؤكدة التي تظهر كـ «محجوزة» للزائر */
 export const PUBLIC_BOOKED_STATUSES: BookingStatus[] = ['confirmed']
@@ -14,6 +17,10 @@ export function datesOverlap(
   endB: string,
 ): boolean {
   return startA <= endB && startB <= endA
+}
+
+export function isActiveBookingStatus(status: BookingStatus): boolean {
+  return ACTIVE_BOOKING_STATUSES.includes(status)
 }
 
 export function isBlockingStatus(status: BookingStatus): boolean {
@@ -36,7 +43,7 @@ export function filterBlocksByBranch(
 export function getCarBlocks(
   carId: string,
   blocks: BookingBlock[],
-  statuses: BookingStatus[] = BLOCKING_STATUSES,
+  statuses: BookingStatus[] = ACTIVE_BOOKING_STATUSES,
   branchId?: string | null,
 ): BookingBlock[] {
   const scoped = filterBlocksByBranch(blocks, branchId)
@@ -71,19 +78,43 @@ export function getCarAvailability(
     return { available: false, reason: 'admin_disabled' }
   }
 
-  const carBlocks = getCarBlocks(car.id, blocks, BLOCKING_STATUSES, branchId)
+  const carBlocks = getCarBlocks(car.id, blocks, ACTIVE_BOOKING_STATUSES, branchId)
 
   if (startDate && endDate) {
-    const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks, BLOCKING_STATUSES, branchId)
-    if (conflicts.length > 0) {
-      const confirmed = conflicts.some((c) => c.status === 'confirmed')
+    const confirmedConflicts = findConflictingBlocks(
+      car.id,
+      startDate,
+      endDate,
+      blocks,
+      BLOCKING_STATUSES,
+      branchId,
+    )
+    if (confirmedConflicts.length > 0) {
       return {
         available: false,
         reason: 'booked',
-        conflicts,
-        confirmedOnly: confirmed,
+        conflicts: confirmedConflicts,
+        confirmedOnly: true,
       }
     }
+
+    const pendingConflicts = findConflictingBlocks(
+      car.id,
+      startDate,
+      endDate,
+      blocks,
+      ['pending'],
+      branchId,
+    )
+    if (pendingConflicts.length > 0) {
+      return {
+        available: true,
+        reason: 'available',
+        conflicts: pendingConflicts,
+        hasPending: true,
+      }
+    }
+
     return { available: true, reason: 'available' }
   }
 
@@ -126,14 +157,18 @@ export function canBookCar(
     return { ok: false, message: 'هذه السيارة غير متاحة للحجز حالياً' }
   }
 
-  const conflicts = findConflictingBlocks(car.id, startDate, endDate, blocks, BLOCKING_STATUSES, branchId)
-  if (conflicts.length > 0) {
-    const confirmed = conflicts.some((c) => c.status === 'confirmed')
+  const confirmedConflicts = findConflictingBlocks(
+    car.id,
+    startDate,
+    endDate,
+    blocks,
+    BLOCKING_STATUSES,
+    branchId,
+  )
+  if (confirmedConflicts.length > 0) {
     return {
       ok: false,
-      message: confirmed
-        ? 'السيارة محجوزة ومؤكدة في هذه الفترة — اختر تواريخ أخرى'
-        : 'يوجد طلب حجز قيد المراجعة لهذه الفترة — اختر تواريخ أخرى أو تواصل معنا',
+      message: 'السيارة محجوزة ومؤكدة في هذه الفترة — اختر تواريخ أخرى',
     }
   }
 
