@@ -50,8 +50,9 @@ export const SOCIAL_LINKS: SocialLink[] = [
   { id: 'tiktok', label: 'تيك توك', href: TIKTOK_LINK },
 ]
 
-export const TOLL_FREE = '920018216'
-export const TOLL_FREE_LINK = 'tel:920018216'
+export const MAIN_BRANCH_PHONE_LABEL = 'الفرع الرئيسي — طريق المطار'
+/** رقم SEO بصيغة دولية */
+export const SEO_PHONE = '+966504590002'
 export const EMAIL_QA = 'Alkhedr.qa@alkhedrcars.com'
 export const EMAIL_OSAMA = 'M.osama@alkhedrcars.com'
 

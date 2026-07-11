@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Menu, Phone, X } from 'lucide-react'
-import { NAV_LINKS, TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
+import { MAIN_BRANCH_PHONE_LABEL, NAV_LINKS, PHONE, PHONE_LINK } from '../../lib/constants'
 import { Logo } from '../ui/Logo'
 import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
@@ -35,11 +35,12 @@ export function Header() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <a
-            href={TOLL_FREE_LINK}
+            href={PHONE_LINK}
+            title={MAIN_BRANCH_PHONE_LABEL}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-green transition-colors"
           >
             <Phone className="h-4 w-4" />
-            <span dir="ltr">{TOLL_FREE}</span>
+            <span dir="ltr">{PHONE}</span>
           </a>
           <Link to="/cars">
             <Button size="sm">{copy.nav.bookNow}</Button>
@@ -83,11 +84,15 @@ export function Header() {
               </Link>
             ))}
             <a
-              href={TOLL_FREE_LINK}
-              className="flex min-h-[48px] items-center gap-2 rounded-xl px-4 py-3.5 text-base font-medium text-slate-600 active:bg-slate-50"
+              href={PHONE_LINK}
+              title={MAIN_BRANCH_PHONE_LABEL}
+              className="flex min-h-[48px] flex-col items-start gap-0.5 rounded-xl px-4 py-3.5 text-base font-medium text-slate-600 active:bg-slate-50"
             >
-              <Phone className="h-4 w-4" />
-              <span dir="ltr">{TOLL_FREE}</span>
+              <span className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <span dir="ltr">{PHONE}</span>
+              </span>
+              <span className="pr-6 text-xs text-slate-500">{MAIN_BRANCH_PHONE_LABEL}</span>
             </a>
             <Link to="/cars" onClick={() => setOpen(false)} className="mt-2">
               <Button className="w-full min-h-[48px]" size="lg">

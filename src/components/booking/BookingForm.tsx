@@ -26,7 +26,7 @@ import {
   PICKUP_PERIOD_LABELS,
   type PickupPeriod,
 } from '../../lib/pickupTime'
-import { TOLL_FREE, TOLL_FREE_LINK } from '../../lib/constants'
+import { MAIN_BRANCH, MAIN_BRANCH_PHONE_LABEL, PHONE, PHONE_LINK } from '../../lib/constants'
 import { formatDisplayPhone } from '../../lib/phone'
 import { calcDays, formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 import { isValidInternationalPhone } from '../../lib/phone'
@@ -268,10 +268,8 @@ export function BookingForm({
 
   if (success) {
     const branchPhone = selectedBranch?.phone?.trim() || null
-    const contactPhone = branchPhone ?? TOLL_FREE
-    const contactLabel = branchPhone
-      ? copy.booking.successBranchPhone
-      : 'الرقم الموحد'
+    const contactPhone = branchPhone ?? MAIN_BRANCH.phone ?? PHONE
+    const contactLabel = branchPhone ? copy.booking.successBranchPhone : MAIN_BRANCH_PHONE_LABEL
 
     return (
       <div className="rounded-2xl bg-green-50 border border-green-200 p-6 sm:p-8 text-center space-y-5">
@@ -297,7 +295,7 @@ export function BookingForm({
             <div className="rounded-lg bg-slate-50 px-4 py-3 space-y-1">
               <p className="text-xs text-slate-500">{contactLabel}</p>
               <a
-                href={branchPhone ? toPhoneLink(branchPhone) : TOLL_FREE_LINK}
+                href={branchPhone ? toPhoneLink(branchPhone) : PHONE_LINK}
                 dir="ltr"
                 className="inline-flex items-center gap-2 text-lg font-bold text-brand-green hover:underline"
               >

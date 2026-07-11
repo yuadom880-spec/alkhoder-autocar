@@ -10,8 +10,7 @@ import {
   LOGO_URL,
   SITE_NAME_SHORT,
   SITE_SEO_PRIMARY,
-  TOLL_FREE,
-  TOLL_FREE_LINK,
+  MAIN_BRANCH_PHONE_LABEL,
   WHATSAPP_LINK,
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
@@ -71,20 +70,14 @@ export function Footer() {
               <li>
                 <a
                   href={PHONE_LINK}
-                  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                  className="flex items-start gap-2 text-slate-400 hover:text-white transition-colors"
                 >
-                  <Phone className="h-4 w-4 shrink-0 text-brand-gold" />
-                  <span dir="ltr">{PHONE}</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href={TOLL_FREE_LINK}
-                  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-                >
-                  <Phone className="h-4 w-4 shrink-0 text-brand-gold" />
+                  <Phone className="h-4 w-4 shrink-0 mt-0.5 text-brand-gold" />
                   <span>
-                    الخط الموحد: <span dir="ltr">{TOLL_FREE}</span>
+                    {MAIN_BRANCH_PHONE_LABEL}
+                    <span className="mt-0.5 block" dir="ltr">
+                      {PHONE}
+                    </span>
                   </span>
                 </a>
               </li>

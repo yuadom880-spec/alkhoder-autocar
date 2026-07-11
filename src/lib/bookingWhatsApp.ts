@@ -1,5 +1,5 @@
 import type { Booking } from './types'
-import { PHONE, SITE_NAME, TOLL_FREE } from './constants'
+import { MAIN_BRANCH, MAIN_BRANCH_PHONE_LABEL, PHONE, SITE_NAME } from './constants'
 import { getSupabaseEnv } from './env'
 import { formatDisplayPhone, toWhatsAppDigits } from './phone'
 import { fetchBranches, supabase, isSupabaseConfigured } from './supabase'
@@ -70,8 +70,9 @@ function formatWhatsAppBranchPhone(phone: string): string {
 function branchPhoneLine(booking: Booking, branchPhone?: string | null): string {
   if (!booking.branch_name && !booking.branch_id) return ''
 
-  const phone = branchPhone?.trim() || booking.branch_phone?.trim() || TOLL_FREE
-  const label = branchPhone?.trim() || booking.branch_phone?.trim() ? 'رقم الفرع' : 'الرقم الموحد'
+  const phone = branchPhone?.trim() || booking.branch_phone?.trim() || MAIN_BRANCH.phone || PHONE
+  const label =
+    branchPhone?.trim() || booking.branch_phone?.trim() ? 'رقم الفرع' : MAIN_BRANCH_PHONE_LABEL
   return `${label}: ${formatWhatsAppBranchPhone(phone)}`
 }
 

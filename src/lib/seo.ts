@@ -7,7 +7,7 @@ import {
   FACEBOOK_LINK,
   INSTAGRAM_LINK,
   TIKTOK_LINK,
-  TOLL_FREE,
+  SEO_PHONE,
   WHATSAPP_LINK,
   X_LINK,
 } from './constants'
@@ -395,7 +395,7 @@ export function buildOrganizationJsonLd(origin = getSiteUrl()) {
     description: SEO_DESCRIPTION,
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: TOLL_FREE,
+      telephone: SEO_PHONE,
       contactType: 'customer service',
       areaServed: 'SA',
       availableLanguage: ['ar', 'en'],
@@ -420,7 +420,7 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
     alternateName: [...SEO_BRAND_NAMES, SITE_NAME, SITE_COMPANY_NAME, SITE_NAME_EN, 'Alkhoder AutoCar'],
     description: SEO_DESCRIPTION,
     url: `${origin}/`,
-    telephone: TOLL_FREE,
+    telephone: SEO_PHONE,
     image: `${origin}/favicon-192.png`,
     logo: schemaLogo(origin),
     parentOrganization: { '@id': schemaId(origin, 'organization') },
@@ -440,7 +440,7 @@ export function buildLocalBusinessJsonLd(origin = getSiteUrl()) {
     openingHoursSpecification: OPENING_HOURS_SPEC,
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: TOLL_FREE,
+      telephone: SEO_PHONE,
       contactType: 'customer service',
       areaServed: 'SA',
       availableLanguage: ['Arabic', 'English'],
