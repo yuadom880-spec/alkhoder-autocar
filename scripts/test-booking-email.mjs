@@ -77,7 +77,14 @@ async function testVercelApi() {
       html: sampleHtml,
     }),
   })
-  const data = await res.json()
+  const text = await res.text()
+  let data = {}
+  try {
+    data = text ? JSON.parse(text) : {}
+  } catch {
+    console.error('   ✗ استجابة غير JSON (status', res.status, ') — انتظر deploy Vercel أو أضف RESEND_API_KEY')
+    return false
+  }
   if (data?.ok) {
     console.log('   ✓ نجح — id:', data.id)
     return true
