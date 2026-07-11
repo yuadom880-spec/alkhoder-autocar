@@ -7,6 +7,7 @@ import { formatDate, formatPrice } from './utils'
 
 export interface NotifyResult {
   sent: boolean
+  error?: string
 }
 
 export interface BookingPendingNotifyResult {
@@ -127,34 +128,28 @@ function getEmailApiUrl(): string {
   return ''
 }
 
+function parseEmailApiError(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') return undefined
+  const err = (data as { error?: unknown }).error
+  if (typeof err === 'string') return err
+  if (err && typeof err === 'object' && 'message' in err) {
+    return String((err as { message: unknown }).message)
+  }
+  return undefined
+}
+
 async function sendBookingEmail(
   to: string,
   subject: string,
   html: string,
 ): Promise<NotifyResult> {
-  const email = to.trim()
+  const email = to.trim().toLowerCase()
   if (!email || !email.includes('@')) {
-    return { sent: false }
+    return { sent: false, error: 'invalid_email' }
   }
 
   const payload = { to: email, subject, html }
-
-  const apiUrl = getEmailApiUrl()
-  if (apiUrl) {
-    try {
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data?.ok) return { sent: true }
-      }
-    } catch {
-      /* fallback below */
-    }
-  }
+  let lastError: string | undefined
 
   if (isSupabaseConfigured && supabase) {
     const { url, anonKey } = getSupabaseEnv()
@@ -164,8 +159,9 @@ async function sendBookingEmail(
       if (!error && data && typeof data === 'object' && 'ok' in data && data.ok === true) {
         return { sent: true }
       }
-    } catch {
-      /* fallback */
+      lastError = parseEmailApiError(data) ?? error?.message
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : 'supabase_invoke_failed'
     }
 
     try {
@@ -177,16 +173,33 @@ async function sendBookingEmail(
         },
         body: JSON.stringify(payload),
       })
-      if (res.ok) {
-        const data = await res.json()
-        if (data?.ok) return { sent: true }
-      }
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.ok) return { sent: true }
+      lastError = parseEmailApiError(data) ?? lastError
     } catch {
-      /* ignore */
+      /* try vercel next */
     }
   }
 
-  return { sent: false }
+  const apiUrl = getEmailApiUrl()
+  if (apiUrl) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.ok) return { sent: true }
+      lastError = parseEmailApiError(data) ?? (data?.error === 'resend_not_configured'
+        ? 'resend_not_configured'
+        : lastError)
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : 'vercel_api_failed'
+    }
+  }
+
+  return { sent: false, error: lastError ?? 'send_failed' }
 }
 
 export async function notifyBookingPending(

@@ -1,0 +1,33 @@
+name: Deploy booking email function
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/send-booking-email/**'
+      - '.github/workflows/deploy-supabase-email.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Set Supabase secrets
+        if: ${{ secrets.RESEND_API_KEY != '' }}
+        run: |
+          supabase secrets set \
+            RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+            RESEND_FROM_EMAIL="${{ secrets.RESEND_FROM_EMAIL || 'onboarding@resend.dev' }}" \
+            --project-ref pkxgixztzourconiwlfq
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy send-booking-email
+        run: supabase functions deploy send-booking-email --project-ref pkxgixztzourconiwlfq --no-verify-jwt
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

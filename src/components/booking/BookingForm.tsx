@@ -283,7 +283,10 @@ export function BookingForm({
           {notifyState?.branchEmail === true && (
             <p className="text-xs text-green-600">{copy.booking.successBranchEmailSent}</p>
           )}
-          {notifyState && !notifyState.customerEmail && (
+          {notifyState && !notifyState.customerEmail && !notifyState.branchEmail && (
+            <p className="text-xs text-amber-700">{copy.booking.successEmailFailed}</p>
+          )}
+          {notifyState && !notifyState.customerEmail && notifyState.branchEmail && (
             <p className="text-xs text-amber-700">{copy.booking.successEmailHint}</p>
           )}
         </div>
