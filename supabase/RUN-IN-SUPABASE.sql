@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════════════════
 -- الخضر لتأجير السيارات — Alkhoder AutoCar
--- الإصدار: 4.1 | التاريخ: 2026-07-10 | الملف: supabase/schema.sql
+-- الإصدار: 4.3 | التاريخ: 2026-07-11 | الملف: supabase/schema.sql
 -- ════════════════════════════════════════════════════════════════════════════
 -- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
 -- آمن للتشغيل المتكرر — لن يحذف بياناتك
@@ -12,7 +12,7 @@
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 1: إصلاح فوري — أعمدة الفروع + إعادة تحميل schema cache           │
--- │ يحل: Could not find 'unavailable_branch_ids' + تحذير schema cache       │
+-- │ يحل: unavailable_branch_ids + branches.email + تحذير schema cache        │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 ALTER TABLE public.cars
@@ -49,17 +49,28 @@ SET is_available = true
 WHERE is_available = false
   AND jsonb_array_length(COALESCE(unavailable_branch_ids, '[]'::jsonb)) > 0;
 
+-- بريد إلكتروني لكل فرع (لوحة الإدارة + إشعارات الحجز)
+ALTER TABLE public.branches
+  ADD COLUMN IF NOT EXISTS email TEXT DEFAULT NULL;
+
+ALTER TABLE public.bookings
+  ADD COLUMN IF NOT EXISTS branch_email TEXT DEFAULT NULL;
+
+UPDATE public.branches
+SET email = 'Yuadom14@gmail.com'
+WHERE is_main = true AND (email IS NULL OR email = '');
+
 DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public'
-      AND table_name = 'cars'
-      AND column_name = 'unavailable_branch_ids'
+      AND table_name = 'branches'
+      AND column_name = 'email'
   ) THEN
-    RAISE EXCEPTION 'فشل: عمود cars.unavailable_branch_ids غير موجود';
+    RAISE EXCEPTION 'فشل: عمود branches.email غير موجود';
   END IF;
-  RAISE NOTICE 'تم — cars.unavailable_branch_ids جاهز. جاري reload schema cache...';
+  RAISE NOTICE 'تم — branches.email جاهز. جاري reload schema cache...';
 END $$;
 
 -- مهم: يزيل تحذير schema cache بعد إضافة عمود جديد
@@ -125,6 +136,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   branch_name TEXT DEFAULT NULL,
   branch_city TEXT DEFAULT NULL,
   branch_phone TEXT DEFAULT NULL,
+  branch_email TEXT DEFAULT NULL,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -156,6 +168,7 @@ CREATE TABLE IF NOT EXISTS branches (
   address TEXT NOT NULL,
   city TEXT NOT NULL,
   phone TEXT DEFAULT NULL,
+  email TEXT DEFAULT NULL,
   hours TEXT DEFAULT 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م',
   map_url TEXT DEFAULT '#',
   image_url TEXT DEFAULT NULL,
@@ -184,6 +197,13 @@ ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_id UUID DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_name TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_city TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_phone TEXT DEFAULT NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS branch_email TEXT DEFAULT NULL;
+
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS email TEXT DEFAULT NULL;
+
+UPDATE public.branches
+SET email = 'Yuadom14@gmail.com'
+WHERE is_main = true AND (email IS NULL OR email = '');
 
 ALTER TABLE featured_offers ADD COLUMN IF NOT EXISTS disabled_branch_ids JSONB DEFAULT '[]'::jsonb;
 
