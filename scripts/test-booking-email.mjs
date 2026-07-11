@@ -32,6 +32,8 @@ const SITE_URL = (env.VITE_SITE_URL ?? 'https://alkhodercar.com').replace(/\/$/,
 const SUPABASE_URL = env.VITE_SUPABASE_URL
 const SUPABASE_ANON = env.VITE_SUPABASE_ANON_KEY
 const TEST_TO = env.TEST_EMAIL_TO ?? 'yuadom14@gmail.com'
+const TEST_CUSTOMER = env.TEST_EMAIL_CUSTOMER ?? 'customer-test@example.com'
+const TEST_BRANCH_MAKKAH = env.TEST_EMAIL_BRANCH_MAKKAH ?? 'makkah@alkhedrcars.com'
 
 if (!RESEND_API_KEY) {
   console.error('❌ ضع RESEND_API_KEY في .env')
@@ -96,13 +98,61 @@ async function testVercelApi() {
   return false
 }
 
+async function testVercelCustomerEmail() {
+  console.log('\n📧 3) اختبار إيميل عميل (بريد مختلف عن الأدمن)...')
+  const res = await fetch(`${SITE_URL}/api/send-booking-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: TEST_CUSTOMER,
+      subject: 'اختبار إيميل عميل — حجز الخضر',
+      html: sampleHtml,
+    }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (data?.ok) {
+    console.log('   ✓ نجح — الإيميل يصل لأي عميل — id:', data.id)
+    return true
+  }
+  const msg = data?.error?.message ?? JSON.stringify(data?.error ?? data)
+  console.error('   ✗ فشل:', msg)
+  if (String(msg).includes('only send testing emails')) {
+    console.log('   → الدومين alkhedrcars.com لم يُتحقق بعد — شغّل: npm run email:check-domain')
+  }
+  return false
+}
+
+async function testVercelBranchEmail() {
+  console.log('\n📧 4) اختبار إيميل فرع مكة (توجيه الفروع)...')
+  const res = await fetch(`${SITE_URL}/api/send-booking-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: TEST_BRANCH_MAKKAH,
+      subject: 'اختبار إشعار فرع مكة — حجز الخضر',
+      html: sampleHtml,
+    }),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (data?.ok) {
+    console.log('   ✓ نجح — إيميل فرع مكة:', TEST_BRANCH_MAKKAH, '— id:', data.id)
+    return true
+  }
+  const msg = data?.error?.message ?? JSON.stringify(data?.error ?? data)
+  console.error('   ✗ فشل:', msg)
+  if (String(msg).includes('only send testing emails')) {
+    console.log('   → بعد تحقق الدومين، كل فرع يستلم على بريده من لوحة الإدارة')
+  }
+  return false
+}
+
 async function testEdgeFunction() {
   if (!SUPABASE_URL || !SUPABASE_ANON) {
     console.log('\n⏭ تخطي Supabase Edge Function')
     return null
   }
 
-  console.log('\n📧 3) اختبار Supabase Edge Function...')
+  console.log('\n📧 5) اختبار Supabase Edge Function...')
   const res = await fetch(`${SUPABASE_URL}/functions/v1/send-booking-email`, {
     method: 'POST',
     headers: {
@@ -129,10 +179,14 @@ async function testEdgeFunction() {
 
 const direct = await testResendDirect()
 const vercel = await testVercelApi()
+const customer = await testVercelCustomerEmail()
+const branch = await testVercelBranchEmail()
 const edge = await testEdgeFunction()
 
 console.log('\n─── ملخص ───')
 console.log('Resend مباشر:', direct ? '✓' : '✗')
-console.log('Vercel API:', vercel ? '✓' : '✗')
+console.log('Vercel API (أدمن):', vercel ? '✓' : '✗')
+console.log('إيميل عميل (بريد مختلف):', customer ? '✓' : '✗ (يحتاج تحقق دومين)')
+console.log('إيميل فرع مكة:', branch ? '✓' : '✗ (يحتاج تحقق دومين)')
 console.log('Supabase Edge:', edge === null ? '—' : edge ? '✓' : '✗')
 process.exit(direct && vercel ? 0 : direct ? 0 : 1)

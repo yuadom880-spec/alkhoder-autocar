@@ -16,6 +16,7 @@
     "db:migrate-branch-hours": "node scripts/migrate-branch-hours.mjs",
     "db:migrate-branch-email": "node scripts/migrate-branch-email.mjs",
     "email:test": "node scripts/test-booking-email.mjs",
+    "email:check-domain": "node scripts/check-resend-domain.mjs",
     "email:setup-vercel": "powershell -ExecutionPolicy Bypass -File scripts/setup-vercel-resend-env.ps1",
     "db:setup": "node scripts/setup-database.mjs",
     "db:migrate": "node scripts/migrate-database.mjs",

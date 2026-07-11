@@ -122,7 +122,9 @@ export function BranchForm({ initial, onSubmit, onCancel }: BranchFormProps) {
             onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
             placeholder="branch@alkhedrcars.com"
           />
-          <p className="mt-1 text-xs text-slate-500">يُستخدم لإرسال إشعار تلقائي عند وصول طلب حجز جديد</p>
+          <p className="mt-1 text-xs text-slate-500">
+            يُرسل إشعار الحجز إلى بريد هذا الفرع فقط — مثلاً حجز مكة يصل لبريد فرع مكة
+          </p>
         </div>
 
         <div className="sm:col-span-2">

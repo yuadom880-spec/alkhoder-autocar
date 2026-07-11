@@ -2,46 +2,10 @@
  * Vercel Serverless — إرسال إيميلات الحجز عبر Resend
  * Environment Variables على Vercel:
  *   RESEND_API_KEY
- *   RESEND_FROM_EMAIL (اختياري — الافتراضي: onboarding@resend.dev)
+ *   RESEND_FROM_EMAIL (بعد تحقق الدومين: Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>)
+ *   RESEND_USE_PRODUCTION=true (بعد تحقق alkhedrcars.com على Resend)
  */
-const DEFAULT_FROM = 'onboarding@resend.dev'
-
-function resolveFromEmail(raw) {
-  if (!raw) return DEFAULT_FROM
-
-  let value = String(raw).trim()
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
-    value = value.slice(1, -1).trim()
-  }
-
-  if (/^[^\s<>"]+@[^\s<>"]+\.[^\s<>"]+$/.test(value)) {
-    return value
-  }
-
-  const named = value.match(/^(.+?)\s*<([^<>]+@[^<>]+\.[^<>]+)>\s*$/)
-  if (named) {
-    return `${named[1].trim()} <${named[2].trim()}>`
-  }
-
-  return DEFAULT_FROM
-}
-
-function safeFromEmail(raw) {
-  const resolved = resolveFromEmail(raw)
-  const emailPart = resolved.includes('<')
-    ? resolved.match(/<([^>]+)>/)?.[1]?.trim()
-    : resolved.trim()
-
-  // gmail كمرسل يحتاج تحقق دومين — نستخدم المرسل الافتراضي لـ Resend
-  if (emailPart && /@gmail\.com$/i.test(emailPart)) {
-    return DEFAULT_FROM
-  }
-
-  return resolved
-}
+import { safeFromEmail } from './email-from.js'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')

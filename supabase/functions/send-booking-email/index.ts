@@ -21,9 +21,20 @@ serve(async (req) => {
     }
 
     const apiKey = Deno.env.get('RESEND_API_KEY')
-    let from = (Deno.env.get('RESEND_FROM_EMAIL') ?? 'onboarding@resend.dev').trim()
+    const useProduction = Deno.env.get('RESEND_USE_PRODUCTION') === 'true'
+    const PRODUCTION_FROM = 'Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>'
+    const TEST_FROM = 'onboarding@resend.dev'
+
+    let from = (Deno.env.get('RESEND_FROM_EMAIL') ?? (useProduction ? PRODUCTION_FROM : TEST_FROM)).trim()
     if (from.startsWith('"') && from.endsWith('"')) from = from.slice(1, -1).trim()
-    if (/@gmail\.com/i.test(from)) from = 'onboarding@resend.dev'
+    const addr = from.includes('<') ? from.match(/<([^>]+)>/)?.[1]?.trim() ?? from : from
+    if (/@alkhedrcars\.com$/i.test(addr)) {
+      /* verified domain sender */
+    } else if (useProduction) {
+      from = PRODUCTION_FROM
+    } else if (/@gmail\.com/i.test(addr)) {
+      from = TEST_FROM
+    }
 
     if (!apiKey) {
       return new Response(JSON.stringify({ ok: false, fallback: true, error: 'resend_not_configured' }), {

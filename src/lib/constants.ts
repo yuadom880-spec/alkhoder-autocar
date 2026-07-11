@@ -74,7 +74,7 @@ export type Branch = {
 }
 
 /** بريد إشعارات الفرع الرئيسي — طريق المطار، المدينة المنورة */
-export const MAIN_BRANCH_EMAIL = 'Yuadom14@gmail.com'
+export const MAIN_BRANCH_EMAIL = EMAIL_QA
 
 export const MAIN_BRANCH: Branch = {
   name: 'الفرع الرئيسي',
