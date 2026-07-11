@@ -21,7 +21,9 @@ serve(async (req) => {
     }
 
     const apiKey = Deno.env.get('RESEND_API_KEY')
-    const from = Deno.env.get('RESEND_FROM_EMAIL') ?? 'onboarding@resend.dev'
+    let from = (Deno.env.get('RESEND_FROM_EMAIL') ?? 'onboarding@resend.dev').trim()
+    if (from.startsWith('"') && from.endsWith('"')) from = from.slice(1, -1).trim()
+    if (/@gmail\.com/i.test(from)) from = 'onboarding@resend.dev'
 
     if (!apiKey) {
       return new Response(JSON.stringify({ ok: false, fallback: true, error: 'resend_not_configured' }), {

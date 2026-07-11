@@ -151,6 +151,24 @@ async function sendBookingEmail(
   const payload = { to: email, subject, html }
   let lastError: string | undefined
 
+  const apiUrl = getEmailApiUrl()
+  if (apiUrl) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.ok) return { sent: true }
+      lastError = parseEmailApiError(data) ?? (data?.error === 'resend_not_configured'
+        ? 'resend_not_configured'
+        : lastError)
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : 'vercel_api_failed'
+    }
+  }
+
   if (isSupabaseConfigured && supabase) {
     const { url, anonKey } = getSupabaseEnv()
 
@@ -177,25 +195,7 @@ async function sendBookingEmail(
       if (res.ok && data?.ok) return { sent: true }
       lastError = parseEmailApiError(data) ?? lastError
     } catch {
-      /* try vercel next */
-    }
-  }
-
-  const apiUrl = getEmailApiUrl()
-  if (apiUrl) {
-    try {
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok && data?.ok) return { sent: true }
-      lastError = parseEmailApiError(data) ?? (data?.error === 'resend_not_configured'
-        ? 'resend_not_configured'
-        : lastError)
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : 'vercel_api_failed'
+      /* ignore */
     }
   }
 

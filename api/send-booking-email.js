@@ -1,9 +1,48 @@
 /**
  * Vercel Serverless — إرسال إيميلات الحجز عبر Resend
- * أضف في Vercel → Environment Variables:
+ * Environment Variables على Vercel:
  *   RESEND_API_KEY
- *   RESEND_FROM_EMAIL (مثال: onboarding@resend.dev أو بعد التحقق: Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>)
+ *   RESEND_FROM_EMAIL (اختياري — الافتراضي: onboarding@resend.dev)
  */
+const DEFAULT_FROM = 'onboarding@resend.dev'
+
+function resolveFromEmail(raw) {
+  if (!raw) return DEFAULT_FROM
+
+  let value = String(raw).trim()
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim()
+  }
+
+  if (/^[^\s<>"]+@[^\s<>"]+\.[^\s<>"]+$/.test(value)) {
+    return value
+  }
+
+  const named = value.match(/^(.+?)\s*<([^<>]+@[^<>]+\.[^<>]+)>\s*$/)
+  if (named) {
+    return `${named[1].trim()} <${named[2].trim()}>`
+  }
+
+  return DEFAULT_FROM
+}
+
+function safeFromEmail(raw) {
+  const resolved = resolveFromEmail(raw)
+  const emailPart = resolved.includes('<')
+    ? resolved.match(/<([^>]+)>/)?.[1]?.trim()
+    : resolved.trim()
+
+  // gmail كمرسل يحتاج تحقق دومين — نستخدم المرسل الافتراضي لـ Resend
+  if (emailPart && /@gmail\.com$/i.test(emailPart)) {
+    return DEFAULT_FROM
+  }
+
+  return resolved
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
@@ -25,7 +64,7 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.RESEND_API_KEY
-    const from = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'
+    const from = safeFromEmail(process.env.RESEND_FROM_EMAIL)
 
     if (!apiKey) {
       return res.status(200).json({ ok: false, fallback: true, error: 'resend_not_configured' })
@@ -39,7 +78,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from,
-        to: Array.isArray(to) ? to : [String(to)],
+        to: Array.isArray(to) ? to : [String(to).trim().toLowerCase()],
         subject: String(subject),
         html: String(html),
       }),
@@ -49,10 +88,10 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error('Resend error:', data)
-      return res.status(200).json({ ok: false, fallback: true, error: data })
+      return res.status(200).json({ ok: false, fallback: true, error: data, from_used: from })
     }
 
-    return res.status(200).json({ ok: true, id: data.id })
+    return res.status(200).json({ ok: true, id: data.id, from_used: from })
   } catch (err) {
     console.error(err)
     return res.status(200).json({ ok: false, fallback: true, error: String(err) })
