@@ -116,6 +116,17 @@ export async function resolveBookingBranchEmail(booking: Booking): Promise<strin
   return MAIN_BRANCH.email?.trim() ?? MAIN_BRANCH_EMAIL ?? EMAIL_QA
 }
 
+function getEmailApiUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/api/send-booking-email`
+  }
+  const site = import.meta.env.VITE_SITE_URL as string | undefined
+  if (site?.trim()) {
+    return `${site.trim().replace(/\/$/, '')}/api/send-booking-email`
+  }
+  return ''
+}
+
 async function sendBookingEmail(
   to: string,
   subject: string,
@@ -126,37 +137,53 @@ async function sendBookingEmail(
     return { sent: false }
   }
 
-  if (!isSupabaseConfigured || !supabase) {
-    return { sent: false }
-  }
-
   const payload = { to: email, subject, html }
-  const { url, anonKey } = getSupabaseEnv()
 
-  try {
-    const { data, error } = await supabase.functions.invoke('send-booking-email', { body: payload })
-    if (!error && data && typeof data === 'object' && 'ok' in data && data.ok === true) {
-      return { sent: true }
+  const apiUrl = getEmailApiUrl()
+  if (apiUrl) {
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.ok) return { sent: true }
+      }
+    } catch {
+      /* fallback below */
     }
-  } catch {
-    /* fallback */
   }
 
-  try {
-    const res = await fetch(`${url}/functions/v1/send-booking-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${anonKey}`,
-      },
-      body: JSON.stringify(payload),
-    })
-    if (res.ok) {
-      const data = await res.json()
-      if (data?.ok) return { sent: true }
+  if (isSupabaseConfigured && supabase) {
+    const { url, anonKey } = getSupabaseEnv()
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-booking-email', { body: payload })
+      if (!error && data && typeof data === 'object' && 'ok' in data && data.ok === true) {
+        return { sent: true }
+      }
+    } catch {
+      /* fallback */
     }
-  } catch {
-    /* ignore */
+
+    try {
+      const res = await fetch(`${url}/functions/v1/send-booking-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.ok) return { sent: true }
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   return { sent: false }
