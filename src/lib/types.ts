@@ -112,6 +112,7 @@ export interface Booking {
   branch_name: string | null
   branch_city: string | null
   branch_phone: string | null
+  branch_email: string | null
   notes: string | null
   created_at: string
   updated_at: string
@@ -136,6 +137,7 @@ export interface CreateBookingMeta {
   branchName?: string | null
   branchCity?: string | null
   branchPhone?: string | null
+  branchEmail?: string | null
   rentalType?: RentalPeriodType
 }
 
@@ -190,6 +192,7 @@ export interface BranchRecord {
   address: string
   city: string
   phone: string | null
+  email: string | null
   hours: string
   map_url: string
   image_url: string | null
@@ -205,6 +208,7 @@ export interface BranchFormData {
   address: string
   city: string
   phone: string
+  email: string
   hours: string
   map_url: string
   image_url: string

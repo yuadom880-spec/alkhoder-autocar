@@ -96,6 +96,11 @@ export function AdminBranchesPage() {
                       {branch.phone}
                     </p>
                   )}
+                  {branch.email && (
+                    <p className="text-xs text-slate-500" dir="ltr">
+                      {branch.email}
+                    </p>
+                  )}
 
                   <div className="flex gap-2 pt-2">
                     <Link to={`/admin/branches/${branch.id}/edit`} className="flex-1">

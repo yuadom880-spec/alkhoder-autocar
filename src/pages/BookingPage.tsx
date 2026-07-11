@@ -14,7 +14,7 @@ import { getCarDisplayPrice, parseRentalType } from '../lib/pricing'
 import { getEffectivePrice } from '../lib/offers'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
-import { notifyBookingPending } from '../lib/bookingWhatsApp'
+import { notifyBookingPending } from '../lib/bookingNotify'
 import {
   createBooking,
   fetchBookingBlocks,
@@ -43,7 +43,10 @@ export function BookingPage() {
   const [dates, setDates] = useState({ start: startDate, end: endDate })
   const [pickupTime, setPickupTime] = useState('')
   const [selectedBranch, setSelectedBranch] = useState<BranchRecord | null>(null)
-  const [whatsappSent, setWhatsappSent] = useState<boolean | null>(null)
+  const [notifyState, setNotifyState] = useState<{
+    customerEmail: boolean
+    branchEmail: boolean
+  } | null>(null)
 
   const availableBranches = useMemo(() => {
     if (!car) return []
@@ -226,7 +229,7 @@ export function BookingPage() {
                 onBranchChange={setSelectedBranch}
                 isDateRangeAvailable={bookingCheck?.ok}
                 unavailableMessage={bookingCheck?.message}
-                successWhatsAppSent={whatsappSent}
+                notifyState={notifyState}
                 onSubmit={async (data) => {
                   if (availableBranches.length > 0 && !selectedBranch) {
                     throw new Error(copy.booking.errors.pickupBranch)
@@ -238,13 +241,17 @@ export function BookingPage() {
                     branchName: selectedBranch?.name ?? null,
                     branchCity: selectedBranch?.city ?? null,
                     branchPhone: selectedBranch?.phone ?? null,
+                    branchEmail: selectedBranch?.email ?? null,
                     rentalType: effectiveRentalType,
                   })
                   const notify = await notifyBookingPending(
                     { ...booking, car },
                     car.name,
                   )
-                  setWhatsappSent(notify.sent)
+                  setNotifyState({
+                    customerEmail: notify.customerEmailSent,
+                    branchEmail: notify.branchEmailSent,
+                  })
                 }}
               />
             </div>

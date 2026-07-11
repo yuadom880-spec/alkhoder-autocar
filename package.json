@@ -14,14 +14,17 @@
     "db:check": "node scripts/check-supabase.mjs",
     "db:migrate-branch-phone": "node scripts/migrate-branch-phone.mjs",
     "db:migrate-branch-hours": "node scripts/migrate-branch-hours.mjs",
+    "db:migrate-branch-email": "node scripts/migrate-branch-email.mjs",
     "db:setup": "node scripts/setup-database.mjs",
     "db:migrate": "node scripts/migrate-database.mjs",
     "db:admin": "node scripts/create-admin.mjs",
     "portfolio:pdf": "node scripts/generate-portfolio-pdf.mjs",
+    "portfolio:khamsat": "node scripts/generate-khamsat-portfolio-pdf.mjs",
     "report:pdf": "node scripts/generate-report-pdf.mjs",
     "report:employees": "node scripts/generate-employee-admin-guide.mjs",
     "report:employees-customer": "node scripts/generate-employee-customer-guide.mjs",
-    "poster:pdf": "node scripts/generate-branch-poster-pdf.mjs"
+    "poster:pdf": "node scripts/generate-branch-poster-pdf.mjs",
+    "poster:luxury": "node scripts/generate-luxury-posters.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

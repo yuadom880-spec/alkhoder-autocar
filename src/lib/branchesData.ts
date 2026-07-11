@@ -1,3 +1,4 @@
+import { EMAIL_OSAMA, MAIN_BRANCH_EMAIL } from './constants'
 import type { BranchRecord } from './types'
 
 const DEFAULT_HOURS = 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م'
@@ -10,6 +11,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'طريق المطار',
     city: 'المدينة المنورة',
     phone: '050 459 0002',
+    email: MAIN_BRANCH_EMAIL,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.app.goo.gl/JJNXk515GhDxqu889?g_st=iw',
     image_url: null,
@@ -25,6 +27,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'طريق المطار',
     city: 'المدينة المنورة',
     phone: '055 588 7324',
+    email: EMAIL_OSAMA,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.google.com/?q=24.482824,39.630497',
     image_url: null,
@@ -40,6 +43,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'طريق سلطانه',
     city: 'المدينة المنورة',
     phone: '053 118 8874',
+    email: EMAIL_OSAMA,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.app.goo.gl/GXRSGgLgdAj6gvJi6?g_st=iw',
     image_url: null,
@@ -55,6 +59,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'العالية',
     city: 'المدينة المنورة',
     phone: '055 666 3589',
+    email: null,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.google.com/?q=24.419773,39.620392',
     image_url: null,
@@ -70,6 +75,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'العزيزية',
     city: 'المدينة المنورة',
     phone: null,
+    email: null,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.app.goo.gl/agZ4fhN7CEykbHva8?g_st=iw',
     image_url: null,
@@ -85,6 +91,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'ينبع',
     city: 'ينبع',
     phone: '055 335 7178',
+    email: null,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.google.com/?q=24.086933,38.064159',
     image_url: null,
@@ -100,6 +107,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'ضباء',
     city: 'ضباء',
     phone: '055 588 6210',
+    email: null,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.app.goo.gl/VAahiHjbq2Hr49ch7?g_st=iw',
     image_url: null,
@@ -115,6 +123,7 @@ export const DEMO_BRANCHES: BranchRecord[] = [
     address: 'تبوك',
     city: 'تبوك',
     phone: '055 588 6412',
+    email: null,
     hours: DEFAULT_HOURS,
     map_url: 'https://maps.google.com/?q=28.399940,36.530735',
     image_url: null,

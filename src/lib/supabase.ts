@@ -438,6 +438,7 @@ function normalizeBooking(booking: Booking): Booking {
     branch_name: booking.branch_name ?? null,
     branch_city: booking.branch_city ?? null,
     branch_phone: booking.branch_phone ?? null,
+    branch_email: booking.branch_email ?? null,
   }
 }
 
@@ -497,6 +498,7 @@ export async function createBooking(
     branch_name: meta.branchName ?? null,
     branch_city: meta.branchCity ?? null,
     branch_phone: meta.branchPhone ?? null,
+    branch_email: meta.branchEmail ?? null,
     notes: form.notes || null,
     created_at: now,
     updated_at: now,
@@ -530,6 +532,8 @@ export async function createBooking(
     branch_id: meta.branchId ?? null,
     branch_name: meta.branchName ?? null,
     branch_city: meta.branchCity ?? null,
+    branch_phone: meta.branchPhone ?? null,
+    branch_email: meta.branchEmail ?? null,
     notes: form.notes || null,
   })
 
@@ -956,6 +960,7 @@ function normalizeBranch(branch: BranchRecord): BranchRecord {
   return {
     ...branch,
     phone: branch.phone ?? null,
+    email: branch.email ?? null,
     image_url: branch.image_url ?? null,
     map_url: branch.map_url || '#',
   }
@@ -1002,6 +1007,7 @@ function prepareBranchForm(form: BranchFormData) {
     address: form.address.trim(),
     city: form.city.trim(),
     phone: form.phone.trim() || null,
+    email: form.email.trim() || null,
     hours: form.hours.trim(),
     map_url: form.map_url.trim() || '#',
     image_url: imageUrl,

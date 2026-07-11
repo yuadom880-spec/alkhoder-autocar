@@ -11,6 +11,9 @@ import {
   SITE_NAME_SHORT,
   SITE_SEO_PRIMARY,
   MAIN_BRANCH_PHONE_LABEL,
+  WHATSAPP_BUSINESS_DISPLAY,
+  WHATSAPP_BUSINESS_LINK,
+  WHATSAPP_BUSINESS_PHONE,
   WHATSAPP_LINK,
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
@@ -108,6 +111,20 @@ export function Footer() {
                 >
                   <span className="text-brand-gold">واتساب</span>
                   <span dir="ltr">{PHONE}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={WHATSAPP_BUSINESS_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <span className="text-brand-gold shrink-0">واتساب الأعمال</span>
+                  <span dir="ltr" className="text-xs sm:text-sm">
+                    {WHATSAPP_BUSINESS_DISPLAY}
+                    <span className="mt-0.5 block text-[10px] text-slate-500">{WHATSAPP_BUSINESS_PHONE}</span>
+                  </span>
                 </a>
               </li>
               <li className="flex items-start gap-2 text-slate-400">

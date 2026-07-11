@@ -11,6 +11,7 @@ const emptyForm = (): BranchFormData => ({
   address: '',
   city: '',
   phone: '',
+  email: '',
   hours: DEFAULT_HOURS,
   map_url: '',
   image_url: '',
@@ -25,6 +26,7 @@ function toFormData(branch: BranchRecord): BranchFormData {
     address: branch.address,
     city: branch.city,
     phone: branch.phone ?? '',
+    email: branch.email ?? '',
     hours: branch.hours,
     map_url: branch.map_url === '#' ? '' : branch.map_url,
     image_url: branch.image_url ?? '',
@@ -105,6 +107,22 @@ export function BranchForm({ initial, onSubmit, onCancel }: BranchFormProps) {
             onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
             placeholder="05xxxxxxxx"
           />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="label-field" htmlFor="branch-email">
+            البريد الإلكتروني للفرع
+          </label>
+          <input
+            id="branch-email"
+            type="email"
+            dir="ltr"
+            className="input-field text-left"
+            value={form.email}
+            onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+            placeholder="branch@alkhedrcars.com"
+          />
+          <p className="mt-1 text-xs text-slate-500">يُستخدم لإرسال إشعار تلقائي عند وصول طلب حجز جديد</p>
         </div>
 
         <div className="sm:col-span-2">

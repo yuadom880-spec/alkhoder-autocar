@@ -5,11 +5,58 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-function normalizePhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('966')) return digits
-  if (digits.startsWith('0')) return `966${digits.slice(1)}`
-  return `966${digits}`
+function toE164(phone: string): string {
+  const digits = String(phone).replace(/\D/g, '')
+  if (!digits) return ''
+
+  if (digits.startsWith('966')) return `+${digits}`
+  if (digits.startsWith('20')) return `+${digits}`
+  if (digits.startsWith('0')) return `+966${digits.slice(1)}`
+  return `+966${digits}`
+}
+
+function smsFrom(): string | null {
+  const raw = Deno.env.get('TWILIO_SMS_FROM')
+  if (!raw?.trim()) return null
+  const value = raw.trim()
+  return value.startsWith('+') ? value : `+${value}`
+}
+
+async function sendTwilioSms(params: { to: string; body: string }) {
+  const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
+  const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
+  const from = smsFrom()
+
+  if (!accountSid || !authToken || !from) {
+    return { ok: false as const, fallback: true, error: 'twilio_sms_not_configured' }
+  }
+
+  const form = new URLSearchParams({
+    From: from,
+    To: toE164(params.to),
+    Body: params.body.normalize('NFC'),
+  })
+
+  const apiRes = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: form,
+    },
+  )
+
+  const apiData = await apiRes.json()
+
+  if (!apiRes.ok) {
+    console.error('Twilio SMS error:', apiData)
+    return { ok: false as const, fallback: true, error: apiData }
+  }
+
+  return { ok: true as const, sid: apiData.sid as string | undefined, channel: 'sms' as const }
 }
 
 serve(async (req) => {
@@ -27,45 +74,13 @@ serve(async (req) => {
       })
     }
 
-    const token = Deno.env.get('WHATSAPP_ACCESS_TOKEN')
-    const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID')
-
-    if (!token || !phoneNumberId) {
-      return new Response(JSON.stringify({ ok: false, fallback: true }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    const to = normalizePhone(String(phone))
-    const textBody = String(message).normalize('NFC')
-
-    const apiRes = await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json; charset=UTF-8',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to,
-        type: 'text',
-        text: { body: textBody, preview_url: false },
-      }),
+    const result = await sendTwilioSms({
+      to: String(phone),
+      body: String(message),
     })
 
-    const apiData = await apiRes.json()
-
-    if (!apiRes.ok) {
-      console.error('WhatsApp API error:', apiData)
-      return new Response(JSON.stringify({ ok: false, fallback: true, error: apiData }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify(result), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (err) {

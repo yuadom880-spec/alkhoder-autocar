@@ -7,12 +7,11 @@ import { toWhatsAppLink } from './utils'
 
 const LRM = '\u200E'
 
-/** يمنع انعكاس الأرقام في النص العربي (RTL) على واتساب */
+/** يمنع انعكاس الأرقام في النص العربي (RTL) في الرسائل */
 function wrapLtr(value: string): string {
   return `${LRM}${value}${LRM}`
 }
 
-/** تنسيق آمن لواتساب بدون رموز قد تظهر كعلامة استفهام */
 function formatWhatsAppDate(date: string): string {
   const [year, month, day] = date.split('-')
   if (year && month && day) return wrapLtr(`${day}/${month}/${year}`)
@@ -37,7 +36,6 @@ function sanitizeWhatsAppText(text: string): string {
     .replace(/[\u2013\u2014]/g, '-')
     .replace(/\u061F/g, '?')
 
-  // أرقام وأوقات داخل النص العربي تظهر LTR
   return cleaned.replace(
     /(\d[\d\s:/()-]*\d|\d+)/g,
     (match) => wrapLtr(match.replace(/\s+/g, '')),
@@ -47,6 +45,10 @@ function sanitizeWhatsAppText(text: string): string {
 export interface WhatsAppNotifyResult {
   sent: boolean
   fallbackUrl: string
+}
+
+export interface BookingPendingNotifyResult extends WhatsAppNotifyResult {
+  branchNotified: boolean
 }
 
 function normalizeWhatsAppPhone(phone: string): string {
@@ -76,16 +78,16 @@ function branchPhoneLine(booking: Booking, branchPhone?: string | null): string 
   return `${label}: ${formatWhatsAppBranchPhone(phone)}`
 }
 
-/** يجلب رقم الفرع من الحجز أو من قائمة الفروع الحالية (للفروع الجديدة) */
 export async function resolveBookingBranchPhone(booking: Booking): Promise<string | null> {
   if (booking.branch_phone?.trim()) return booking.branch_phone.trim()
-  if (!booking.branch_id) return null
+  if (!booking.branch_id) return MAIN_BRANCH.phone?.trim() ?? null
 
   try {
     const branches = await fetchBranches({ activeOnly: true })
-    return branches.find((b) => b.id === booking.branch_id)?.phone?.trim() ?? null
+    const branch = branches.find((b) => b.id === booking.branch_id)
+    return branch?.phone?.trim() ?? MAIN_BRANCH.phone?.trim() ?? null
   } catch {
-    return null
+    return MAIN_BRANCH.phone?.trim() ?? null
   }
 }
 
@@ -98,7 +100,7 @@ function joinLines(lines: Array<string | false | null | undefined>): string {
   return lines.filter((line): line is string => Boolean(line)).join('\n')
 }
 
-/** رسائل واتساب بدون إيموجي - تنسيق *عريض* المدعوم من واتساب */
+/** رسالة SMS تلقائية للعميل فور إرسال طلب الحجز */
 export function buildPendingBookingWhatsAppMessage(
   booking: Booking,
   carName?: string,
@@ -107,20 +109,40 @@ export function buildPendingBookingWhatsAppMessage(
   const car = bookingCarName(booking, carName)
   return joinLines([
     `السلام عليكم ${booking.customer_name}`,
-    '',
-    `*تم استلام طلب حجزك* في ${SITE_NAME}`,
-    '*الحالة:* قيد الانتظار',
-    '',
-    `*السيارة:* ${car}`,
-    `*من:* ${formatWhatsAppDate(booking.start_date)}`,
-    `*الى:* ${formatWhatsAppDate(booking.end_date)}`,
+    `تم استلام طلب حجزك في ${SITE_NAME}.`,
+    'سنتواصل معك قريباً لتأكيد الحجز.',
+    `السيارة: ${car}`,
+    `من ${formatWhatsAppDate(booking.start_date)} الى ${formatWhatsAppDate(booking.end_date)}`,
     branchLine(booking),
     pickupLine(booking),
-    `*الاجمالي:* ${formatWhatsAppPrice(booking.total_price)}`,
-    '',
-    'طلبك قيد المراجعة - ستصلك رسالة واتساب عند التأكيد',
-    'لتسريع التأكيد تواصل مع فرع الاستلام',
+    `الاجمالي: ${formatWhatsAppPrice(booking.total_price)}`,
+    'الحالة: قيد المراجعة',
     branchPhoneLine(booking, branchPhone),
+    `للاستفسار: ${formatWhatsAppContactPhone()}`,
+  ])
+}
+
+/** رسالة SMS تلقائية لرقم الفرع عند وصول طلب جديد */
+export function buildBranchNewBookingWhatsAppMessage(
+  booking: Booking,
+  carName?: string,
+): string {
+  const car = bookingCarName(booking, carName)
+  const branchName = booking.branch_name
+    ? booking.branch_city
+      ? `${booking.branch_name} - ${booking.branch_city}`
+      : booking.branch_name
+    : 'غير محدد'
+
+  return joinLines([
+    `تنبيه: طلب حجز جديد في فرع ${branchName}`,
+    `العميل: ${booking.customer_name}`,
+    `الجوال: ${formatWhatsAppBranchPhone(booking.customer_phone)}`,
+    `السيارة: ${car}`,
+    `من ${formatWhatsAppDate(booking.start_date)} الى ${formatWhatsAppDate(booking.end_date)}`,
+    pickupLine(booking),
+    `الاجمالي: ${formatWhatsAppPrice(booking.total_price)}`,
+    'يرجى الدخول الى لوحة الادارة لمراجعة وتأكيد الطلب.',
     SITE_NAME,
   ])
 }
@@ -133,20 +155,15 @@ export function buildConfirmedBookingWhatsAppMessage(
   const car = bookingCarName(booking, carName)
   return joinLines([
     `السلام عليكم ${booking.customer_name}`,
-    '',
-    `*تم تأكيد حجزك* في ${SITE_NAME}`,
-    '',
-    `*السيارة:* ${car}`,
-    `*من:* ${formatWhatsAppDate(booking.start_date)}`,
-    `*الى:* ${formatWhatsAppDate(booking.end_date)}`,
+    `تم تأكيد حجزك في ${SITE_NAME}.`,
+    `السيارة: ${car}`,
+    `من ${formatWhatsAppDate(booking.start_date)} الى ${formatWhatsAppDate(booking.end_date)}`,
     branchLine(booking),
     pickupLine(booking),
-    `*الاجمالي:* ${formatWhatsAppPrice(booking.total_price)}`,
-    '',
-    '*سيارتك جاهزة* - نتمنى لك تجربة ممتعة',
-    'للاستفسار تواصل مع فرع الاستلام',
+    `الاجمالي: ${formatWhatsAppPrice(booking.total_price)}`,
+    'سيارتك جاهزة. نتمنى لك تجربة ممتعة.',
     branchPhoneLine(booking, branchPhone),
-    `الدعم العام: ${formatWhatsAppContactPhone()}`,
+    `الدعم: ${formatWhatsAppContactPhone()}`,
   ])
 }
 
@@ -161,11 +178,16 @@ export async function sendBookingWhatsAppMessage(
     return { sent: false, fallbackUrl }
   }
 
+  const payload = {
+    phone: normalizeWhatsAppPhone(phone),
+    message: safeMessage,
+  }
+
   const { url } = getSupabaseEnv()
 
   try {
     const { data, error } = await supabase.functions.invoke('send-booking-whatsapp', {
-      body: { phone: normalizeWhatsAppPhone(phone), message: safeMessage },
+      body: payload,
     })
 
     if (!error && data && typeof data === 'object' && 'ok' in data && data.ok === true) {
@@ -182,7 +204,7 @@ export async function sendBookingWhatsAppMessage(
         'Content-Type': 'application/json; charset=utf-8',
         Authorization: `Bearer ${getSupabaseEnv().anonKey}`,
       },
-      body: JSON.stringify({ phone: normalizeWhatsAppPhone(phone), message: safeMessage }),
+      body: JSON.stringify(payload),
     })
     if (res.ok) {
       const data = await res.json()
@@ -198,10 +220,23 @@ export async function sendBookingWhatsAppMessage(
 export async function notifyBookingPending(
   booking: Booking,
   carName?: string,
-): Promise<WhatsAppNotifyResult> {
+): Promise<BookingPendingNotifyResult> {
   const branchPhone = await resolveBookingBranchPhone(booking)
-  const message = buildPendingBookingWhatsAppMessage(booking, carName, branchPhone)
-  return sendBookingWhatsAppMessage(booking.customer_phone, message)
+  const customerMessage = buildPendingBookingWhatsAppMessage(booking, carName, branchPhone)
+  const branchMessage = buildBranchNewBookingWhatsAppMessage(booking, carName)
+
+  const [customerResult, branchResult] = await Promise.all([
+    sendBookingWhatsAppMessage(booking.customer_phone, customerMessage),
+    branchPhone
+      ? sendBookingWhatsAppMessage(branchPhone, branchMessage)
+      : Promise.resolve<WhatsAppNotifyResult>({ sent: false, fallbackUrl: '' }),
+  ])
+
+  return {
+    sent: customerResult.sent,
+    fallbackUrl: customerResult.fallbackUrl,
+    branchNotified: branchResult.sent,
+  }
 }
 
 export async function notifyBookingConfirmed(

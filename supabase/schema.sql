@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   branch_name TEXT DEFAULT NULL,
   branch_city TEXT DEFAULT NULL,
   branch_phone TEXT DEFAULT NULL,
+  branch_email TEXT DEFAULT NULL,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -171,6 +172,7 @@ CREATE TABLE IF NOT EXISTS branches (
   address TEXT NOT NULL,
   city TEXT NOT NULL,
   phone TEXT DEFAULT NULL,
+  email TEXT DEFAULT NULL,
   hours TEXT DEFAULT 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م',
   map_url TEXT DEFAULT '#',
   image_url TEXT DEFAULT NULL,

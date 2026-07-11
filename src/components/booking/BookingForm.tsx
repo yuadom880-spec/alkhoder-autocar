@@ -52,7 +52,7 @@ interface BookingFormProps {
   isDateRangeAvailable?: boolean
   unavailableMessage?: string
   isPromoBooking?: boolean
-  successWhatsAppSent?: boolean | null
+  notifyState?: { customerEmail: boolean; branchEmail: boolean } | null
 }
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -79,7 +79,7 @@ export function BookingForm({
   isDateRangeAvailable,
   unavailableMessage,
   isPromoBooking = false,
-  successWhatsAppSent = null,
+  notifyState = null,
 }: BookingFormProps) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<BookingFormData>({
@@ -277,8 +277,14 @@ export function BookingForm({
         <div className="space-y-2">
           <h3 className="text-lg font-bold text-green-800">{copy.booking.successTitle}</h3>
           <p className="text-sm text-green-700">{copy.booking.successReview}</p>
-          {successWhatsAppSent === true && (
-            <p className="text-xs text-green-600">{copy.booking.successWhatsAppSent}</p>
+          {notifyState?.customerEmail === true && (
+            <p className="text-xs text-green-600">{copy.booking.successCustomerEmailSent}</p>
+          )}
+          {notifyState?.branchEmail === true && (
+            <p className="text-xs text-green-600">{copy.booking.successBranchEmailSent}</p>
+          )}
+          {notifyState && !notifyState.customerEmail && (
+            <p className="text-xs text-amber-700">{copy.booking.successEmailHint}</p>
           )}
         </div>
 
