@@ -452,7 +452,8 @@ WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 11: حسابات العملاء (تسجيل دخول بالإيميل وكلمة المرور)            │
 -- │ الموقع + تطبيق Flutter — مجاني بدون Twilio أو SMS                       │
--- │ مطلوب: Authentication → Providers → Email → Confirm email OFF           │
+-- │ مطلوب: Authentication → Providers → Email → Confirm email ON            │
+-- │ القالب الافتراضي يرسل كود/رابط تأكيد — العميل يدخل الكود في التطبيق      │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 CREATE TABLE IF NOT EXISTS profiles (

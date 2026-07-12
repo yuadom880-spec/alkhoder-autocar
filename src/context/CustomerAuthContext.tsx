@@ -12,10 +12,12 @@ import {
   fetchCustomerProfile,
   getSession,
   isSupabaseConfigured,
+  resendSignupEmailOtp,
   signInCustomer,
   signOutCustomer,
   signUpCustomer,
   supabase,
+  verifySignupEmailOtp,
 } from '../lib/supabase'
 import type { CustomerProfile } from '../lib/types'
 
@@ -25,7 +27,10 @@ interface CustomerAuthContextValue {
   isLoggedIn: boolean
   isLoading: boolean
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string, fullName?: string) => Promise<void>
+  /** يُرجع true إذا كان التحقق بالإيميل مطلوباً */
+  signUp: (email: string, password: string, fullName: string) => Promise<boolean>
+  verifyEmailOtp: (email: string, code: string) => Promise<void>
+  resendEmailOtp: (email: string) => Promise<void>
   signOut: () => Promise<void>
   refresh: () => Promise<void>
 }
@@ -91,12 +96,25 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
   )
 
   const signUp = useCallback(
-    async (email: string, password: string, fullName?: string) => {
-      await signUpCustomer(email, password, fullName)
+    async (email: string, password: string, fullName: string) => {
+      const needsVerification = await signUpCustomer(email, password, fullName)
+      if (!needsVerification) await refresh()
+      return needsVerification
+    },
+    [refresh],
+  )
+
+  const verifyEmailOtp = useCallback(
+    async (email: string, code: string) => {
+      await verifySignupEmailOtp(email, code)
       await refresh()
     },
     [refresh],
   )
+
+  const resendEmailOtp = useCallback(async (email: string) => {
+    await resendSignupEmailOtp(email)
+  }, [])
 
   const signOut = useCallback(async () => {
     await signOutCustomer()
@@ -111,10 +129,12 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signIn,
       signUp,
+      verifyEmailOtp,
+      resendEmailOtp,
       signOut,
       refresh,
     }),
-    [user, profile, isLoading, signIn, signUp, signOut, refresh],
+    [user, profile, isLoading, signIn, signUp, verifyEmailOtp, resendEmailOtp, signOut, refresh],
   )
 
   return (

@@ -1175,15 +1175,21 @@ async function fetchProfileRole(userId: string): Promise<'customer' | 'admin' | 
   return (data?.role as 'customer' | 'admin' | undefined) ?? null
 }
 
-export async function signUpCustomer(email: string, password: string, fullName?: string) {
+export async function signUpCustomer(
+  email: string,
+  password: string,
+  fullName: string,
+): Promise<boolean> {
   const client = requireSupabase()
   const trimmedEmail = email.trim()
+  const trimmedName = fullName.trim()
+  if (!trimmedName) throw new Error('الاسم مطلوب')
 
   const { data, error } = await client.auth.signUp({
     email: trimmedEmail,
     password,
     options: {
-      data: { full_name: fullName?.trim() ?? '' },
+      data: { full_name: trimmedName },
     },
   })
   if (error) throw new Error(formatError(error))
@@ -1194,21 +1200,44 @@ export async function signUpCustomer(email: string, password: string, fullName?:
       id: data.user.id,
       email: trimmedEmail,
       role: 'customer',
-      full_name: fullName?.trim() || null,
+      full_name: trimmedName,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'id' },
   )
 
-  if (!data.session) {
-    const { error: signInError } = await client.auth.signInWithPassword({
-      email: trimmedEmail,
-      password,
-    })
-    if (signInError) throw new Error(formatError(signInError))
+  return !data.session
+}
+
+export async function verifySignupEmailOtp(email: string, code: string) {
+  const client = requireSupabase()
+  const token = code.replace(/\D/g, '')
+  if (token.length < 4) throw new Error('أدخل كود التحقق المرسل إلى بريدك')
+
+  const { data, error } = await client.auth.verifyOtp({
+    email: email.trim(),
+    token,
+    type: 'signup',
+  })
+  if (error) throw new Error(formatError(error))
+  if (!data.user) throw new Error('تعذّر التحقق — جرّب مرة أخرى')
+
+  const role = await fetchProfileRole(data.user.id)
+  if (role === 'admin') {
+    await client.auth.signOut()
+    throw new Error('هذا الحساب للإدارة — استخدم لوحة الإدارة')
   }
 
   return data
+}
+
+export async function resendSignupEmailOtp(email: string) {
+  const client = requireSupabase()
+  const { error } = await client.auth.resend({
+    type: 'signup',
+    email: email.trim(),
+  })
+  if (error) throw new Error(formatError(error))
 }
 
 export async function signInCustomer(email: string, password: string) {

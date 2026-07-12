@@ -8,7 +8,7 @@ export function formatAuthErrorMessage(error: unknown): string {
       return 'هذا البريد مسجّل مسبقاً — سجّل دخولك'
     }
     if (msg.includes('Email not confirmed')) {
-      return 'يجب تأكيد البريد — عطّل Confirm email في Supabase'
+      return 'يجب تأكيد بريدك أولاً — أدخل كود التحقق المرسل لإيميلك'
     }
     if (msg.includes('profiles') || msg.includes('schema cache')) {
       return 'قاعدة البيانات غير جاهزة — شغّل supabase/schema.sql في SQL Editor'
