@@ -10,6 +10,13 @@ export function formatAuthErrorMessage(error: unknown): string {
     if (msg.includes('Email not confirmed')) {
       return 'يجب تأكيد بريدك أولاً — أدخل كود التحقق المرسل لإيميلك'
     }
+    if (
+      msg.includes('email rate limit exceeded') ||
+      msg.includes('over_email_send_rate_limit') ||
+      msg.includes('429')
+    ) {
+      return 'تم تجاوز حد إرسال الإيميلات — انتظر ساعة أو فعّل SMTP مخصص (Resend) في Supabase → Authentication → SMTP'
+    }
     if (msg.includes('profiles') || msg.includes('schema cache')) {
       return 'قاعدة البيانات غير جاهزة — شغّل supabase/schema.sql في SQL Editor'
     }
