@@ -297,6 +297,12 @@ export const STATIC_PAGE_SEO: Record<string, PageSeoConfig> = {
       'شركة تأجير سيارات',
     ],
   },
+  '/privacy': {
+    title: `سياسة الخصوصية | ${SITE_COMPANY_NAME}`,
+    description:
+      'سياسة خصوصية تطبيق وموقع الخضر لتأجير السيارات — كيف نجمع ونستخدم ونحمي بياناتك عند الحجز وإنشاء الحساب.',
+    keywords: ['سياسة الخصوصية', 'الخضر لتأجير السيارات', 'حماية البيانات'],
+  },
   '/branches': {
     title: 'فروعنا | ايجار سيارات في السعودية — الخضر',
     description:
@@ -460,6 +466,7 @@ export function buildPageJsonLdGraph(pathname: string, origin = getSiteUrl()) {
       '/cars': 'السيارات',
       '/offers': 'العروض',
       '/about': 'من نحن',
+      '/privacy': 'سياسة الخصوصية',
       '/branches': 'فروعنا',
       '/locations': 'المدن',
     }
@@ -527,6 +534,7 @@ export const PUBLIC_ROUTES = [
   '/cars',
   '/offers',
   '/about',
+  '/privacy',
   '/branches',
   '/locations',
   ...SEO_CITIES.map((c) => `/locations/${c.slug}`),

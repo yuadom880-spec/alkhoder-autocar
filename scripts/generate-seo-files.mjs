@@ -31,6 +31,7 @@ const ROUTES = [
   })),
   { loc: '/branches', priority: '0.8', changefreq: 'monthly' },
   { loc: '/about', priority: '0.7', changefreq: 'monthly' },
+  { loc: '/privacy', priority: '0.6', changefreq: 'monthly' },
 ]
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

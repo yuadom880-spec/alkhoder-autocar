@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { Link } from 'react-router'
 import { Lock, LogIn, Mail, UserPlus } from 'lucide-react'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { formatAuthErrorMessage } from '../../lib/authErrors'
@@ -354,6 +355,13 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
           {mode === 'login' ? copy.customerAuth.noAccount : copy.customerAuth.hasAccount}
         </p>
       )}
+
+      <p className="mt-4 text-center text-xs text-slate-500 leading-relaxed">
+        {copy.privacy.agreeHint}{' '}
+        <Link to="/privacy" className="font-semibold text-brand-green hover:underline">
+          {copy.privacy.link}
+        </Link>
+      </p>
     </div>
   )
 }

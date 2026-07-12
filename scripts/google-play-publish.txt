@@ -1,0 +1,31 @@
+نشر تطبيق الخضر على Google Play — قائمة تحقق
+============================================
+
+رابط سياسة الخصوصية (مطلوب):
+https://alkhodercar.com/privacy
+
+─── قبل الرفع ───
+[ ] flutter build appbundle --release (بعد إعداد التوقيع)
+[ ] أيقونة 512×512 PNG
+[ ] لقطات شاشة (هاتف) 2–8 صور
+[ ] وصف قصير + وصف كامل بالعربية
+[ ] سياسة الخصوصية في المتجر = الرابط أعلاه
+
+─── Data safety (أمان البيانات) في Play Console ───
+يجمع التطبيق:
+- الاسم، البريد، كلمة المرور (حساب)
+- الجوال، الهوية (حجز)
+- لا يبيع البيانات لأطراف ثالثة
+- التشفير: نعم (HTTPS)
+- يمكن طلب الحذف: نعم (عبر البريد)
+
+─── التوقيع (مهم) ───
+1) keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+2) أنشئ android/key.properties
+3) عدّل android/app/build.gradle.kts لاستخدام release signing
+
+─── حساب مطوّر ───
+1) play.google.com/console
+2) دفع 25$ مرة واحدة
+3) إنشاء تطبيق جديد
+4) رفع AAB من build/app/outputs/bundle/release/

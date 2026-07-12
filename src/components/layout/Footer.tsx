@@ -64,6 +64,14 @@ export function Footer() {
                   احجز سيارتك الآن
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/privacy"
+                  className="text-sm text-slate-400 hover:text-brand-gold transition-colors"
+                >
+                  {copy.privacy.link}
+                </Link>
+              </li>
             </ul>
           </div>
 
