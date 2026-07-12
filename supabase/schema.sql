@@ -541,9 +541,8 @@ DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
 CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
-CREATE UNIQUE INDEX IF NOT EXISTS profiles_phone_customer_unique
-  ON profiles (phone)
-  WHERE phone IS NOT NULL AND role = 'customer';
+-- رقم الجوال ليس فريداً بين العملاء (عائلة واحدة، أكثر من حساب) — التفاصيل تُحفظ في bookings.customer_phone
+DROP INDEX IF EXISTS profiles_phone_customer_unique;
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 

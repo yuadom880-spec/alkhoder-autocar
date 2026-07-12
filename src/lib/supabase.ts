@@ -1291,17 +1291,45 @@ export async function updateCustomerProfileFromBooking(
   form: BookingFormData,
 ): Promise<void> {
   const client = requireSupabase()
-  const { error } = await client
-    .from(PROFILES_TABLE)
-    .update({
-      full_name: form.customer_name.trim() || null,
-      phone: form.customer_phone.trim() || null,
-      id_number: form.customer_id_number.trim() || null,
-      email: form.customer_email.trim() || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
-  if (error) throw new Error(formatError(error))
+  const phone = form.customer_phone.trim() || null
+  const basePatch = {
+    full_name: form.customer_name.trim() || null,
+    id_number: form.customer_id_number.trim() || null,
+    email: form.customer_email.trim() || null,
+    updated_at: new Date().toISOString(),
+  }
+
+  let patch: typeof basePatch & { phone?: string | null } = phone
+    ? { ...basePatch, phone }
+    : { ...basePatch, phone: null }
+
+  if (phone) {
+    const { data: phoneOwner } = await client
+      .from(PROFILES_TABLE)
+      .select('id')
+      .eq('phone', phone)
+      .eq('role', 'customer')
+      .neq('id', userId)
+      .maybeSingle()
+
+    if (phoneOwner) {
+      patch = basePatch
+    }
+  }
+
+  const { error } = await client.from(PROFILES_TABLE).update(patch).eq('id', userId)
+  if (error) {
+    const msg = formatError(error)
+    if (msg.includes('profiles_phone_customer_unique') || msg.includes('duplicate key')) {
+      const { error: retryError } = await client
+        .from(PROFILES_TABLE)
+        .update(basePatch)
+        .eq('id', userId)
+      if (retryError) throw new Error(formatError(retryError))
+      return
+    }
+    throw new Error(msg)
+  }
 }
 
 export async function signInAdmin(email: string, password: string) {
