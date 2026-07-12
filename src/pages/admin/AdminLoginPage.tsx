@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate } from 'react-router'
-import { Lock, Phone } from 'lucide-react'
+import { Lock, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 import { setAdminSession, validateAdminCredentials } from '../../lib/admin'
@@ -12,7 +12,7 @@ import { LOGO_URL, SITE_NAME } from '../../lib/constants'
 
 export function AdminLoginPage() {
   const { isAdmin, isLoading, refresh } = useAuth()
-  const [phone, setPhone] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -25,12 +25,12 @@ export function AdminLoginPage() {
     setError('')
 
     try {
-      if (!validateAdminCredentials(phone, password)) {
-        setError('رقم جوال المسؤول أو كلمة المرور غير صحيحة')
+      if (!validateAdminCredentials(username, password)) {
+        setError('اسم المستخدم أو كلمة المرور غير صحيحة')
         return
       }
 
-      setAdminSession(phone)
+      setAdminSession(username)
 
       if (isSupabaseConfigured) {
         await ensureSupabaseAdminAuth()
@@ -62,21 +62,21 @@ export function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label-field" htmlFor="phone">
-              رقم جوال المسؤول
+            <label className="label-field" htmlFor="username">
+              اسم المستخدم
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
-                id="phone"
-                type="tel"
+                id="username"
+                type="text"
                 dir="ltr"
                 className="input-field pl-10 text-left"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="05xxxxxxxx"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="username"
                 required
-                autoComplete="tel"
+                autoComplete="username"
               />
             </div>
           </div>

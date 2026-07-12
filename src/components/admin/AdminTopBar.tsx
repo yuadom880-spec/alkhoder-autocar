@@ -4,7 +4,7 @@ import { ExternalLink, LogOut, MapPin, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { LOGO_URL, SITE_NAME } from '../../lib/constants'
-import { ADMIN_PHONE, getAdminPhone } from '../../lib/admin'
+import { ADMIN_USERNAME, getAdminUsername } from '../../lib/admin'
 import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 
@@ -23,7 +23,7 @@ export function AdminTopBar({ title = 'لوحة الإدارة' }: AdminTopBarPr
     setActiveBranch,
     loading: branchesLoading,
   } = useAdminBranch()
-  const adminPhone = getAdminPhone() ?? ADMIN_PHONE
+  const adminUsername = getAdminUsername() ?? ADMIN_USERNAME
   const [showPicker, setShowPicker] = useState(false)
   const [pickedId, setPickedId] = useState('')
 
@@ -63,10 +63,10 @@ export function AdminTopBar({ title = 'لوحة الإدارة' }: AdminTopBarPr
               <p className="font-bold text-brand-dark text-sm sm:text-base truncate">{title}</p>
               <p className="text-[10px] text-slate-400 truncate hidden sm:block">
                 {SITE_NAME}
-                {adminPhone && (
+                {adminUsername && (
                   <>
                     {' · '}
-                    <span dir="ltr">{adminPhone}</span>
+                    <span dir="ltr">{adminUsername}</span>
                   </>
                 )}
               </p>
