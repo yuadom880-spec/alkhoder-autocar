@@ -91,9 +91,23 @@ export interface CarFormData {
   unavailable_branch_ids?: string[]
 }
 
+export type UserRole = 'customer' | 'admin'
+
+export interface CustomerProfile {
+  id: string
+  email: string | null
+  full_name: string | null
+  phone: string | null
+  id_number: string | null
+  role: UserRole
+  created_at: string
+  updated_at: string
+}
+
 export interface Booking {
   id: string
   car_id: string
+  user_id?: string | null
   customer_name: string
   customer_phone: string
   customer_email: string | null

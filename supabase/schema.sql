@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════════════════
 -- الخضر لتأجير السيارات — Alkhoder AutoCar
--- الإصدار: 4.3 | التاريخ: 2026-07-11 | الملف: supabase/schema.sql
+-- الإصدار: 4.4 | التاريخ: 2026-07-12 | الملف: supabase/schema.sql
 -- ════════════════════════════════════════════════════════════════════════════
 -- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
 -- آمن للتشغيل المتكرر — لن يحذف بياناتك
@@ -450,11 +450,189 @@ SELECT * FROM (VALUES
 WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
--- │ القسم 11: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
+-- │ القسم 11: حسابات العملاء (تسجيل دخول بالإيميل وكلمة المرور)            │
+-- │ الموقع + تطبيق Flutter — مجاني بدون Twilio أو SMS                       │
+-- │ مطلوب: Authentication → Providers → Email → Confirm email OFF           │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT,
+  full_name TEXT,
+  phone TEXT,
+  id_number TEXT,
+  role TEXT NOT NULL DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_phone TEXT;
+  v_name TEXT;
+BEGIN
+  v_phone := COALESCE(
+    NULLIF(NEW.phone, ''),
+    NULLIF(NEW.raw_user_meta_data->>'phone', '')
+  );
+  v_name := NULLIF(NEW.raw_user_meta_data->>'full_name', '');
+
+  INSERT INTO public.profiles (id, email, phone, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    v_phone,
+    v_name,
+    'customer'
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    phone = COALESCE(EXCLUDED.phone, profiles.phone),
+    full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+    updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ترقية حساب الأدمن الحالي (yuadom880@gmail.com)
+INSERT INTO public.profiles (id, email, role)
+SELECT u.id, u.email, 'admin'
+FROM auth.users u
+WHERE lower(u.email) = lower('yuadom880@gmail.com')
+ON CONFLICT (id) DO UPDATE
+  SET role = 'admin', email = EXCLUDED.email, updated_at = now();
+
+DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
+CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_phone_customer_unique
+  ON profiles (phone)
+  WHERE phone IS NOT NULL AND role = 'customer';
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "profiles_select_own" ON profiles;
+CREATE POLICY "profiles_select_own" ON profiles
+  FOR SELECT TO authenticated
+  USING (id = auth.uid() OR public.is_admin());
+
+DROP POLICY IF EXISTS "profiles_update_own" ON profiles;
+CREATE POLICY "profiles_update_own" ON profiles
+  FOR UPDATE TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
+
+DROP POLICY IF EXISTS "profiles_insert_own" ON profiles;
+CREATE POLICY "profiles_insert_own" ON profiles
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    id = auth.uid()
+    AND role = 'customer'
+    AND NOT public.is_admin()
+  );
+
+DROP POLICY IF EXISTS "profiles_admin_all" ON profiles;
+CREATE POLICY "profiles_admin_all" ON profiles
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- حجوزات: تسجيل دخول مطلوب — لا إدراج أو قراءة عامة للجميع
+DROP POLICY IF EXISTS "bookings_public_insert" ON bookings;
+DROP POLICY IF EXISTS "bookings_public_select" ON bookings;
+
+DROP POLICY IF EXISTS "bookings_customer_insert" ON bookings;
+CREATE POLICY "bookings_customer_insert" ON bookings
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    user_id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'customer'
+    )
+  );
+
+DROP POLICY IF EXISTS "bookings_customer_select" ON bookings;
+CREATE POLICY "bookings_customer_select" ON bookings
+  FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "bookings_admin_select" ON bookings;
+CREATE POLICY "bookings_admin_select" ON bookings
+  FOR SELECT TO authenticated
+  USING (public.is_admin());
+
+DROP POLICY IF EXISTS "bookings_admin_update" ON bookings;
+CREATE POLICY "bookings_admin_update" ON bookings
+  FOR UPDATE TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "bookings_admin_delete" ON bookings;
+CREATE POLICY "bookings_admin_delete" ON bookings
+  FOR DELETE TO authenticated
+  USING (public.is_admin());
+
+-- سيارات وعروض وفروع: صلاحيات الأدمن فقط (ليس كل authenticated)
+DROP POLICY IF EXISTS "cars_admin_insert" ON cars;
+CREATE POLICY "cars_admin_insert" ON cars
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "cars_admin_update" ON cars;
+CREATE POLICY "cars_admin_update" ON cars
+  FOR UPDATE TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "cars_admin_delete" ON cars;
+CREATE POLICY "cars_admin_delete" ON cars
+  FOR DELETE TO authenticated
+  USING (public.is_admin());
+
+DROP POLICY IF EXISTS "featured_offers_admin_all" ON featured_offers;
+CREATE POLICY "featured_offers_admin_all" ON featured_offers
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "branches_admin_all" ON branches;
+CREATE POLICY "branches_admin_all" ON branches
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 12: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 NOTIFY pgrst, 'reload schema';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- نهاية الملف — الإصدار 4.2
+-- نهاية الملف — الإصدار 4.4
 -- ════════════════════════════════════════════════════════════════════════════

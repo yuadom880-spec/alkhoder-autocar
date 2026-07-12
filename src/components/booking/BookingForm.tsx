@@ -53,6 +53,12 @@ interface BookingFormProps {
   unavailableMessage?: string
   isPromoBooking?: boolean
   notifyState?: { customerEmail: boolean; branchEmail: boolean } | null
+  initialCustomer?: {
+    name?: string
+    email?: string
+    phone?: string
+    idNumber?: string
+  }
 }
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -80,13 +86,14 @@ export function BookingForm({
   unavailableMessage,
   isPromoBooking = false,
   notifyState = null,
+  initialCustomer,
 }: BookingFormProps) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<BookingFormData>({
-    customer_name: '',
-    customer_phone: '',
-    customer_email: '',
-    customer_id_number: '',
+    customer_name: initialCustomer?.name ?? '',
+    customer_phone: initialCustomer?.phone ?? '',
+    customer_email: initialCustomer?.email ?? '',
+    customer_id_number: initialCustomer?.idNumber ?? '',
     start_date: initialStartDate,
     end_date: initialEndDate,
     pickup_time: '',
@@ -98,6 +105,17 @@ export function BookingForm({
   const [branchId, setBranchId] = useState(initialBranchId)
   const [monthlyDateMode, setMonthlyDateMode] = useState<MonthlyDateMode>('auto')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!initialCustomer) return
+    setForm((prev) => ({
+      ...prev,
+      customer_name: prev.customer_name || initialCustomer.name || '',
+      customer_phone: prev.customer_phone || initialCustomer.phone || '',
+      customer_email: prev.customer_email || initialCustomer.email || '',
+      customer_id_number: prev.customer_id_number || initialCustomer.idNumber || '',
+    }))
+  }, [initialCustomer])
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 

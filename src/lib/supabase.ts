@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+
 import { ADMIN_EMAIL, SUPABASE_ADMIN_PASSWORD } from './admin'
 import { DEMO_CARS } from './constants'
 import { DEMO_BRANCHES } from './branchesData'
@@ -19,6 +20,7 @@ import type {
   CreateBookingMeta,
   BranchFormData,
   BranchRecord,
+  CustomerProfile,
   FeaturedOffer,
   FeaturedOfferFormData,
   RentalPeriodType,
@@ -103,6 +105,7 @@ const CARS_TABLE = 'cars'
 const BOOKINGS_TABLE = 'bookings'
 const OFFERS_TABLE = 'featured_offers'
 const BRANCHES_TABLE = 'branches'
+const PROFILES_TABLE = 'profiles'
 const STORAGE_BUCKET = 'car-images'
 
 const DEMO_BOOKINGS_KEY = 'alkhoder_demo_bookings'
@@ -430,6 +433,7 @@ export async function fetchBookingBlocks(
 function normalizeBooking(booking: Booking): Booking {
   return {
     ...booking,
+    user_id: booking.user_id ?? null,
     rental_type: booking.rental_type ?? 'daily',
     pickup_time: booking.pickup_time ?? null,
     promo_offer_id: booking.promo_offer_id ?? null,
@@ -512,9 +516,18 @@ export async function createBooking(
   }
 
   const client = requireSupabase()
+  const { data: sessionData } = await client.auth.getSession()
+  const userId = sessionData.session?.user?.id
+  if (!userId) {
+    throw new Error('يجب تسجيل الدخول لإتمام الحجز')
+  }
+
+  await updateCustomerProfileFromBooking(userId, form)
+
   const { error } = await client.from(BOOKINGS_TABLE).insert({
     id,
     car_id: carId,
+    user_id: userId,
     customer_name: form.customer_name,
     customer_phone: form.customer_phone,
     customer_email: form.customer_email || null,
@@ -1151,6 +1164,109 @@ export async function deleteBranch(id: string): Promise<void> {
 
 // ─── Auth ────────────────────────────────────────────────────
 
+async function fetchProfileRole(userId: string): Promise<'customer' | 'admin' | null> {
+  if (!supabase) return null
+  const { data, error } = await supabase
+    .from(PROFILES_TABLE)
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle()
+  if (error) return null
+  return (data?.role as 'customer' | 'admin' | undefined) ?? null
+}
+
+export async function signUpCustomer(email: string, password: string, fullName?: string) {
+  const client = requireSupabase()
+  const trimmedEmail = email.trim()
+
+  const { data, error } = await client.auth.signUp({
+    email: trimmedEmail,
+    password,
+    options: {
+      data: { full_name: fullName?.trim() ?? '' },
+    },
+  })
+  if (error) throw new Error(formatError(error))
+  if (!data.user) throw new Error('تعذّر إنشاء الحساب — جرّب بريداً آخر')
+
+  await client.from(PROFILES_TABLE).upsert(
+    {
+      id: data.user.id,
+      email: trimmedEmail,
+      role: 'customer',
+      full_name: fullName?.trim() || null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'id' },
+  )
+
+  if (!data.session) {
+    const { error: signInError } = await client.auth.signInWithPassword({
+      email: trimmedEmail,
+      password,
+    })
+    if (signInError) throw new Error(formatError(signInError))
+  }
+
+  return data
+}
+
+export async function signInCustomer(email: string, password: string) {
+  const client = requireSupabase()
+  const { data, error } = await client.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  })
+  if (error) throw new Error(formatError(error))
+
+  const role = await fetchProfileRole(data.user.id)
+  if (role === 'admin') {
+    await client.auth.signOut()
+    throw new Error('هذا الحساب للإدارة — استخدم لوحة الإدارة')
+  }
+
+  return data
+}
+
+export async function signOutCustomer() {
+  if (!supabase) return
+  const { error } = await supabase.auth.signOut()
+  if (error) throw new Error(formatError(error))
+}
+
+export async function fetchCustomerProfile(): Promise<CustomerProfile | null> {
+  const client = requireSupabase()
+  const { data: sessionData } = await client.auth.getSession()
+  const userId = sessionData.session?.user?.id
+  if (!userId) return null
+
+  const { data, error } = await client
+    .from(PROFILES_TABLE)
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+  if (error) throw new Error(formatError(error))
+  return data as CustomerProfile | null
+}
+
+export async function updateCustomerProfileFromBooking(
+  userId: string,
+  form: BookingFormData,
+): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client
+    .from(PROFILES_TABLE)
+    .update({
+      full_name: form.customer_name.trim() || null,
+      phone: form.customer_phone.trim() || null,
+      id_number: form.customer_id_number.trim() || null,
+      email: form.customer_email.trim() || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId)
+  if (error) throw new Error(formatError(error))
+}
+
 export async function signInAdmin(email: string, password: string) {
   const client = requireSupabase()
   const { data, error } = await client.auth.signInWithPassword({ email, password })
@@ -1166,7 +1282,11 @@ export async function ensureSupabaseAdminAuth(
   if (!supabase) return false
 
   const { data: sessionData } = await supabase.auth.getSession()
-  if (sessionData.session) return true
+  if (sessionData.session?.user) {
+    const role = await fetchProfileRole(sessionData.session.user.id)
+    if (role === 'admin') return true
+    await supabase.auth.signOut()
+  }
 
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (!signInError) return true
@@ -1178,7 +1298,20 @@ export async function ensureSupabaseAdminAuth(
   }
 
   const { error: retryError } = await supabase.auth.signInWithPassword({ email, password })
-  return !retryError
+  if (retryError) return false
+
+  const { data: afterSignIn } = await supabase.auth.getSession()
+  const userId = afterSignIn.session?.user?.id
+  if (!userId) return false
+
+  await supabase
+    .from(PROFILES_TABLE)
+    .upsert(
+      { id: userId, email, role: 'admin', updated_at: new Date().toISOString() },
+      { onConflict: 'id' },
+    )
+
+  return true
 }
 
 /** يضمن جلسة Supabase للأدمن — يرمي خطأ واضح إذا فشل */

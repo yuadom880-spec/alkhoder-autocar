@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { BookingAuthGate } from '../components/auth/BookingAuthGate'
 import { BookingForm } from '../components/booking/BookingForm'
+import { useCustomerAuth } from '../context/CustomerAuthContext'
 import { BookingSummary } from '../components/booking/BookingSummary'
 import { PromoOfferBanner } from '../components/offers/PromoOfferBanner'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -25,6 +27,7 @@ import {
 import type { BookingBlock, BranchRecord, Car, FeaturedOffer } from '../lib/types'
 
 export function BookingPage() {
+  const { profile } = useCustomerAuth()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -214,6 +217,7 @@ export function BookingPage() {
         <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
           <div className="order-2 lg:order-1 lg:col-span-3">
             <div className="rounded-2xl bg-white p-4 shadow-md sm:p-6">
+              <BookingAuthGate>
               <BookingForm
                 unitPrice={unitPrice}
                 dailyPrice={dailyPrice}
@@ -223,6 +227,12 @@ export function BookingPage() {
                 multiStep
                 branches={availableBranches}
                 initialBranchId={preselectedBranch?.id ?? ''}
+                initialCustomer={{
+                  name: profile?.full_name ?? '',
+                  email: profile?.email ?? '',
+                  phone: profile?.phone ?? '',
+                  idNumber: profile?.id_number ?? '',
+                }}
                 isPromoBooking={Boolean(promoOffer)}
                 onDatesChange={(start, end) => setDates({ start, end })}
                 onPickupTimeChange={setPickupTime}
@@ -254,6 +264,7 @@ export function BookingPage() {
                   })
                 }}
               />
+              </BookingAuthGate>
             </div>
           </div>
 
