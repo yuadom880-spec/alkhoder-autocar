@@ -169,7 +169,7 @@ export function HomePage() {
         <QuickSearch />
       </section>
 
-      <section className="border-y border-slate-200/70 bg-slate-50 py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
+      <section className="border-y border-brand-green/10 bg-gradient-to-b from-brand-green/[0.1] via-[#e8f0eb] to-brand-green/[0.06] py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
           <div className="mb-6 text-center sm:mb-10">
             <h2 className="section-title">{copy.home.whyUs}</h2>
