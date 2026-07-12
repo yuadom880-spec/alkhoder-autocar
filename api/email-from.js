@@ -1,6 +1,8 @@
 /** مرسل الإيميل — وضع الاختبار vs الإنتاج */
 export const TEST_FROM = 'onboarding@resend.dev'
-export const PRODUCTION_FROM = 'Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>'
+export const PRODUCTION_FROM = 'Alkhedr Cars <noreply@alkhodercar.com>'
+
+const VERIFIED_DOMAINS = /@(?:alkhodercar|alkhedrcars)\.com$/i
 
 function useProductionMode() {
   const flag = process.env.RESEND_USE_PRODUCTION
@@ -40,7 +42,7 @@ export function safeFromEmail(raw) {
   const resolved = resolveFromEmail(raw)
   const addr = emailPart(resolved)
 
-  if (addr && /@alkhedrcars\.com$/i.test(addr)) {
+  if (addr && VERIFIED_DOMAINS.test(addr)) {
     return resolved
   }
 

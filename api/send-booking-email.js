@@ -2,8 +2,8 @@
  * Vercel Serverless — إرسال إيميلات الحجز عبر Resend
  * Environment Variables على Vercel:
  *   RESEND_API_KEY
- *   RESEND_FROM_EMAIL (بعد تحقق الدومين: Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>)
- *   RESEND_USE_PRODUCTION=true (بعد تحقق alkhedrcars.com على Resend)
+ *   RESEND_FROM_EMAIL (بعد تحقق الدومين: Alkhedr Cars <noreply@alkhodercar.com>)
+ *   RESEND_USE_PRODUCTION=true (بعد تحقق alkhodercar.com على Resend)
  */
 import { safeFromEmail } from './email-from.js'
 

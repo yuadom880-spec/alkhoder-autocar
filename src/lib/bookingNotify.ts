@@ -1,9 +1,18 @@
 import type { Booking } from './types'
-import { EMAIL_QA, MAIN_BRANCH, MAIN_BRANCH_EMAIL, SITE_NAME } from './constants'
+import {
+  EMAIL_QA,
+  MAIN_BRANCH,
+  MAIN_BRANCH_EMAIL,
+  MAIN_BRANCH_PHONE_LABEL,
+  PHONE,
+  SITE_NAME,
+} from './constants'
 import { getSupabaseEnv } from './env'
 import { formatDisplayPhone } from './phone'
 import { fetchBranches, supabase, isSupabaseConfigured } from './supabase'
 import { formatDate, formatPrice } from './utils'
+
+const ADMIN_BOOKINGS_URL = 'https://alkhodercar.com/admin/bookings'
 
 export interface NotifyResult {
   sent: boolean
@@ -22,6 +31,18 @@ function bookingCarName(booking: Booking, carName?: string): string {
 function branchLabel(booking: Booking): string {
   if (!booking.branch_name) return 'غير محدد'
   return booking.branch_city ? `${booking.branch_name} — ${booking.branch_city}` : booking.branch_name
+}
+
+function rentalTypeLabel(type: Booking['rental_type']): string {
+  return type === 'monthly' ? 'شهري' : 'يومي'
+}
+
+function branchContactPhone(booking: Booking): string {
+  return booking.branch_phone?.trim() || MAIN_BRANCH.phone || PHONE
+}
+
+function branchPhoneLabel(booking: Booking): string {
+  return booking.branch_phone?.trim() ? 'رقم الفرع' : MAIN_BRANCH_PHONE_LABEL
 }
 
 function emailShell(title: string, body: string): string {
@@ -51,15 +72,18 @@ export function buildCustomerPendingEmailHtml(booking: Booking, carName?: string
   const car = bookingCarName(booking, carName)
   const body = [
     row('السلام عليكم', booking.customer_name),
-    '<p style="margin:0 0 14px;">تم استلام طلب حجزك بنجاح. سنتواصل معك قريباً لتأكيد الحجز.</p>',
+    `<p style="margin:0 0 14px;">تم استلام طلب حجزك في <strong>${SITE_NAME}</strong>. سنتواصل معك قريباً لتأكيد الحجز.</p>`,
     row('الحالة', 'قيد المراجعة'),
     row('السيارة', car),
+    row('نوع الإيجار', rentalTypeLabel(booking.rental_type)),
     row('من', formatDate(booking.start_date)),
     row('إلى', formatDate(booking.end_date)),
     booking.branch_name ? row('فرع الاستلام', branchLabel(booking)) : '',
     booking.pickup_time ? row('موعد الاستلام', booking.pickup_time) : '',
     row('الإجمالي', `${formatPrice(booking.total_price)} ر.س`),
-    '<p style="margin:14px 0 0;color:#475569;">شكراً لاختياركم لنا.</p>',
+    row(branchPhoneLabel(booking), formatDisplayPhone(branchContactPhone(booking))),
+    `<p style="margin:14px 0 0;color:#475569;">للاستفسار: ${formatDisplayPhone(PHONE)}</p>`,
+    '<p style="margin:8px 0 0;color:#475569;">شكراً لاختياركم لنا.</p>',
   ].join('')
 
   return emailShell('تم استلام طلب حجزك', body)
@@ -73,13 +97,16 @@ export function buildBranchNewBookingEmailHtml(booking: Booking, carName?: strin
     row('اسم العميل', booking.customer_name),
     row('جوال العميل', formatDisplayPhone(booking.customer_phone)),
     booking.customer_email ? row('بريد العميل', booking.customer_email) : '',
+    booking.customer_id_number ? row('رقم الهوية', booking.customer_id_number) : '',
     row('السيارة', car),
+    row('نوع الإيجار', rentalTypeLabel(booking.rental_type)),
     row('من', formatDate(booking.start_date)),
     row('إلى', formatDate(booking.end_date)),
     booking.pickup_time ? row('موعد الاستلام', booking.pickup_time) : '',
     row('الإجمالي', `${formatPrice(booking.total_price)} ر.س`),
     booking.notes ? row('ملاحظات', booking.notes) : '',
-    '<p style="margin:14px 0 0;"><strong>يرجى الدخول إلى لوحة الإدارة</strong> لمراجعة وتأكيد الطلب.</p>',
+    `<p style="margin:14px 0 0;"><strong>يرجى الدخول إلى لوحة الإدارة</strong> لمراجعة وتأكيد الطلب:</p>`,
+    `<p style="margin:8px 0 0;"><a href="${ADMIN_BOOKINGS_URL}" style="color:#14532d;">${ADMIN_BOOKINGS_URL}</a></p>`,
   ].join('')
 
   return emailShell(`طلب حجز جديد — ${branchLabel(booking)}`, body)
@@ -89,13 +116,17 @@ export function buildCustomerConfirmedEmailHtml(booking: Booking, carName?: stri
   const car = bookingCarName(booking, carName)
   const body = [
     row('السلام عليكم', booking.customer_name),
-    '<p style="margin:0 0 14px;">تم تأكيد حجزك. نتمنى لك تجربة ممتعة.</p>',
+    `<p style="margin:0 0 14px;">تم تأكيد حجزك في <strong>${SITE_NAME}</strong>. سيارتك جاهزة — نتمنى لك تجربة ممتعة.</p>`,
+    row('الحالة', 'مؤكد'),
     row('السيارة', car),
+    row('نوع الإيجار', rentalTypeLabel(booking.rental_type)),
     row('من', formatDate(booking.start_date)),
     row('إلى', formatDate(booking.end_date)),
     booking.branch_name ? row('فرع الاستلام', branchLabel(booking)) : '',
     booking.pickup_time ? row('موعد الاستلام', booking.pickup_time) : '',
     row('الإجمالي', `${formatPrice(booking.total_price)} ر.س`),
+    row(branchPhoneLabel(booking), formatDisplayPhone(branchContactPhone(booking))),
+    `<p style="margin:14px 0 0;color:#475569;">للدعم: ${formatDisplayPhone(PHONE)}</p>`,
   ].join('')
 
   return emailShell('تم تأكيد حجزك', body)
