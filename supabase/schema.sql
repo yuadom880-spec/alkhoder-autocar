@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════════════════
 -- الخضر لتأجير السيارات — Alkhoder AutoCar
--- الإصدار: 4.5 | التاريخ: 2026-07-12 | الملف: supabase/schema.sql
+-- الإصدار: 4.6 | التاريخ: 2026-07-12 | الملف: supabase/schema.sql
 -- ════════════════════════════════════════════════════════════════════════════
 -- انسخ الملف كاملاً (Ctrl+A) والصقه في Supabase → SQL Editor → Run
 -- آمن للتشغيل المتكرر — لن يحذف بياناتك
@@ -647,11 +647,30 @@ CREATE INDEX IF NOT EXISTS idx_bookings_user_created
   ON public.bookings(user_id, created_at DESC);
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
--- │ القسم 13: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
+-- │ القسم 13: أسعار السيارات حسب الفرع (وضع فرعي في الإدارة)                │
+-- │ branch_prices: { "branch_uuid": { "price_per_day": 120, ... } }          │
+-- │ الفروع بدون override تستخدم price_per_day / price_per_month العام        │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_prices JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+UPDATE cars
+SET branch_prices = '{}'::jsonb
+WHERE branch_prices IS NULL
+   OR jsonb_typeof(branch_prices) <> 'object';
+
+ALTER TABLE cars
+  ALTER COLUMN branch_prices SET DEFAULT '{}'::jsonb;
+
+ALTER TABLE cars
+  ALTER COLUMN branch_prices SET NOT NULL;
+
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 14: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 NOTIFY pgrst, 'reload schema';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- نهاية الملف — الإصدار 4.5
+-- نهاية الملف — الإصدار 4.6
 -- ════════════════════════════════════════════════════════════════════════════

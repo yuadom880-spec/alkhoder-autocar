@@ -18,7 +18,7 @@ import { carMatchesBranch } from '../lib/branchFilter'
 import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
 import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
 import { getCarOffer, isOfferActive } from '../lib/offers'
-import { getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
+import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
@@ -213,9 +213,11 @@ export function CarDetailPage() {
                     ) : (
                       <p className="text-sm text-slate-400 line-through mt-1">
                         {formatPrice(
-                          promoOffer.rental_type === 'monthly'
-                            ? car.price_per_month
-                            : car.price_per_day,
+                          getCarBasePrice(
+                            car,
+                            promoOffer.rental_type,
+                            hasBranch ? branchId : null,
+                          ),
                         )}
                       </p>
                     )}

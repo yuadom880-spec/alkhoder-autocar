@@ -51,7 +51,7 @@ export function BookingSummary({
     (effectiveRentalType === 'monthly'
       ? getEffectivePrice(car, 'daily', offerBranchId)
       : unitPrice)
-  const basePrice = getCarBasePrice(car, effectiveRentalType)
+  const basePrice = getCarBasePrice(car, effectiveRentalType, offerBranchId)
   const days = startDate && endDate ? calcDays(startDate, endDate) : 0
   const monthlyBreakdown =
     startDate && endDate && isMonthly

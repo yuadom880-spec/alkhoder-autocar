@@ -289,6 +289,10 @@ export const copy = {
       `إيقاف «${name}» في فرعك فقط؟\n\nباقي الفروع يبقى متاح`,
     enableBookingBranchConfirm: (name: string) => `تفعيل «${name}» في فرعك؟`,
     carBranchAvailabilityHint: 'وضع فرعي: إيقاف الحجز يخص فرعك فقط',
+    carBranchDailyPrice: 'السعر اليومي لفرعك (ر.س)',
+    carBranchMonthlyPrice: 'السعر الشهري لفرعك (ر.س)',
+    carBranchPriceHint:
+      'وضع فرعي: التعديل يخص فرعك فقط — باقي الفروع تحتفظ بالسعر العام',
     manualOff: 'غير متاحة للعملاء',
     bookedNow: 'محجوزة حالياً',
     bookingBranch: 'فرع الحجز',
@@ -308,7 +312,7 @@ export const copy = {
     branchModeHint: 'كل البيانات المعروضة خاصة بفرعك فقط',
   },
   myBookings: {
-    title: 'حجوزاتي',
+    title: 'الحجوزات',
     sub: 'تابع حالة طلبات الحجز التي أرسلتها',
     empty: 'لا توجد حجوزات حتى الآن',
     emptyHint: 'عند إتمام حجز سيارة ستظهر هنا مع حالتها',

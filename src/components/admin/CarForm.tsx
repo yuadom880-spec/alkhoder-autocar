@@ -2,7 +2,9 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
+import { getBranchFormPrices } from '../../lib/carBranchPricing'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
+import { copy } from '../../lib/copy'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
 import { CarOffersForm } from './CarOffersForm'
@@ -30,6 +32,9 @@ function defaultBranchIds(initial: Car | undefined, branchModeId: string | null)
 
 export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
   const { isBranchMode, activeBranchId } = useAdminBranch()
+  const branchPrices = initial
+    ? getBranchFormPrices(initial, isBranchMode ? activeBranchId : null)
+    : null
 
   const [form, setForm] = useState<CarFormData>({
     name: initial?.name ?? '',
@@ -38,8 +43,8 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     year: initial?.year ?? new Date().getFullYear(),
     category: initial?.category ?? 'sedan',
     car_class: initial?.car_class ?? 'mid',
-    price_per_day: initial?.price_per_day ?? 100,
-    price_per_month: initial?.price_per_month ?? 2500,
+    price_per_day: branchPrices?.price_per_day ?? initial?.price_per_day ?? 100,
+    price_per_month: branchPrices?.price_per_month ?? initial?.price_per_month ?? 2500,
     image_url: initial?.image_url ?? '',
     images: initial?.images ?? [],
     specs: initial?.specs ?? defaultSpecs,
@@ -149,16 +154,23 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           </select>
         </div>
         <div>
-          <label className="label-field">السعر اليومي (ر.س)</label>
+          <label className="label-field">
+            {isBranchMode ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
+          </label>
           <input
             type="number"
             className="input-field"
             value={form.price_per_day}
             onChange={(e) => update('price_per_day', Number(e.target.value))}
           />
+          {isBranchMode && (
+            <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
+          )}
         </div>
         <div>
-          <label className="label-field">السعر الشهري (ر.س)</label>
+          <label className="label-field">
+            {isBranchMode ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
+          </label>
           <input
             type="number"
             className="input-field"

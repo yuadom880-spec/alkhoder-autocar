@@ -46,6 +46,14 @@ export interface CarSpecs {
   ac: boolean
 }
 
+/** أسعار مخصّصة لفرع واحد — المفتاح: معرّف الفرع (حروف صغيرة) */
+export interface BranchCarPrice {
+  price_per_day: number
+  price_per_month: number
+}
+
+export type CarBranchPrices = Record<string, BranchCarPrice>
+
 export interface Car {
   id: string
   name: string
@@ -67,6 +75,8 @@ export interface Car {
   branch_ids: string[]
   /** فروع لا تتوفر فيها السيارة للحجز — باقي الفروع يبقى التوفر شغّال */
   unavailable_branch_ids?: string[]
+  /** أسعار خاصة بفروع محددة — الفروع الأخرى تستخدم السعر العام */
+  branch_prices?: CarBranchPrices
   created_at: string
   updated_at: string
 }
@@ -89,6 +99,7 @@ export interface CarFormData {
   offer: CarOffers | null
   branch_ids: string[]
   unavailable_branch_ids?: string[]
+  branch_prices?: CarBranchPrices
 }
 
 export type UserRole = 'customer' | 'admin'

@@ -1,6 +1,6 @@
 import type { Booking } from './types'
 import {
-  EMAIL_QA,
+  EMAIL_OSAMA,
   MAIN_BRANCH,
   MAIN_BRANCH_EMAIL,
   MAIN_BRANCH_PHONE_LABEL,
@@ -146,7 +146,7 @@ export async function resolveBookingBranchEmail(booking: Booking): Promise<strin
     }
   }
 
-  return MAIN_BRANCH.email?.trim() ?? MAIN_BRANCH_EMAIL ?? EMAIL_QA
+  return MAIN_BRANCH.email?.trim() ?? MAIN_BRANCH_EMAIL ?? EMAIL_OSAMA
 }
 
 function isLocalDevHost(origin: string): boolean {

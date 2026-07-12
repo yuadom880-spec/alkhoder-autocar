@@ -28,6 +28,7 @@ import {
   getAdminCarStatusLabel,
   getAdminCarToggleLabel,
 } from '../../lib/carStatus'
+import { getCarBasePrice } from '../../lib/pricing'
 import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
 import { formatPrice } from '../../lib/utils'
 
@@ -220,7 +221,7 @@ export function AdminCarsPage() {
                             </p>
                             {isOfferActive(car, 'daily', filterBranchId) && (
                               <p className="text-xs text-slate-400 line-through">
-                                {formatPrice(car.price_per_day)}
+                                {formatPrice(getCarBasePrice(car, 'daily', filterBranchId))}
                               </p>
                             )}
                           </div>
@@ -233,7 +234,7 @@ export function AdminCarsPage() {
                             </p>
                             {isOfferActive(car, 'monthly', filterBranchId) && (
                               <p className="text-xs text-slate-400 line-through">
-                                {formatPrice(car.price_per_month)}
+                                {formatPrice(getCarBasePrice(car, 'monthly', filterBranchId))}
                               </p>
                             )}
                           </div>

@@ -1,20 +1,23 @@
 import type { Car, RentalPeriodType } from './types'
+import {
+  defaultMonthlyPrice,
+  getCarBasePrice as resolveCarBasePrice,
+} from './carBranchPricing'
 import { getEffectivePrice } from './offers'
 import { calcDays } from './utils'
+
+export { defaultMonthlyPrice }
 
 export function parseRentalType(value: string | null | undefined): RentalPeriodType {
   return value === 'monthly' ? 'monthly' : 'daily'
 }
 
-export function defaultMonthlyPrice(dailyPrice: number): number {
-  return Math.round(dailyPrice * 25)
-}
-
-export function getCarBasePrice(car: Car, rentalType: RentalPeriodType): number {
-  if (rentalType === 'monthly') {
-    return car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)
-  }
-  return car.price_per_day
+export function getCarBasePrice(
+  car: Car,
+  rentalType: RentalPeriodType,
+  branchId?: string | null,
+): number {
+  return resolveCarBasePrice(car, rentalType, branchId)
 }
 
 /** السعر المعروض للعميل مع تطبيق العروض حسب نوع الإيجار والفرع */

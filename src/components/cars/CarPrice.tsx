@@ -27,7 +27,7 @@ export function CarPrice({
   className,
 }: CarPriceProps) {
   const s = sizes[size]
-  const basePrice = getCarBasePrice(car, rentalType)
+  const basePrice = getCarBasePrice(car, rentalType, branchId)
   const effective = getEffectivePrice(car, rentalType, branchId)
   const hasOffer = isOfferActive(car, rentalType, branchId)
   const badge = getOfferBadge(car, rentalType, branchId)

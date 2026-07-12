@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { Mail } from 'lucide-react'
 import { PageSeo } from '../components/seo/PageSeo'
-import { EMAIL_QA, SITE_COMPANY_NAME } from '../lib/constants'
+import { EMAIL_OSAMA, SITE_COMPANY_NAME } from '../lib/constants'
 import { copy } from '../lib/copy'
 import {
   PRIVACY_POLICY_LAST_UPDATED,
@@ -44,11 +44,11 @@ export function PrivacyPolicyPage() {
         <div className="mt-8 rounded-xl bg-slate-50 border border-slate-200 p-5 text-center">
           <p className="text-sm text-slate-600 mb-3">{copy.privacy.contactHint}</p>
           <a
-            href={`mailto:${EMAIL_QA}`}
+            href={`mailto:${EMAIL_OSAMA}`}
             className="inline-flex items-center gap-2 text-brand-green font-semibold hover:underline"
           >
             <Mail className="h-4 w-4" />
-            <span dir="ltr">{EMAIL_QA}</span>
+            <span dir="ltr">{EMAIL_OSAMA}</span>
           </a>
           <p className="mt-4 text-xs text-slate-400 break-all" dir="ltr">
             {PRIVACY_POLICY_URL}

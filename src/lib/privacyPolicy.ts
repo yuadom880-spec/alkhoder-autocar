@@ -1,4 +1,4 @@
-import { EMAIL_QA, SITE_COMPANY_NAME, SITE_NAME } from './constants'
+import { EMAIL_OSAMA, SITE_COMPANY_NAME, SITE_NAME } from './constants'
 
 export const PRIVACY_POLICY_URL = 'https://alkhodercar.com/privacy'
 export const PRIVACY_POLICY_LAST_UPDATED = '12 يوليو 2026'
@@ -21,7 +21,7 @@ export const PRIVACY_POLICY_SECTIONS: PrivacySection[] = [
     title: 'من نحن (مسؤول البيانات)',
     paragraphs: [
       `المسؤول عن بياناتك هو ${SITE_COMPANY_NAME}.`,
-      `للاستفسارات المتعلقة بالخصوصية: ${EMAIL_QA}`,
+      `للاستفسارات المتعلقة بالخصوصية: ${EMAIL_OSAMA}`,
       'العنوان: المملكة العربية السعودية — المدينة المنورة (الفرع الرئيسي — طريق المطار).',
     ],
   },
@@ -117,7 +117,7 @@ export const PRIVACY_POLICY_SECTIONS: PrivacySection[] = [
   {
     title: 'تواصل معنا',
     paragraphs: [
-      `لأي استفسار حول الخصوصية أو طلب حذف/تصحيح البيانات، راسلنا على: ${EMAIL_QA}`,
+      `لأي استفسار حول الخصوصية أو طلب حذف/تصحيح البيانات، راسلنا على: ${EMAIL_OSAMA}`,
       'أو عبر صفحة «تواصل معنا» في الموقع أو تطبيق الجوال.',
     ],
   },

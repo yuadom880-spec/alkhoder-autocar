@@ -1,5 +1,5 @@
 import { asset } from './assets'
-import { EMAIL_OSAMA, EMAIL_QA, MAIN_BRANCH_PHONE_LABEL, PHONE, PHONE_LINK } from './constants'
+import { EMAIL_OSAMA, MAIN_BRANCH_PHONE_LABEL, PHONE, PHONE_LINK } from './constants'
 
 /** محتوى وصور الملف التعريفي — عبدالمجيد الخضر لتأجير السيارات */
 export function profileAsset(filename: string): string {
@@ -23,7 +23,6 @@ export const PROFILE_CONTACT = {
   mainBranchPhone: PHONE,
   mainBranchPhoneLink: PHONE_LINK,
   mainBranchPhoneLabel: MAIN_BRANCH_PHONE_LABEL,
-  emailQa: EMAIL_QA,
   emailOsama: EMAIL_OSAMA,
 } as const
 

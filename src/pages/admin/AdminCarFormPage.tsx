@@ -5,7 +5,13 @@ import { CarAvailabilityPanel } from '../../components/admin/CarAvailabilityPane
 import { CarForm } from '../../components/admin/CarForm'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { useAdminBranch } from '../../context/AdminBranchContext'
-import { createCar, fetchCarById, setCarBranchAvailability, updateCar } from '../../lib/supabase'
+import {
+  createCar,
+  fetchCarById,
+  setCarBranchAvailability,
+  setCarBranchPrices,
+  updateCar,
+} from '../../lib/supabase'
 import type { Car } from '../../lib/types'
 
 export function AdminCarFormPage() {
@@ -62,10 +68,22 @@ export function AdminCarFormPage() {
             initial={car ?? undefined}
             onSubmit={async (data) => {
               if (isEdit && id && car) {
-                await updateCar(id, {
-                  ...data,
-                  unavailable_branch_ids: car.unavailable_branch_ids ?? [],
-                })
+                if (branchScopeId) {
+                  await setCarBranchPrices(id, branchScopeId, {
+                    price_per_day: data.price_per_day,
+                    price_per_month: data.price_per_month,
+                  })
+                  const { price_per_day: _d, price_per_month: _m, ...globalPatch } = data
+                  await updateCar(id, {
+                    ...globalPatch,
+                    unavailable_branch_ids: car.unavailable_branch_ids ?? [],
+                  })
+                } else {
+                  await updateCar(id, {
+                    ...data,
+                    unavailable_branch_ids: car.unavailable_branch_ids ?? [],
+                  })
+                }
               } else {
                 await createCar(data)
               }

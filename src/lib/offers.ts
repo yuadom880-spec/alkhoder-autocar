@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { getCarBasePrice } from './carBranchPricing'
 import type { Car, CarOffer, CarOffers, OfferDiscountType, RentalPeriodType } from './types'
 import { formatPrice } from './utils'
 
@@ -131,10 +132,7 @@ export function isOfferActive(
 ): boolean {
   const offer = getCarOffer(car, rentalType)
   if (!isOfferValid(offer, branchId)) return false
-  const basePrice =
-    rentalType === 'monthly'
-      ? (car.price_per_month ?? car.price_per_day * 25)
-      : car.price_per_day
+  const basePrice = getCarBasePrice(car, rentalType, branchId)
   return applyOffer(basePrice, offer, branchId) < basePrice
 }
 
@@ -150,10 +148,7 @@ export function getEffectivePrice(
   branchId?: string | null,
 ): number {
   const offer = getCarOffer(car, rentalType)
-  const basePrice =
-    rentalType === 'monthly'
-      ? (car.price_per_month ?? car.price_per_day * 25)
-      : car.price_per_day
+  const basePrice = getCarBasePrice(car, rentalType, branchId)
   if (!isOfferValid(offer, branchId)) return basePrice
   return applyOffer(basePrice, offer, branchId)
 }
@@ -186,10 +181,7 @@ export function getOfferSavings(
   branchId?: string | null,
 ): number {
   if (!isOfferActive(car, rentalType, branchId)) return 0
-  const basePrice =
-    rentalType === 'monthly'
-      ? (car.price_per_month ?? car.price_per_day * 25)
-      : car.price_per_day
+  const basePrice = getCarBasePrice(car, rentalType, branchId)
   return Math.round((basePrice - getEffectivePrice(car, rentalType, branchId)) * 100) / 100
 }
 

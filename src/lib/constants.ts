@@ -31,10 +31,6 @@ export const LOGO_URL = logoUrl
 export const PHONE = '050 459 0002'
 export const PHONE_LINK = 'tel:+966504590002'
 export const WHATSAPP_LINK = 'https://wa.me/966504590002'
-/** رقم واتساب بيزنس الشركة (Twilio) — إرسال الإشعارات التلقائية */
-export const WHATSAPP_BUSINESS_PHONE = '+201130391755'
-export const WHATSAPP_BUSINESS_DISPLAY = '011 3039 1755'
-export const WHATSAPP_BUSINESS_LINK = 'https://wa.me/201130391755'
 export const INSTAGRAM_LINK = 'https://www.instagram.com/alkhedrrental/'
 export const X_LINK = 'https://x.com/alkhedrrental'
 export const FACEBOOK_LINK =
@@ -57,8 +53,8 @@ export const SOCIAL_LINKS: SocialLink[] = [
 export const MAIN_BRANCH_PHONE_LABEL = 'الفرع الرئيسي — طريق المطار'
 /** رقم SEO بصيغة دولية */
 export const SEO_PHONE = '+966504590002'
-export const EMAIL_QA = 'Alkhedr.qa@alkhedrcars.com'
 export const EMAIL_OSAMA = 'M.osama@alkhedrcars.com'
+export const DEVELOPER_SUPPORT_EMAIL = 'yuadom880@gmail.com'
 
 const BRANCH_HOURS = 'السبت - الخميس: 8 ص - 12 م | الجمعة: 4 م - 12 م'
 
@@ -74,7 +70,7 @@ export type Branch = {
 }
 
 /** بريد إشعارات الفرع الرئيسي — طريق المطار، المدينة المنورة */
-export const MAIN_BRANCH_EMAIL = EMAIL_QA
+export const MAIN_BRANCH_EMAIL = EMAIL_OSAMA
 
 export const MAIN_BRANCH: Branch = {
   name: 'الفرع الرئيسي',

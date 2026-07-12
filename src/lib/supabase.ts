@@ -8,6 +8,10 @@ import { formatError } from './errors'
 import { isDataImageUrl, isPersistedImageUrl } from './imageUrl'
 import { getSupabaseEnv } from './env'
 import { buildCarBranchAvailabilityPatch } from './carBranchAvailability'
+import {
+  buildCarBranchPricePatch,
+  normalizeBranchPrices,
+} from './carBranchPricing'
 import { carMatchesBranch } from './branchFilter'
 import { canBookCar, isActiveBookingStatus } from './availability'
 import type {
@@ -41,7 +45,16 @@ function normalizeCar(car: Car): Car {
   const price_per_month = car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)
   const car_class = car.car_class ?? 'mid'
   const offer = sanitizeCarOffers(normalizeCarOffers(car.offer))
-  return { ...car, offer, branch_ids, unavailable_branch_ids, price_per_month, car_class }
+  const branch_prices = normalizeBranchPrices(car.branch_prices)
+  return {
+    ...car,
+    offer,
+    branch_ids,
+    unavailable_branch_ids,
+    branch_prices,
+    price_per_month,
+    car_class,
+  }
 }
 
 function prepareCarForm(form: CarFormData): CarFormData {
@@ -64,6 +77,9 @@ function prepareCarPatch(form: Partial<CarFormData>): Partial<CarFormData> {
   if (form.unavailable_branch_ids !== undefined) {
     patch.unavailable_branch_ids = form.unavailable_branch_ids ?? []
   }
+  if (form.branch_prices !== undefined) {
+    patch.branch_prices = normalizeBranchPrices(form.branch_prices)
+  }
   return patch
 }
 
@@ -71,6 +87,7 @@ function formatSupabaseMutationError(error: { code?: string; message?: string })
   const message = error.message ?? ''
   if (
     message.includes('unavailable_branch_ids') ||
+    message.includes('branch_prices') ||
     message.includes('disabled_branch_ids') ||
     message.includes('branch_ids') ||
     message.includes('schema cache') ||
@@ -343,6 +360,17 @@ export async function setCarBranchAvailability(
   return updateCar(carId, buildCarBranchAvailabilityPatch(car, branchId, available))
 }
 
+/** تحديث سعر سيارة لفرع واحد فقط — لا يغيّر السعر في باقي الفروع */
+export async function setCarBranchPrices(
+  carId: string,
+  branchId: string,
+  prices: { price_per_day: number; price_per_month: number },
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+  return updateCar(carId, buildCarBranchPricePatch(car, branchId, prices))
+}
+
 export async function deleteCar(id: string): Promise<void> {
   if (!isSupabaseConfigured) {
     const cars = getDemoCars().filter((c) => c.id !== id)
@@ -470,7 +498,9 @@ export async function createBooking(
   const rentalType: RentalPeriodType = meta.rentalType ?? 'daily'
   const totalDays = calcDays(form.start_date, form.end_date)
   const dailyPrice =
-    rentalType === 'monthly' ? getEffectivePrice(car, 'daily') : unitPrice
+    rentalType === 'monthly'
+      ? getEffectivePrice(car, 'daily', meta.branchId)
+      : unitPrice
   const totalPrice = calcBookingTotal(
     unitPrice,
     form.start_date,

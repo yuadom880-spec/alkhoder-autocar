@@ -109,7 +109,7 @@ export function carToFeaturedOffer(
   const carOffer = getCarOffer(car, rentalType)
   if (!carOffer) return null
 
-  const basePrice = getCarBasePrice(car, rentalType)
+  const basePrice = getCarBasePrice(car, rentalType, branchId)
   const effectivePrice = getEffectivePrice(car, rentalType, branchId)
 
   return {
