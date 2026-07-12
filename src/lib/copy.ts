@@ -23,7 +23,7 @@ export const copy = {
   },
   home: {
     whyUs: 'ليش تختار الخضر؟',
-    whyUsSub: 'تجربة Car Rental سهلة ومريحة',
+    whyUsSub: 'تجربة تأجير سيارات سهلة ومريحة',
     featured: 'أسطول السيارات',
     featuredSub: 'كل سياراتنا المتاحة — إيجار يومي أو شهري',
     viewAll: 'عرض الكل',

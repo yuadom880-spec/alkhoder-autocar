@@ -13,6 +13,7 @@ interface CustomerPhoneFieldProps {
   value: string
   onChange: (internationalPhone: string) => void
   className?: string
+  label?: string
 }
 
 export function CustomerPhoneField({
@@ -20,6 +21,7 @@ export function CustomerPhoneField({
   value,
   onChange,
   className,
+  label,
 }: CustomerPhoneFieldProps) {
   const [countryCode, setCountryCode] = useState<PhoneCountryCode>('966')
   const [local, setLocal] = useState('')
@@ -54,7 +56,7 @@ export function CustomerPhoneField({
   return (
     <div className={cn('space-y-2 sm:col-span-2', className)}>
       <label className="label-field text-black" htmlFor={id}>
-        {copy.booking.phone} *
+        {label ?? copy.booking.phone} *
       </label>
 
       <div className="grid gap-2 sm:grid-cols-[150px_1fr]" dir="ltr">
