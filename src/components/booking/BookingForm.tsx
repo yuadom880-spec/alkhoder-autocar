@@ -31,6 +31,7 @@ import { formatDisplayPhone } from '../../lib/phone'
 import { calcDays, formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 import { isValidInternationalPhone } from '../../lib/phone'
 import { Button } from '../ui/Button'
+import { InstallmentPaymentNotice } from './InstallmentPaymentNotice'
 import { CustomerPhoneField } from './CustomerPhoneField'
 import { cn } from '../../lib/utils'
 
@@ -607,6 +608,7 @@ export function BookingForm({
 
       {showStep(2) && (
         <div className="space-y-4">
+          <InstallmentPaymentNotice />
           <h3 className="font-bold text-brand-dark">{copy.booking.customerInfo}</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -707,6 +709,7 @@ export function BookingForm({
 
       {!multiStep && (
         <>
+          <InstallmentPaymentNotice />
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field" htmlFor="customer_name_inline">

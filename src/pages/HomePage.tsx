@@ -14,6 +14,7 @@ import { CustomerReviewsSection } from '../components/home/CustomerReviewsSectio
 import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
 import { QuickSearch } from '../components/home/QuickSearch'
+import { InstallmentPromoSection } from '../components/home/InstallmentPromoSection'
 import { SummerPromoBlock } from '../components/home/SummerPromoBlock'
 import { SeoBrandSection } from '../components/seo/SeoBrandSection'
 import { SeoCitiesSection } from '../components/seo/SeoCitiesSection'
@@ -202,6 +203,8 @@ export function HomePage() {
       <NewTigo7ProSection />
 
       <HomeBranchPicker />
+
+      <InstallmentPromoSection />
 
       <div id="home-offers">
         <FeaturedOffersSection compact limit={6} branchId={branchId || null} />

@@ -507,13 +507,8 @@ export const PROMO_BANNERS = [
     link: '/cars/7',
   },
   {
-    src: asset('تمارا١.jpg.jpeg'),
-    alt: 'قسّط مع تمارا',
-    link: '/cars',
-  },
-  {
-    src: asset('تمارا٢.jpg.jpeg'),
-    alt: 'قسّط مع تمارا',
+    src: asset('banner-installment-card.png'),
+    alt: 'قسّط إيجار سيارتك مع تابي وتمارا',
     link: '/cars',
   },
 ] as const
@@ -524,3 +519,7 @@ export const NEW_TIGO_7_PRO_IMAGE = asset('تيجو 7 برو.webp')
 export const NEW_TIGO_7_PRO_IMAGE_FALLBACK = asset('تيجو 7 برو.jpeg')
 export const SAVINGS_OFFER_IMAGE = asset('عروض-التوفير.jpg.webp')
 export const SAVINGS_OFFER_IMAGE_FALLBACK = asset('عروض-التوفير.jpg.jpeg')
+
+export const INSTALLMENT_BANNER_DESKTOP = asset('banner-installment-desktop.png')
+export const INSTALLMENT_BANNER_MOBILE = asset('banner-installment-mobile.png')
+export const INSTALLMENT_BANNER_CARD = asset('banner-installment-card.png')
