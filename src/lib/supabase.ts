@@ -577,6 +577,28 @@ export async function fetchBookings(): Promise<Booking[]> {
   return bookings
 }
 
+export async function fetchMyBookings(): Promise<Booking[]> {
+  if (!isSupabaseConfigured) {
+    return bookingsWithCars(getDemoBookings())
+  }
+
+  const client = requireSupabase()
+  const { data: sessionData } = await client.auth.getSession()
+  const userId = sessionData.session?.user?.id
+  if (!userId) {
+    throw new Error('يجب تسجيل الدخول لعرض حجوزاتك')
+  }
+
+  const { data, error } = await client
+    .from(BOOKINGS_TABLE)
+    .select('*, car:cars(*)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw new Error(formatError(error))
+  return ((data as Booking[]) ?? []).map(normalizeBooking)
+}
+
 export async function updateBookingStatus(
   id: string,
   status: BookingStatus,

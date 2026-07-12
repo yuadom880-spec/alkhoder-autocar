@@ -12,6 +12,9 @@ const CarDetailPage = lazy(() =>
 const BookingPage = lazy(() =>
   import('./pages/BookingPage').then((m) => ({ default: m.BookingPage })),
 )
+const MyBookingsPage = lazy(() =>
+  import('./pages/MyBookingsPage').then((m) => ({ default: m.MyBookingsPage })),
+)
 const OfferBookingPage = lazy(() =>
   import('./pages/OfferBookingPage').then((m) => ({ default: m.OfferBookingPage })),
 )
@@ -80,6 +83,7 @@ export default function App() {
             <Route path="cars/:id" element={<CarDetailPage />} />
             <Route path="book/offer/:offerId" element={<OfferBookingPage />} />
             <Route path="book/:id" element={<BookingPage />} />
+            <Route path="my-bookings" element={<MyBookingsPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="privacy" element={<PrivacyPolicyPage />} />
             <Route path="branches" element={<BranchesPage />} />

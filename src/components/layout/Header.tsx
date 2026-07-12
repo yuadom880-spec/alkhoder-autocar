@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { LogIn, LogOut, Menu, Phone, User, X } from 'lucide-react'
+import { ClipboardList, LogIn, LogOut, Menu, Phone, User, X } from 'lucide-react'
 import { MAIN_BRANCH_PHONE_LABEL, NAV_LINKS, PHONE, PHONE_LINK } from '../../lib/constants'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 
@@ -60,6 +60,13 @@ export function Header() {
             {!isLoading &&
               (isLoggedIn ? (
                 <div className="flex items-center gap-2">
+                  <Link
+                    to="/my-bookings"
+                    className="flex items-center gap-1.5 rounded-lg border border-brand-green/25 bg-brand-green/5 px-3 py-2 text-sm font-bold text-brand-green transition-colors hover:bg-brand-green/10"
+                  >
+                    <ClipboardList className="h-4 w-4" />
+                    {copy.myBookings.title}
+                  </Link>
                   <span
                     className="hidden max-w-[120px] truncate text-xs font-semibold text-slate-600 xl:inline"
                     dir="ltr"
@@ -150,6 +157,12 @@ export function Header() {
                           {displayAccount}
                         </span>
                       </div>
+                      <Link to="/my-bookings" onClick={() => setOpen(false)}>
+                        <Button variant="outline" className="w-full min-h-[44px]">
+                          <ClipboardList className="h-4 w-4" />
+                          {copy.myBookings.title}
+                        </Button>
+                      </Link>
                       <Button
                         variant="outline"
                         className="w-full min-h-[44px] text-red-700 border-red-200 hover:bg-red-50"
