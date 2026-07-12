@@ -169,7 +169,7 @@ export function HomePage() {
         <QuickSearch />
       </section>
 
-      <section className="bg-gradient-to-br from-brand-green/25 via-emerald-100 to-brand-gold/30 py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
+      <section className="border-y border-slate-200/70 bg-slate-50 py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
           <div className="mb-6 text-center sm:mb-10">
             <h2 className="section-title">{copy.home.whyUs}</h2>
@@ -183,7 +183,7 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-2xl border border-white/70 bg-white/90 p-3.5 text-center shadow-sm backdrop-blur-sm card-hover sm:p-6 sm:shadow-md"
+                className="rounded-2xl border border-slate-200/80 bg-white p-3.5 text-center shadow-md card-hover sm:p-6"
               >
                 <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green/15 text-brand-green text-lg font-bold sm:mb-4 sm:h-14 sm:w-14 sm:rounded-2xl sm:text-2xl">
                   {i + 1}
