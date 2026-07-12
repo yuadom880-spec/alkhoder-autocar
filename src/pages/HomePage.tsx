@@ -9,7 +9,7 @@ import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
-import { NewTigo7ProSection } from '../components/home/NewTigo7ProSection'
+import { BrandWelcomeVideoSection } from '../components/home/NewTigo7ProSection'
 import { CustomerReviewsSection } from '../components/home/CustomerReviewsSection'
 import { PartnersSection } from '../components/home/PartnersSection'
 import { ProfileServicesSection } from '../components/home/ProfileServicesSection'
@@ -200,7 +200,7 @@ export function HomePage() {
 
       <FleetShowcaseSection />
 
-      <NewTigo7ProSection />
+      <BrandWelcomeVideoSection />
 
       <InstallmentPromoSection />
 

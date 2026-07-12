@@ -50,6 +50,8 @@ export const copy = {
     newTigo7Pro: 'جديدنا — تيجو 7 برو',
     newTigo7ProSub: 'SUV عائلي — راحة وأداء على الطريق',
     brandVideoTitle: 'الخضر للسيارات',
+    brandVideoWelcome: 'ياهلا بك في عبدالمجيد الخضر لتأجير السيارات',
+    brandVideoWelcomeSub: 'اكتشف خدماتنا وأسطولنا — جاهزين نخدمك في أي وقت',
     reviewsTitle: 'آراء عملائنا',
     reviewsSub: 'تقييمات 5 نجوم من عملائنا على Google — تجارب حقيقية في تأجير السيارات',
     reviewsCta: 'شاهد على Google',
