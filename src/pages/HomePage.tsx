@@ -202,9 +202,9 @@ export function HomePage() {
 
       <NewTigo7ProSection />
 
-      <HomeBranchPicker />
-
       <InstallmentPromoSection />
+
+      <HomeBranchPicker />
 
       <div id="home-offers">
         <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
