@@ -17,8 +17,11 @@ export function formatAuthErrorMessage(error: unknown): string {
     ) {
       return 'تم تجاوز حد إرسال الإيميلات (إيميلان فقط في الساعة بدون SMTP مخصص). انتظر نحو ساعة ثم جرّب مرة واحدة — أو فعّل Resend SMTP في Supabase → Authentication → Email → SMTP'
     }
-    if (msg.includes('profiles') || msg.includes('schema cache')) {
+    if (msg.includes('schema cache') || msg.includes('Could not find the table')) {
       return 'قاعدة البيانات غير جاهزة — شغّل supabase/schema.sql في SQL Editor'
+    }
+    if (msg.includes('row-level security') && msg.includes('profiles')) {
+      return 'تعذّر حفظ بيانات الحساب — أكّد بريدك بالكود المرسل ثم حاول مرة أخرى'
     }
     if (msg) return msg
   }

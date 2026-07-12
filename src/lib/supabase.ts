@@ -1195,16 +1195,7 @@ export async function signUpCustomer(
   if (error) throw new Error(formatError(error))
   if (!data.user) throw new Error('تعذّر إنشاء الحساب — جرّب بريداً آخر')
 
-  await client.from(PROFILES_TABLE).upsert(
-    {
-      id: data.user.id,
-      email: trimmedEmail,
-      role: 'customer',
-      full_name: trimmedName,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'id' },
-  )
+  // الملف يُنشأ تلقائياً عبر trigger handle_new_user — لا upsert قبل تأكيد الإيميل
 
   return !data.session
 }
@@ -1221,6 +1212,18 @@ export async function verifySignupEmailOtp(email: string, code: string) {
   })
   if (error) throw new Error(formatError(error))
   if (!data.user) throw new Error('تعذّر التحقق — جرّب مرة أخرى')
+
+  const fullName = (data.user.user_metadata?.full_name as string | undefined)?.trim()
+  if (fullName) {
+    await client
+      .from(PROFILES_TABLE)
+      .update({
+        full_name: fullName,
+        email: email.trim(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', data.user.id)
+  }
 
   const role = await fetchProfileRole(data.user.id)
   if (role === 'admin') {
