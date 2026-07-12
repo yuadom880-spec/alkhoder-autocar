@@ -22,13 +22,13 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get('RESEND_API_KEY')
     const useProduction = Deno.env.get('RESEND_USE_PRODUCTION') === 'true'
-    const PRODUCTION_FROM = 'Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>'
+    const PRODUCTION_FROM = 'Alkhedr Cars <noreply@alkhodercar.com>'
     const TEST_FROM = 'onboarding@resend.dev'
 
     let from = (Deno.env.get('RESEND_FROM_EMAIL') ?? (useProduction ? PRODUCTION_FROM : TEST_FROM)).trim()
     if (from.startsWith('"') && from.endsWith('"')) from = from.slice(1, -1).trim()
     const addr = from.includes('<') ? from.match(/<([^>]+)>/)?.[1]?.trim() ?? from : from
-    if (/@alkhedrcars\.com$/i.test(addr)) {
+    if (/@alkhodercar\.com$/i.test(addr)) {
       /* verified domain sender */
     } else if (useProduction) {
       from = PRODUCTION_FROM

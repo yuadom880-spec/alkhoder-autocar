@@ -452,8 +452,18 @@ WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 11: حسابات العملاء (تسجيل دخول بالإيميل وكلمة المرور)            │
 -- │ الموقع + تطبيق Flutter — مجاني بدون Twilio أو SMS                       │
--- │ مطلوب: Authentication → Providers → Email → Confirm email ON            │
--- │ القالب الافتراضي يرسل كود/رابط تأكيد — العميل يدخل الكود في التطبيق      │
+-- │                                                                          │
+-- │ إعداد Supabase (يدوي — مرة واحدة بعد تحقق الدومين على Resend):          │
+-- │ 1) Authentication → Providers → Email → Confirm email = ON               │
+-- │ 2) Authentication → Email → SMTP Settings → Enable Custom SMTP:          │
+-- │    Host smtp.resend.com | Port 465 | User resend | Pass = RESEND_API_KEY │
+-- │    Sender: noreply@alkhodercar.com | Name: الخضر لتأجير السيارات        │
+-- │ 3) Authentication → Email Templates → Confirm signup — الصق:             │
+-- │    <h2>كود التحقق — الخضر لتأجير السيارات</h2>                           │
+-- │    <p>كود التأكيد: <strong>{{ .Token }}</strong></p>                       │
+-- │    <p>صالح لفترة محدودة. لا تشارك هذا الكود مع أحد.</p>                    │
+-- │ 4) Authentication → URL Configuration → Site URL = https://alkhodercar.com │
+-- │ 5) Authentication → Rate Limits — ارفع حد إرسال الإيميل إن لزم           │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 CREATE TABLE IF NOT EXISTS profiles (

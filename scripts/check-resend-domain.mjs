@@ -24,8 +24,8 @@ function loadEnv() {
 
 const env = { ...loadEnv(), ...process.env }
 const API_KEY = env.RESEND_API_KEY
-const DOMAIN = env.RESEND_DOMAIN ?? 'alkhedrcars.com'
-const PRODUCTION_FROM = env.RESEND_FROM_EMAIL_PROD ?? 'Alkhedr Cars <Alkhedr.qa@alkhedrcars.com>'
+const DOMAIN = env.RESEND_DOMAIN ?? 'alkhodercar.com'
+const PRODUCTION_FROM = env.RESEND_FROM_EMAIL_PROD ?? 'Alkhedr Cars <noreply@alkhodercar.com>'
 
 if (!API_KEY) {
   console.error('❌ ضع RESEND_API_KEY في .env')

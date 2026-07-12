@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>رمز التحقق</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f9;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+          <tr>
+            <td style="background:#0f5f3a;padding:24px 28px;text-align:center;">
+              <p style="margin:0;color:#ffffff;font-size:20px;font-weight:bold;line-height:1.5;">
+                عبدالمجيد الخضر لتأجير السيارات
+              </p>
+              <p style="margin:8px 0 0;color:#d1fae5;font-size:13px;">
+                الخضر لتأجير السيارات
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:28px;">
+              {{ if .Data.full_name }}
+              <p style="margin:0 0 12px;color:#0f172a;font-size:17px;font-weight:bold;">
+                مرحباً {{ .Data.full_name }}،
+              </p>
+              {{ else }}
+              <p style="margin:0 0 12px;color:#0f172a;font-size:17px;font-weight:bold;">
+                مرحباً بك،
+              </p>
+              {{ end }}
+              <p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.7;">
+                شكراً لتسجيلك في <strong>عبدالمجيد الخضر لتأجير السيارات</strong>.
+                لإكمال إنشاء حسابك، أدخل رمز التحقق التالي في الموقع:
+              </p>
+              <div style="margin:0 0 20px;padding:20px;background:#f0fdf4;border:2px dashed #0f5f3a;border-radius:12px;text-align:center;">
+                <p style="margin:0 0 8px;color:#64748b;font-size:13px;">رمز التحقق الخاص بك</p>
+                <p style="margin:0;color:#0f5f3a;font-size:34px;font-weight:bold;letter-spacing:8px;direction:ltr;">
+                  {{ .Token }}
+                </p>
+              </div>
+              <p style="margin:0 0 8px;color:#475569;font-size:14px;line-height:1.7;">
+                الرمز صالح لفترة محدودة. لا تشاركه مع أي شخص.
+              </p>
+              <p style="margin:0;color:#94a3b8;font-size:12px;line-height:1.6;">
+                إذا لم تطلب إنشاء حساب، تجاهل هذه الرسالة.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 28px 24px;border-top:1px solid #e2e8f0;text-align:center;">
+              <p style="margin:0;color:#94a3b8;font-size:12px;">
+                alkhodercar.com
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

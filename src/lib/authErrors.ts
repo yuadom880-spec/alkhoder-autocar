@@ -15,7 +15,7 @@ export function formatAuthErrorMessage(error: unknown): string {
       msg.includes('over_email_send_rate_limit') ||
       msg.includes('429')
     ) {
-      return 'تم تجاوز حد إرسال الإيميلات — انتظر ساعة أو فعّل SMTP مخصص (Resend) في Supabase → Authentication → SMTP'
+      return 'تم تجاوز حد إرسال الإيميلات (إيميلان فقط في الساعة بدون SMTP مخصص). انتظر نحو ساعة ثم جرّب مرة واحدة — أو فعّل Resend SMTP في Supabase → Authentication → Email → SMTP'
     }
     if (msg.includes('profiles') || msg.includes('schema cache')) {
       return 'قاعدة البيانات غير جاهزة — شغّل supabase/schema.sql في SQL Editor'
