@@ -10,6 +10,7 @@ import {
 import { getSupabaseEnv } from './env'
 import { formatDisplayPhone } from './phone'
 import { fetchBranches, supabase, isSupabaseConfigured } from './supabase'
+import { DEFAULT_SITE_URL } from './seo'
 import { formatDate, formatPrice } from './utils'
 
 const ADMIN_BOOKINGS_URL = 'https://alkhodercar.com/admin/bookings'
@@ -148,15 +149,36 @@ export async function resolveBookingBranchEmail(booking: Booking): Promise<strin
   return MAIN_BRANCH.email?.trim() ?? MAIN_BRANCH_EMAIL ?? EMAIL_QA
 }
 
-function getEmailApiUrl(): string {
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return `${window.location.origin}/api/send-booking-email`
+function isLocalDevHost(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin)
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.')
+    )
+  } catch {
+    return false
   }
+}
+
+function productionEmailApiUrl(): string {
   const site = import.meta.env.VITE_SITE_URL as string | undefined
-  if (site?.trim()) {
-    return `${site.trim().replace(/\/$/, '')}/api/send-booking-email`
-  }
-  return ''
+  const base = (site?.trim() || DEFAULT_SITE_URL).replace(/\/$/, '')
+  return `${base}/api/send-booking-email`
+}
+
+/** localhost ما عندوش /api — نستخدم API الإنتاج زي تطبيق الموبايل */
+function getEmailApiUrls(): string[] {
+  const production = productionEmailApiUrl()
+  if (typeof window === 'undefined') return [production]
+
+  const origin = window.location.origin
+  if (isLocalDevHost(origin)) return [production]
+
+  const sameOrigin = `${origin}/api/send-booking-email`
+  return sameOrigin === production ? [sameOrigin] : [sameOrigin, production]
 }
 
 function parseEmailApiError(data: unknown): string | undefined {
@@ -182,8 +204,7 @@ async function sendBookingEmail(
   const payload = { to: email, subject, html }
   let lastError: string | undefined
 
-  const apiUrl = getEmailApiUrl()
-  if (apiUrl) {
+  for (const apiUrl of getEmailApiUrls()) {
     try {
       const res = await fetch(apiUrl, {
         method: 'POST',
