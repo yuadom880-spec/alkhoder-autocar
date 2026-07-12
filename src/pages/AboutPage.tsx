@@ -47,7 +47,7 @@ export function AboutPage() {
 
         <div className="mb-16">
           <h2 className="section-title mb-8">{copy.about.goalsTitle}</h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {PROFILE_STRATEGIC_GOALS.map((goal, i) => {
               const Icon = goalIcons[i]
               return (
@@ -57,14 +57,16 @@ export function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="rounded-2xl bg-white p-6 shadow-md card-hover"
+                  className="rounded-2xl bg-white p-3.5 shadow-md card-hover sm:p-6"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green">
-                    <Icon className="h-6 w-6" />
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green sm:mb-4 sm:h-12 sm:w-12">
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
-                  <p className="text-xs text-brand-green mb-1">{goal.titleEn}</p>
-                  <h3 className="mb-2 font-bold text-brand-dark">{goal.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{goal.desc}</p>
+                  <p className="hidden text-xs text-brand-green mb-1 sm:block">{goal.titleEn}</p>
+                  <h3 className="mb-1.5 text-sm font-bold text-brand-dark sm:mb-2 sm:text-base">
+                    {goal.title}
+                  </h3>
+                  <p className="text-[11px] leading-relaxed text-slate-500 sm:text-sm">{goal.desc}</p>
                 </motion.div>
               )
             })}

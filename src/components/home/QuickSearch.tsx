@@ -49,7 +49,7 @@ export function QuickSearch() {
             </div>
           </div>
 
-          <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
             <div>
               <label className="label-field text-xs text-black">{copy.home.fromDate}</label>
               <input
@@ -76,7 +76,7 @@ export function QuickSearch() {
                 }}
               />
             </div>
-            <div>
+            <div className="col-span-2 lg:col-span-1">
               <label className="label-field text-xs text-black flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5 text-brand-green" />
                 {copy.cars.chooseBranch}
@@ -97,7 +97,7 @@ export function QuickSearch() {
                 ))}
               </select>
             </div>
-            <div className="flex items-end">
+            <div className="col-span-2 flex items-end lg:col-span-1">
               <Button className="w-full min-h-[48px]" size="lg" onClick={handleSearch}>
                 <Search className="h-4 w-4" />
                 {copy.home.searchCars}

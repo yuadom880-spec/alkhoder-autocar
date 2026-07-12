@@ -40,6 +40,14 @@
     @apply text-slate-500 text-sm sm:text-base mt-1.5 sm:mt-2 leading-relaxed;
   }
 
+  .mobile-card-grid {
+    @apply grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4;
+  }
+
+  .mobile-scroll-x {
+    @apply flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden;
+  }
+
   .card-hover {
     @apply transition-all duration-300;
   }

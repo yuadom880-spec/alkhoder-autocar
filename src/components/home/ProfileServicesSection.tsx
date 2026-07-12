@@ -7,14 +7,14 @@ const icons = [CalendarRange, Building2, Wrench, Headphones]
 
 export function ProfileServicesSection() {
   return (
-    <section className="bg-brand-dark py-14 sm:py-16 lg:py-20 text-white">
+    <section className="bg-brand-dark py-12 sm:py-16 lg:py-20 text-white">
       <div className="container-main">
-        <div className="mb-10 text-center">
+        <div className="mb-6 text-center sm:mb-10">
           <h2 className="text-xl sm:text-3xl font-bold">{copy.profile.servicesTitle}</h2>
           <p className="mt-2 text-sm sm:text-base text-slate-400">{copy.profile.servicesSub}</p>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {PROFILE_SERVICES.map((service, i) => {
             const Icon = icons[i]
             return (
@@ -24,14 +24,20 @@ export function ProfileServicesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm"
+                className="rounded-2xl border border-white/10 bg-white/5 p-3.5 backdrop-blur-sm sm:p-6"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-gold/20 text-brand-gold">
-                  <Icon className="h-6 w-6" />
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gold/20 text-brand-gold sm:mb-4 sm:h-12 sm:w-12">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
-                <p className="text-xs text-brand-gold/80 mb-1">{service.titleEn}</p>
-                <h3 className="mb-2 font-bold text-lg">{service.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{service.desc}</p>
+                <p className="mb-1 hidden text-[10px] text-brand-gold/80 sm:block sm:text-xs">
+                  {service.titleEn}
+                </p>
+                <h3 className="mb-1.5 text-sm font-bold leading-snug sm:mb-2 sm:text-lg">
+                  {service.title}
+                </h3>
+                <p className="text-[11px] leading-relaxed text-slate-400 sm:text-sm">
+                  {service.desc}
+                </p>
               </motion.div>
             )
           })}

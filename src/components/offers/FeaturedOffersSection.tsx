@@ -61,7 +61,7 @@ export function FeaturedOffersSection({
   ]
 
   return (
-    <section className={cn(compact ? 'py-16 lg:py-20 bg-slate-50' : 'py-10 lg:py-14')}>
+    <section className={cn(compact ? 'py-10 sm:py-16 lg:py-20 bg-slate-50' : 'py-10 lg:py-14')}>
       <div className="container-main">
         {showHeader && (
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -108,9 +108,22 @@ export function FeaturedOffersSection({
             <p className="text-slate-500">{copy.offers.noOffers}</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={cn(
+              compact
+                ? 'flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden'
+                : 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3',
+            )}
+          >
             {filtered.map((offer, i) => (
-              <FeaturedOfferCard key={offer.id} offer={offer} index={i} />
+              <div
+                key={offer.id}
+                className={cn(
+                  compact && 'w-[min(86vw,300px)] shrink-0 snap-start sm:w-auto sm:shrink',
+                )}
+              >
+                <FeaturedOfferCard offer={offer} index={i} />
+              </div>
             ))}
           </div>
         )}

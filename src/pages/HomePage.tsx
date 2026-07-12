@@ -169,13 +169,13 @@ export function HomePage() {
         <QuickSearch />
       </section>
 
-      <section className="py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
+      <section className="bg-gradient-to-br from-brand-green/[0.09] via-slate-100 to-brand-gold/[0.14] py-10 pt-8 sm:py-16 sm:pt-32 md:py-20 md:pt-36 lg:py-24">
         <div className="container-main">
-          <div className="mb-8 text-center sm:mb-10">
+          <div className="mb-6 text-center sm:mb-10">
             <h2 className="section-title">{copy.home.whyUs}</h2>
             <p className="section-subtitle">{copy.home.whyUsSub}</p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
             {copy.features.map((f, i) => (
               <motion.div
                 key={f.title}
@@ -183,13 +183,15 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-2xl bg-white p-6 shadow-md card-hover text-center"
+                className="rounded-2xl border border-white/70 bg-white/90 p-3.5 text-center shadow-sm backdrop-blur-sm card-hover sm:p-6 sm:shadow-md"
               >
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-green/10 text-brand-green text-2xl font-bold">
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green/15 text-brand-green text-lg font-bold sm:mb-4 sm:h-14 sm:w-14 sm:rounded-2xl sm:text-2xl">
                   {i + 1}
                 </div>
-                <h3 className="mb-2 font-bold text-brand-dark">{f.title}</h3>
-                <p className="text-sm text-slate-500">{f.desc}</p>
+                <h3 className="mb-1.5 text-sm font-bold leading-snug text-brand-dark sm:mb-2 sm:text-base">
+                  {f.title}
+                </h3>
+                <p className="text-[11px] leading-relaxed text-slate-500 sm:text-sm">{f.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -210,9 +212,9 @@ export function HomePage() {
         <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
       </div>
 
-      <section id="home-fleet" className="bg-white py-16 lg:py-20">
+      <section id="home-fleet" className="bg-white py-10 sm:py-16 lg:py-20">
         <div className="container-main">
-          <div className="mb-10">
+          <div className="mb-6 sm:mb-10">
             <h2 className="section-title">{copy.home.featured}</h2>
             <p className="section-subtitle">{copy.home.featuredSub}</p>
             <PricesIncludeVatNote />

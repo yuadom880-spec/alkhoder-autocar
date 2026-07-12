@@ -9,7 +9,7 @@ import { OptimizedImage } from '../ui/OptimizedImage'
 
 export function InstallmentPromoSection() {
   return (
-    <section className="bg-slate-50 py-10 sm:py-14 lg:py-16">
+    <section className="bg-gradient-to-b from-slate-50 to-brand-green/[0.05] py-8 sm:py-14 lg:py-16">
       <div className="container-main">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

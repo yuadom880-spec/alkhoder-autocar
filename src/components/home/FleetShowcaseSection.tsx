@@ -13,7 +13,7 @@ export function FleetShowcaseSection() {
   const category = PROFILE_FLEET.find((c) => c.id === active) ?? PROFILE_FLEET[0]
 
   return (
-    <section className="py-14 sm:py-16 lg:py-20">
+    <section className="bg-white py-10 sm:py-16 lg:py-20">
       <div className="container-main">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -37,14 +37,14 @@ export function FleetShowcaseSection() {
           />
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className="mb-6 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
           {PROFILE_FLEET.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActive(cat.id)}
               className={cn(
-                'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+                'shrink-0 rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm',
                 active === cat.id
                   ? 'bg-brand-green text-white'
                   : 'bg-white text-slate-600 shadow-sm hover:bg-slate-50',

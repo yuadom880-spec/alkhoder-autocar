@@ -26,19 +26,19 @@ function BranchCard({
       type="button"
       onClick={onClick}
       className={cn(
-        'group flex w-full items-start gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 text-right',
+        'group flex w-full items-start gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-3 text-right sm:gap-3 sm:p-4',
         'shadow-sm hover:border-brand-green/50 hover:shadow-md hover:shadow-brand-green/5',
         'active:scale-[0.99] transition-all duration-200 min-h-[72px]',
       )}
     >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green group-hover:bg-brand-green group-hover:text-white transition-colors mt-0.5">
-        <MapPin className="h-4 w-4" />
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-green/10 text-brand-green group-hover:bg-brand-green group-hover:text-white transition-colors mt-0.5 sm:h-11 sm:w-11 sm:rounded-xl">
+        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </div>
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="font-bold text-brand-dark text-[15px] sm:text-base leading-snug break-words">
+        <p className="font-bold text-brand-dark text-[13px] sm:text-base leading-snug break-words">
           {name}
         </p>
-        <p className="text-xs sm:text-sm text-slate-500 leading-relaxed break-words">{city}</p>
+        <p className="text-[11px] sm:text-sm text-slate-500 leading-relaxed break-words">{city}</p>
         {phone && (
           <p
             className="text-xs text-brand-green flex items-center gap-1.5 justify-end opacity-90 pt-0.5"
@@ -196,7 +196,7 @@ export function HomeBranchPicker({ browseTargetId = 'home-offers' }: HomeBranchP
                   <div
                     className={cn(
                       'grid gap-3',
-                      'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+                      'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
                       branches.length > 5 && 'max-h-[min(58vh,480px)] overflow-y-auto overscroll-contain',
                     )}
                   >
