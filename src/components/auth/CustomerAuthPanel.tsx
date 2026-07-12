@@ -102,10 +102,12 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
           : copy.customerAuth.errors.registerFailed)
       setError(message)
 
-      if (
-        mode === 'register' &&
-        (message.includes('مسجّل مسبقاً') || message.includes('تأكيد بريدك'))
-      ) {
+      if (mode === 'register' && message.includes('مسجّل بالفعل')) {
+        setMode('login')
+        setVerifyStep(false)
+        setPendingVerifyEmail(null)
+        setOtp('')
+      } else if (mode === 'login' && message.includes('تأكيد بريدك')) {
         setPendingVerifyEmail(trimmedEmail)
         setVerifyStep(true)
         setOtp('')

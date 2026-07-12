@@ -1195,6 +1195,11 @@ export async function signUpCustomer(
   if (error) throw new Error(formatError(error))
   if (!data.user) throw new Error('تعذّر إنشاء الحساب — جرّب بريداً آخر')
 
+  // Supabase يخفي التكرار — حساب مؤكد يعود بـ identities فارغة
+  if (!data.user.identities?.length) {
+    throw new Error('User already registered')
+  }
+
   // الملف يُنشأ تلقائياً عبر trigger handle_new_user — لا upsert قبل تأكيد الإيميل
 
   return !data.session

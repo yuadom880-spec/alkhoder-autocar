@@ -5,7 +5,7 @@ export function formatAuthErrorMessage(error: unknown): string {
       return 'البريد أو كلمة المرور غير صحيحة'
     }
     if (msg.includes('User already registered')) {
-      return 'هذا البريد مسجّل مسبقاً — سجّل دخولك'
+      return 'هذا البريد مسجّل بالفعل — سجّل دخولك بالإيميل وكلمة المرور'
     }
     if (msg.includes('Email not confirmed')) {
       return 'يجب تأكيد بريدك أولاً — أدخل كود التحقق المرسل لإيميلك'
