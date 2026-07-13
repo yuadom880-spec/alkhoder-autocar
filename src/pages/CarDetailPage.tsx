@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { ArrowRight, Calendar, Fuel, Settings2, Snowflake, Users } from 'lucide-react'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
@@ -48,8 +49,9 @@ export function CarDetailPage() {
     [id, start, end, promoId, branchId, rentalType],
   )
 
-  useEffect(() => {
+  const loadCar = useCallback(() => {
     if (!id) return
+    setLoading(true)
     const tasks: Promise<unknown>[] = [
       fetchCarById(id),
       fetchBookingBlocks(id, hasBranch ? branchId : null),
@@ -65,6 +67,21 @@ export function CarDetailPage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [id, promoId, hasBranch, branchId])
+
+  useEffect(() => {
+    loadCar()
+  }, [loadCar])
+
+  const reloadBlocks = useCallback(() => {
+    if (!id) return
+    fetchBookingBlocks(id, hasBranch ? branchId : null)
+      .then(setBlocks)
+      .catch(console.error)
+  }, [id, hasBranch, branchId])
+
+  useTableRealtime('cars', loadCar)
+  useTableRealtime('featured_offers', loadCar, Boolean(promoId))
+  useTableRealtime('bookings', reloadBlocks)
 
   const carAvailableInBranch = useMemo(
     () => !car || !hasBranch || carMatchesBranch(car, branchId),

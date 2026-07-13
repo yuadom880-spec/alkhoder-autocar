@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { Link, useLocation } from 'react-router'
 import { Calendar, Car, LayoutDashboard, MapPin, Tag } from 'lucide-react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
@@ -23,14 +24,20 @@ export function AdminMobileNav() {
     ? links.filter((l) => l.path !== '/admin/branches')
     : links
 
-  useEffect(() => {
+  const refreshPending = useCallback(() => {
     fetchBookings()
       .then((bks) => {
         const scoped = filterBookingsByBranch(bks, filterBranchId)
         setPendingCount(scoped.filter((b) => b.status === 'pending').length)
       })
       .catch(() => {})
-  }, [pathname, filterBranchId])
+  }, [filterBranchId])
+
+  useEffect(() => {
+    refreshPending()
+  }, [pathname, refreshPending])
+
+  useTableRealtime('bookings', refreshPending)
 
   return (
     <nav

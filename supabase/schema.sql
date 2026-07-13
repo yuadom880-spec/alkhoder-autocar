@@ -702,7 +702,35 @@ $$;
 GRANT EXECUTE ON FUNCTION public.delete_customer_account() TO authenticated;
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
--- │ القسم 15: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
+-- │ القسم 15: Supabase Realtime — تحديث تلقائي (حجوزات أدمن / سيارات عميل)  │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'bookings'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'cars'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.cars;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'featured_offers'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.featured_offers;
+  END IF;
+END $$;
+
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 16: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
 -- └──────────────────────────────────────────────────────────────────────────┘
 
 NOTIFY pgrst, 'reload schema';

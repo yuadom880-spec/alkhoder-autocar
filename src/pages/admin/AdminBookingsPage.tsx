@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { RefreshCw, Search } from 'lucide-react'
@@ -35,7 +36,7 @@ export function AdminBookingsPage() {
   const [search, setSearch] = useState('')
   const [loadError, setLoadError] = useState('')
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true)
     setLoadError('')
     fetchBookings()
@@ -45,9 +46,13 @@ export function AdminBookingsPage() {
         setLoadError(err instanceof Error ? err.message : 'فشل تحميل الحجوزات')
       })
       .finally(() => setLoading(false))
-  }
+  }, [])
 
-  useEffect(load, [])
+  useEffect(() => {
+    load()
+  }, [load])
+
+  useTableRealtime('bookings', load)
 
   useEffect(() => {
     fetchBranches({ activeOnly: false }).then(setBranches).catch(console.error)

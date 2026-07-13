@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTableRealtime } from '../hooks/useTableRealtime'
 import { useSearchParams } from 'react-router'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
@@ -46,7 +47,7 @@ export function CarsPage() {
 
   const { branchId: selectedBranch, hasBranch } = useCustomerBranch()
 
-  useEffect(() => {
+  const loadFleet = useCallback(() => {
     setLoading(true)
     Promise.all([
       fetchCars({ availableOnly: false }),
@@ -59,6 +60,19 @@ export function CarsPage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [hasBranch, selectedBranch])
+
+  useEffect(() => {
+    loadFleet()
+  }, [loadFleet])
+
+  const reloadBlocks = useCallback(() => {
+    fetchBookingBlocks(undefined, hasBranch ? selectedBranch : null)
+      .then(setBlocks)
+      .catch(console.error)
+  }, [hasBranch, selectedBranch])
+
+  useTableRealtime('cars', loadFleet)
+  useTableRealtime('bookings', reloadBlocks)
 
   const filtered = useMemo(() => {
     const result = cars.filter((car) => {

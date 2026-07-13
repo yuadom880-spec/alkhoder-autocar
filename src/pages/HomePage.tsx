@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
@@ -54,7 +55,7 @@ export function HomePage() {
   const { rentalType, setRentalType } = useRentalPeriod()
   const { branchId, hasBranch } = useCustomerBranch()
 
-  useEffect(() => {
+  const loadFleet = useCallback(() => {
     setLoading(true)
     Promise.all([
       fetchCars({ availableOnly: false }),
@@ -67,6 +68,19 @@ export function HomePage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [hasBranch, branchId])
+
+  useEffect(() => {
+    loadFleet()
+  }, [loadFleet])
+
+  const reloadBlocks = useCallback(() => {
+    fetchBookingBlocks(undefined, hasBranch ? branchId : null)
+      .then(setBlocks)
+      .catch(console.error)
+  }, [hasBranch, branchId])
+
+  useTableRealtime('cars', loadFleet)
+  useTableRealtime('bookings', reloadBlocks)
 
   const fleetCars = useMemo(() => {
     return cars

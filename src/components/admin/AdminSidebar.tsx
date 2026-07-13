@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Calendar, Car, LayoutDashboard, LogOut, ExternalLink, MapPin, Tag } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { LOGO_URL, SITE_NAME } from '../../lib/constants'
+import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { fetchBookings } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
 
@@ -26,14 +27,20 @@ export function AdminSidebar() {
     ? links.filter((l) => l.path !== '/admin/branches')
     : links
 
-  useEffect(() => {
+  const refreshPending = useCallback(() => {
     fetchBookings()
       .then((bks) => {
         const scoped = filterBookingsByBranch(bks, filterBranchId)
         setPendingCount(scoped.filter((b) => b.status === 'pending').length)
       })
       .catch(() => {})
-  }, [pathname, filterBranchId])
+  }, [filterBranchId])
+
+  useEffect(() => {
+    refreshPending()
+  }, [pathname, refreshPending])
+
+  useTableRealtime('bookings', refreshPending)
 
   return (
     <aside className="w-64 shrink-0 border-l border-slate-200 bg-white hidden lg:flex flex-col">

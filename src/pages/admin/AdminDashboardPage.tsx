@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch, filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
@@ -21,7 +22,7 @@ export function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true)
     Promise.all([fetchCars(), fetchBookings()])
       .then(([carsData, bks]) => {
@@ -30,9 +31,13 @@ export function AdminDashboardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }
+  }, [])
 
-  useEffect(load, [])
+  useEffect(() => {
+    load()
+  }, [load])
+
+  useTableRealtime('bookings', load)
 
   const visibleCars = useMemo(
     () => filterCarsByBranch(cars, filterBranchId),

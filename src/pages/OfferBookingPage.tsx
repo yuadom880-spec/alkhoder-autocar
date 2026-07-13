@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { buildBookingQuery } from '../lib/branchFilter'
 import { ArrowRight } from 'lucide-react'
@@ -24,8 +25,9 @@ export function OfferBookingPage() {
 
   const { branchId, hasBranch } = useCustomerBranch()
 
-  useEffect(() => {
+  const loadOffer = useCallback(() => {
     if (!offerId) return
+    setLoading(true)
     Promise.all([fetchFeaturedOfferById(offerId), fetchCars({ availableOnly: true })])
       .then(([offerData, carsData]) => {
         if (!offerData) return
@@ -46,6 +48,13 @@ export function OfferBookingPage() {
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [offerId, navigate, searchParams])
+
+  useEffect(() => {
+    loadOffer()
+  }, [loadOffer])
+
+  useTableRealtime('cars', loadOffer)
+  useTableRealtime('featured_offers', loadOffer)
 
   if (loading) return <LoadingSpinner />
 
