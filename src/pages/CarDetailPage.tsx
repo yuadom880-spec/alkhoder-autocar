@@ -50,7 +50,10 @@ export function CarDetailPage() {
 
   useEffect(() => {
     if (!id) return
-    const tasks: Promise<unknown>[] = [fetchCarById(id), fetchBookingBlocks(id)]
+    const tasks: Promise<unknown>[] = [
+      fetchCarById(id),
+      fetchBookingBlocks(id, hasBranch ? branchId : null),
+    ]
     if (promoId) tasks.push(fetchFeaturedOfferById(promoId))
 
     Promise.all(tasks)
@@ -61,7 +64,7 @@ export function CarDetailPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [id, promoId])
+  }, [id, promoId, hasBranch, branchId])
 
   const carAvailableInBranch = useMemo(
     () => !car || !hasBranch || carMatchesBranch(car, branchId),
@@ -70,8 +73,14 @@ export function CarDetailPage() {
 
   const availability = useMemo(
     () =>
-      car && hasBranch
-        ? getCarAvailability(car, blocks, start || undefined, end || undefined, branchId)
+      car
+        ? getCarAvailability(
+            car,
+            blocks,
+            start || undefined,
+            end || undefined,
+            hasBranch ? branchId : null,
+          )
         : null,
     [car, blocks, start, end, branchId, hasBranch],
   )
@@ -90,7 +99,17 @@ export function CarDetailPage() {
   }
 
   const images = car.images.length > 0 ? car.images : [car.image_url]
-  const canBook = hasBranch && carAvailableInBranch && (availability?.available ?? false)
+  const hasSelectedDates = Boolean(start && end)
+  const branchEnabled = isCarAvailableForBranch(car, hasBranch ? branchId : null)
+  const canBook =
+    hasBranch &&
+    carAvailableInBranch &&
+    branchEnabled &&
+    (!hasSelectedDates || (availability?.available ?? false))
+  const showUnavailableOverlay =
+    hasBranch &&
+    carAvailableInBranch &&
+    (!branchEnabled || (hasSelectedDates && availability?.available === false))
   const displayPrice =
     promoOffer && promoOffer.price > 0
       ? promoOffer.price
@@ -136,10 +155,14 @@ export function CarDetailPage() {
                 className="mb-3"
                 loading="eager"
               >
-                {!canBook && (
+                {showUnavailableOverlay && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40">
                     <span className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white">
-                      {getCustomerUnavailableLabel(availability?.reason)}
+                      {getCustomerUnavailableLabel(availability?.reason, {
+                        page: 'detail',
+                        startDate: start || undefined,
+                        endDate: end || undefined,
+                      })}
                     </span>
                   </div>
                 )}
@@ -167,8 +190,8 @@ export function CarDetailPage() {
                 <OfferBadge car={car} rentalType={rentalType} branchId={hasBranch ? branchId : null} />
                 <Badge>{getCategoryLabel(car.category, locale)}</Badge>
                 <Badge variant="info">{getClassLabel(car.car_class, locale)}</Badge>
-                {availability && (
-                  <CarAvailabilityBadge availability={availability} showDatesHint={Boolean(start && end)} />
+                {hasBranch && availability && (
+                  <CarAvailabilityBadge availability={availability} showDatesHint={hasSelectedDates} />
                 )}
               </div>
 
@@ -289,12 +312,6 @@ export function CarDetailPage() {
                   <p className="text-red-700 font-medium">
                     {!carAvailableInBranch ? copy.cars.noCarsInBranch : unavailableMessage}
                   </p>
-                  {!start &&
-                    !end &&
-                    isCarAvailableForBranch(car, hasBranch ? branchId : null) &&
-                    carAvailableInBranch && (
-                    <p className="mt-2 text-sm text-red-600/80">{copy.cars.checkDates}</p>
-                  )}
                 </div>
               )}
             </div>
