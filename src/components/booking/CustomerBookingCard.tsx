@@ -70,7 +70,10 @@ export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
               <p className="font-semibold text-brand-dark" dir="ltr">
                 {b.start_date} → {b.end_date}
               </p>
-              <p className="text-xs text-slate-500">{b.total_days} يوم</p>
+              <p className="text-xs text-slate-500">
+                {b.total_days}{' '}
+                {b.total_days === 1 ? copy.booking.dayUnit : copy.booking.daysUnit}
+              </p>
             </div>
           </div>
           {b.pickup_time && (

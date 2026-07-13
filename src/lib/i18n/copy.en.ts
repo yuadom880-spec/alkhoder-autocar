@@ -14,6 +14,8 @@ export const copyEn = {
       'After booking confirmation, pay your rental in easy installments via Tabby or Tamara — interest-free per provider terms.',
   },
   site: {
+    logoTitle: 'Alkhoder',
+    logoSubtitle: 'Car Rental',
     tagline: 'Daily & monthly car rental in Saudi Arabia',
     heroTitle: 'Your first choice for car rental',
     heroSubtitle:

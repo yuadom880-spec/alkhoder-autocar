@@ -4,7 +4,11 @@ import { copy } from '../../lib/copy'
 import { useLocale } from '../../context/LocaleContext'
 import { cn } from '../../lib/utils'
 
-export function LanguageSwitcher() {
+type LanguageSwitcherProps = {
+  compact?: boolean
+}
+
+export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const { pathname } = useLocation()
   const { locale, setLocale } = useLocale()
 
@@ -20,14 +24,17 @@ export function LanguageSwitcher() {
       type="button"
       onClick={() => setLocale(nextLocale)}
       className={cn(
-        'flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 transition-colors',
+        'flex items-center justify-center rounded-lg border border-slate-200 font-bold text-slate-600 transition-colors',
         'hover:border-brand-green/30 hover:bg-brand-green/5 hover:text-brand-green',
+        compact
+          ? 'h-10 w-10 shrink-0 p-0 lg:h-auto lg:w-auto lg:gap-1.5 lg:px-3 lg:py-2 lg:text-sm'
+          : 'gap-1.5 px-3 py-2 text-sm',
       )}
       aria-label={copy.language.label}
       title={label}
     >
-      <Globe className="h-4 w-4 shrink-0" />
-      <span>{label}</span>
+      <Globe className={cn('shrink-0', compact ? 'h-4 w-4' : 'h-4 w-4')} />
+      <span className={cn(compact && 'hidden lg:inline')}>{label}</span>
     </button>
   )
 }

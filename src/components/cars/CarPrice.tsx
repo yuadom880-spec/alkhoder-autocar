@@ -1,6 +1,7 @@
 import type { Car, RentalPeriodType } from '../../lib/types'
 import { getEffectivePrice, getOfferBadge, getOfferSavings, isOfferActive } from '../../lib/offers'
 import { getCarBasePrice, getPriceUnitLabel } from '../../lib/pricing'
+import { copy } from '../../lib/copy'
 import { cn, formatPrice } from '../../lib/utils'
 
 interface CarPriceProps {
@@ -46,7 +47,7 @@ export function CarPrice({
           <p className={cn('text-slate-400 line-through', s.old)}>{formatPrice(basePrice)}</p>
           {showSavings && (
             <p className="text-[10px] text-green-700 font-medium">
-              وفّر {formatPrice(getOfferSavings(car, rentalType, branchId))}
+              {copy.offers.save} {formatPrice(getOfferSavings(car, rentalType, branchId))}
             </p>
           )}
         </>

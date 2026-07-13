@@ -1,15 +1,22 @@
 import { formatDisplayPhone, toWhatsAppDigits } from './phone'
+import { getActiveLocale, type Locale } from './i18n'
 
 export function cn(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(' ')
 }
 
-export function formatPrice(amount: number): string {
-  return `${amount.toLocaleString('ar-SA')} ر.س`
+export function formatPrice(amount: number, locale?: Locale): string {
+  const loc = locale ?? getActiveLocale()
+  const rounded = Math.round(amount * 100) / 100
+  if (loc === 'en') {
+    return `SAR ${rounded.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+  }
+  return `${rounded.toLocaleString('ar-SA')} ر.س`
 }
 
-export function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString('ar-SA', {
+export function formatDate(date: string, locale?: Locale): string {
+  const loc = locale ?? getActiveLocale()
+  return new Date(date).toLocaleDateString(loc === 'en' ? 'en-US' : 'ar-SA', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

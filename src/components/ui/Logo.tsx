@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
-import { LOGO_URL, SITE_NAME, SITE_NAME_SHORT } from '../../lib/constants'
+import { LOGO_URL, SITE_NAME } from '../../lib/constants'
+import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl'
@@ -9,6 +10,8 @@ interface LogoProps {
   showText?: boolean
   linkTo?: string
   className?: string
+  /** Hide subtitle on small screens — for compact mobile header */
+  compact?: boolean
 }
 
 const sizes: Record<LogoSize, { img: string; text: string; sub: string }> = {
@@ -18,11 +21,17 @@ const sizes: Record<LogoSize, { img: string; text: string; sub: string }> = {
   xl: { img: 'h-20 sm:h-24 w-auto', text: 'text-xl', sub: 'text-sm' },
 }
 
-export function Logo({ size = 'md', showText = true, linkTo = '/', className }: LogoProps) {
+export function Logo({
+  size = 'md',
+  showText = true,
+  linkTo = '/',
+  className,
+  compact = false,
+}: LogoProps) {
   const s = sizes[size]
 
   const content = (
-    <div className={cn('flex items-center gap-1.5 sm:gap-2.5 min-w-0', className)}>
+    <div className={cn('flex items-center gap-2 min-w-0', className)}>
       <img
         src={LOGO_URL}
         alt={SITE_NAME}
@@ -32,23 +41,23 @@ export function Logo({ size = 'md', showText = true, linkTo = '/', className }: 
         <div className="min-w-0 leading-tight">
           <span
             className={cn(
-              'block font-bold text-brand-dark',
-              'text-[11px] leading-snug sm:text-base',
-              size === 'lg' && 'sm:text-lg',
+              'block font-bold text-brand-dark truncate',
+              compact ? 'text-xs sm:text-sm' : 'text-[11px] leading-snug sm:text-base',
+              size === 'lg' && !compact && 'sm:text-lg',
               size === 'xl' && 'text-sm sm:text-xl',
             )}
           >
-            {SITE_NAME_SHORT}
+            {copy.site.logoTitle}
           </span>
           <span
             className={cn(
-              'block text-slate-500 leading-snug',
-              'text-[8px] sm:text-[10px]',
-              size === 'lg' && 'sm:text-xs',
+              'block text-slate-500 leading-snug truncate',
+              compact ? 'hidden sm:block text-[10px]' : 'text-[8px] sm:text-[10px]',
+              size === 'lg' && !compact && 'sm:text-xs',
               size === 'xl' && 'text-[10px] sm:text-sm',
             )}
           >
-            لتأجير السيارات
+            {copy.site.logoSubtitle}
           </span>
         </div>
       )}
@@ -74,8 +83,8 @@ export function LogoLight({ size = 'md', linkTo = '/' }: { size?: LogoSize; link
         className={cn(s.img, 'object-contain rounded-lg')}
       />
       <div className="leading-tight hidden sm:block">
-        <span className={cn('block font-bold text-white', s.text)}>{SITE_NAME_SHORT}</span>
-        <span className={cn('text-slate-400', s.sub)}>لتأجير السيارات</span>
+        <span className={cn('block font-bold text-white', s.text)}>{copy.site.logoTitle}</span>
+        <span className={cn('text-slate-400', s.sub)}>{copy.site.logoSubtitle}</span>
       </div>
     </div>
   )

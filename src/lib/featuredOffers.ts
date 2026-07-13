@@ -218,7 +218,7 @@ export function getPromoSuggestedDays(_offer: FeaturedOffer | null): number {
 }
 
 export function getFeaturedOfferPriceLabel(offer: FeaturedOffer): string {
-  const unit = offer.rental_type === 'monthly' ? '/ شهر' : '/ يوم'
+  const unit = offer.rental_type === 'monthly' ? copy.cars.perMonth : copy.cars.perDay
   return `${formatPrice(offer.price)}${unit}`
 }
 

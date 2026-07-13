@@ -17,7 +17,7 @@ export function MonthlyPriceBreakdown({
 
   const monthLabel =
     fullMonths === 1 ? copy.booking.monthUnit : copy.booking.monthsUnit
-  const dayWord = extraDays === 1 ? 'يوم' : copy.booking.extraDays
+  const dayWord = extraDays === 1 ? copy.booking.dayUnit : copy.booking.daysUnit
 
   if (fullMonths === 0) {
     return (

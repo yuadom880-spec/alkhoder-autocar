@@ -1,3 +1,4 @@
+import { copy } from './copy'
 import type { Car, RentalPeriodType } from './types'
 import {
   defaultMonthlyPrice,
@@ -30,7 +31,7 @@ export function getCarDisplayPrice(
 }
 
 export function getPriceUnitLabel(rentalType: RentalPeriodType): string {
-  return rentalType === 'monthly' ? '/ شهر' : '/ يوم'
+  return rentalType === 'monthly' ? copy.cars.perMonth : copy.cars.perDay
 }
 
 export function getSortPrice(
