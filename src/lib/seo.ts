@@ -303,6 +303,12 @@ export const STATIC_PAGE_SEO: Record<string, PageSeoConfig> = {
       'سياسة خصوصية تطبيق وموقع الخضر لتأجير السيارات — كيف نجمع ونستخدم ونحمي بياناتك عند الحجز وإنشاء الحساب.',
     keywords: ['سياسة الخصوصية', 'الخضر لتأجير السيارات', 'حماية البيانات'],
   },
+  '/delete-account': {
+    title: `حذف الحساب | ${SITE_COMPANY_NAME}`,
+    description:
+      'طلب حذف حسابك وبياناتك من تطبيق وموقع الخضر لتأجير السيارات — خطوات الحذف من التطبيق والموقع والبيانات المحذوفة والمحفوظة.',
+    keywords: ['حذف الحساب', 'الخضر لتأجير السيارات', 'حذف البيانات'],
+  },
   '/branches': {
     title: 'فروعنا | ايجار سيارات في السعودية — الخضر',
     description:
@@ -467,6 +473,7 @@ export function buildPageJsonLdGraph(pathname: string, origin = getSiteUrl()) {
       '/offers': 'العروض',
       '/about': 'من نحن',
       '/privacy': 'سياسة الخصوصية',
+      '/delete-account': 'حذف الحساب',
       '/branches': 'فروعنا',
       '/locations': 'المدن',
     }
@@ -535,6 +542,7 @@ export const PUBLIC_ROUTES = [
   '/offers',
   '/about',
   '/privacy',
+  '/delete-account',
   '/branches',
   '/locations',
   ...SEO_CITIES.map((c) => `/locations/${c.slug}`),

@@ -22,6 +22,9 @@ const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default:
 const PrivacyPolicyPage = lazy(() =>
   import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })),
 )
+const DeleteAccountPage = lazy(() =>
+  import('./pages/DeleteAccountPage').then((m) => ({ default: m.DeleteAccountPage })),
+)
 const BranchesPage = lazy(() =>
   import('./pages/BranchesPage').then((m) => ({ default: m.BranchesPage })),
 )
@@ -86,6 +89,7 @@ export default function App() {
             <Route path="my-bookings" element={<MyBookingsPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="privacy" element={<PrivacyPolicyPage />} />
+            <Route path="delete-account" element={<DeleteAccountPage />} />
             <Route path="branches" element={<BranchesPage />} />
             <Route path="offers" element={<OffersPage />} />
             <Route path="locations" element={<LocationsIndexPage />} />
