@@ -455,6 +455,36 @@ SELECT * FROM (VALUES
 ) AS v(name, brand, model, year, category, price_per_day, price_per_month, image_url, images, specs, description, is_available, is_featured)
 WHERE NOT EXISTS (SELECT 1 FROM cars LIMIT 1);
 
+
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 10ب: Supabase Realtime — تحديث تلقائي                            │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'bookings'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'cars'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.cars;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'featured_offers'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.featured_offers;
+  END IF;
+END $$;
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 11: إعادة تحميل schema cache — مهم جداً بعد التشغيل               │
 -- └──────────────────────────────────────────────────────────────────────────┘

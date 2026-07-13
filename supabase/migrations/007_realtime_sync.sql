@@ -1,5 +1,5 @@
--- تفعيل Supabase Realtime لتحديث الحجوزات (أدمن) والسيارات (عميل) تلقائياً
--- شغّل في SQL Editor إن لم تُحدَّث schema.sql كاملاً
+-- Supabase Realtime — مُستخرج تلقائياً من supabase/schema.sql (القسم 15)
+-- المصدر الرئيسي: schema.sql — عدّل هناك ثم شغّل: npm run db:sync-schema
 
 DO $$
 BEGIN

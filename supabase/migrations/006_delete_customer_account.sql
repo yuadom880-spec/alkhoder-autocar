@@ -1,5 +1,5 @@
--- حذف حساب العميل من التطبيق (Google Play requirement)
--- شغّل في Supabase SQL Editor إن لم تُحدَّث schema.sql كاملاً
+-- حذف حساب العميل — مُستخرج تلقائياً من supabase/schema.sql (القسم 14)
+-- المصدر الرئيسي: schema.sql — عدّل هناك ثم شغّل: npm run db:sync-schema
 
 DROP FUNCTION IF EXISTS public.delete_customer_account();
 
