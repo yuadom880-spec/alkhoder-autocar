@@ -25,26 +25,8 @@ const SIZES = [
 ]
 
 async function generateSquareIcon(size) {
-  const pad = Math.round(size * 0.08)
-  const inner = size - pad * 2
-
-  const resizedLogo = await sharp(logoPath)
-    .resize(inner, inner, {
-      fit: 'contain',
-      background: { r: 255, g: 255, b: 255, alpha: 1 },
-    })
-    .png()
-    .toBuffer()
-
-  return sharp({
-    create: {
-      width: size,
-      height: size,
-      channels: 4,
-      background: { r: 255, g: 255, b: 255, alpha: 1 },
-    },
-  })
-    .composite([{ input: resizedLogo, gravity: 'center' }])
+  return sharp(logoPath)
+    .resize(size, size, { fit: 'cover', kernel: sharp.kernel.lanczos3 })
     .png()
     .toBuffer()
 }
