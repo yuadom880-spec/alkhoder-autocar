@@ -32,8 +32,8 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md safe-top">
-        <div className="container-main flex h-14 sm:h-16 items-center justify-between gap-3 py-2 sm:gap-4 sm:py-0">
-          <Logo size="sm" showText compact className="min-w-0 max-w-[58%] sm:max-w-none sm:flex-none" />
+        <div className="container-main flex min-h-[3.5rem] sm:h-16 items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0">
+          <Logo size="sm" showText compact className="min-w-0 flex-1 sm:flex-none sm:max-w-none" />
 
           <nav className="hidden items-center gap-1 lg:flex">
             {navLinks.map((link) => (
@@ -105,16 +105,39 @@ export function Header() {
             </Link>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1.5 lg:hidden">
+          <div className="flex shrink-0 items-center gap-1 lg:hidden">
             <LanguageSwitcher compact />
+
+            {!isLoading &&
+              (isLoggedIn ? (
+                <Link
+                  to="/my-bookings"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-brand-green/25 bg-brand-green/5 text-brand-green transition-colors hover:bg-brand-green/10"
+                  title={copy.myBookings.title}
+                  aria-label={copy.myBookings.title}
+                >
+                  <ClipboardList className="h-4 w-4" />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAuthOpen(true)}
+                  className="flex h-9 shrink-0 items-center gap-1 rounded-lg border border-brand-green/30 bg-brand-green/5 px-2 text-[10px] font-bold leading-none text-brand-green transition-colors hover:bg-brand-green/10"
+                  title={copy.nav.login}
+                >
+                  <LogIn className="h-3.5 w-3.5 shrink-0" />
+                  <span>{copy.nav.loginShort}</span>
+                </button>
+              ))}
+
             <button
               type="button"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 active:bg-slate-200"
               onClick={() => setOpen(!open)}
               aria-label={copy.nav.menu}
               aria-expanded={open}
             >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
@@ -138,44 +161,31 @@ export function Header() {
                 </Link>
               ))}
 
-              {!isLoading && (
+              {!isLoading && isLoggedIn && (
                 <div className="mt-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
-                  {isLoggedIn ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-brand-dark">
-                        <User className="h-4 w-4 text-brand-green" />
-                        <span>{copy.customerAuth.loggedInAs}</span>
-                        <span dir="ltr" className="text-slate-600">
-                          {displayAccount}
-                        </span>
-                      </div>
-                      <Link to="/my-bookings" onClick={() => setOpen(false)}>
-                        <Button variant="outline" className="w-full min-h-[44px]">
-                          <ClipboardList className="h-4 w-4" />
-                          {copy.myBookings.title}
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        className="w-full min-h-[44px] text-red-700 border-red-200 hover:bg-red-50"
-                        onClick={() => void handleSignOut()}
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {copy.customerAuth.logout}
-                      </Button>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-brand-dark">
+                      <User className="h-4 w-4 text-brand-green" />
+                      <span>{copy.customerAuth.loggedInAs}</span>
+                      <span dir="ltr" className="text-slate-600">
+                        {displayAccount}
+                      </span>
                     </div>
-                  ) : (
+                    <Link to="/my-bookings" onClick={() => setOpen(false)}>
+                      <Button variant="outline" className="w-full min-h-[44px]">
+                        <ClipboardList className="h-4 w-4" />
+                        {copy.myBookings.title}
+                      </Button>
+                    </Link>
                     <Button
-                      className="w-full min-h-[44px]"
-                      onClick={() => {
-                        setOpen(false)
-                        setAuthOpen(true)
-                      }}
+                      variant="outline"
+                      className="w-full min-h-[44px] text-red-700 border-red-200 hover:bg-red-50"
+                      onClick={() => void handleSignOut()}
                     >
-                      <LogIn className="h-4 w-4" />
-                      {copy.nav.login}
+                      <LogOut className="h-4 w-4" />
+                      {copy.customerAuth.logout}
                     </Button>
-                  )}
+                  </div>
                 </div>
               )}
 

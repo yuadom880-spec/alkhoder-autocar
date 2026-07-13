@@ -10,7 +10,7 @@ interface LogoProps {
   showText?: boolean
   linkTo?: string
   className?: string
-  /** Hide subtitle on small screens — for compact mobile header */
+  /** Compact layout for mobile header — two-line brand, smaller image */
   compact?: boolean
 }
 
@@ -31,18 +31,24 @@ export function Logo({
   const s = sizes[size]
 
   const content = (
-    <div className={cn('flex items-center gap-2 min-w-0', className)}>
+    <div className={cn('flex items-center gap-1.5 min-w-0', compact && 'gap-2', className)}>
       <img
         src={LOGO_URL}
         alt={SITE_NAME}
-        className={cn(s.img, 'shrink-0 object-contain rounded-lg')}
+        className={cn(
+          s.img,
+          'shrink-0 object-contain rounded-lg',
+          compact && 'h-8 w-8 sm:h-8',
+        )}
       />
       {showText && (
         <div className="min-w-0 leading-tight">
           <span
             className={cn(
-              'block font-bold text-brand-dark truncate',
-              compact ? 'text-xs sm:text-sm' : 'text-[11px] leading-snug sm:text-base',
+              'block font-bold text-brand-dark',
+              compact
+                ? 'text-[11px] leading-tight sm:text-xs'
+                : 'truncate text-[11px] leading-snug sm:text-base',
               size === 'lg' && !compact && 'sm:text-lg',
               size === 'xl' && 'text-sm sm:text-xl',
             )}
@@ -51,8 +57,10 @@ export function Logo({
           </span>
           <span
             className={cn(
-              'block text-slate-500 leading-snug truncate',
-              compact ? 'hidden sm:block text-[10px]' : 'text-[8px] sm:text-[10px]',
+              'block text-slate-500 leading-tight',
+              compact
+                ? 'text-[9px] sm:text-[10px]'
+                : 'truncate text-[8px] sm:text-[10px]',
               size === 'lg' && !compact && 'sm:text-xs',
               size === 'xl' && 'text-[10px] sm:text-sm',
             )}

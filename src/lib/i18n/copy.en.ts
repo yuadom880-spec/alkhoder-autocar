@@ -37,6 +37,7 @@ export const copyEn = {
     branches: 'Branches',
     bookNow: 'Book your car',
     login: 'Sign in',
+    loginShort: 'Login',
     admin: 'Admin panel',
     menu: 'Menu',
   },
