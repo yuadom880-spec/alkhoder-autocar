@@ -28,7 +28,7 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-5">
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <img src={LOGO_URL} alt={copy.footer.brandAlt} className="h-16 w-16 shrink-0 rounded-xl object-contain sm:h-[4.5rem] sm:w-[4.5rem]" />
+              <img src={LOGO_URL} alt={copy.footer.brandAlt} className="h-12 w-12 shrink-0 rounded-xl object-contain sm:h-14 sm:w-14" />
               <div>
                 <span className="block text-lg font-bold text-white">{siteName}</span>
                 <span className="block text-xs text-slate-400">{SITE_NAME_SHORT}</span>

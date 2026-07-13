@@ -15,10 +15,10 @@ interface LogoProps {
 }
 
 const sizes: Record<LogoSize, { img: string; text: string; sub: string }> = {
-  sm: { img: 'h-14 w-14 sm:h-16 sm:w-16', text: 'text-sm sm:text-base', sub: 'text-[10px] sm:text-xs' },
-  md: { img: 'h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]', text: 'text-base sm:text-lg', sub: 'text-xs' },
-  lg: { img: 'h-20 w-20 sm:h-24 sm:w-24', text: 'text-lg sm:text-xl', sub: 'text-xs sm:text-sm' },
-  xl: { img: 'h-28 w-28 sm:h-32 sm:w-32', text: 'text-xl sm:text-2xl', sub: 'text-sm' },
+  sm: { img: 'h-11 w-11 sm:h-12 sm:w-12', text: 'text-sm', sub: 'text-[9px] sm:text-[10px]' },
+  md: { img: 'h-12 w-12 sm:h-14 sm:w-14', text: 'text-base', sub: 'text-[10px] sm:text-xs' },
+  lg: { img: 'h-16 w-16 sm:h-20 sm:w-20', text: 'text-lg sm:text-xl', sub: 'text-xs' },
+  xl: { img: 'h-20 w-20 sm:h-24 sm:w-24', text: 'text-xl sm:text-2xl', sub: 'text-sm' },
 }
 
 export function Logo({
@@ -38,7 +38,7 @@ export function Logo({
         className={cn(
           s.img,
           'shrink-0 object-contain rounded-xl',
-          compact && 'h-14 w-14 sm:h-16 sm:w-16',
+          compact && 'h-11 w-11 sm:h-12 sm:w-12',
         )}
       />
       {showText && (

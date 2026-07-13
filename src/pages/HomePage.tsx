@@ -110,16 +110,13 @@ export function HomePage() {
             fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover object-[center_62%] brightness-[0.88] contrast-[1.1] saturate-[1.05] sm:hidden"
           />
-          <motion.img
+          <img
             src={PROFILE_IMAGES.heroLuxurySuv}
             alt=""
             aria-hidden
             loading="eager"
             decoding="async"
             fetchPriority="high"
-            initial={{ scale: 1 }}
-            animate={{ scale: 1.05 }}
-            transition={{ duration: 28, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
             className="absolute inset-0 hidden h-full w-full object-cover object-center brightness-[0.9] contrast-[1.08] saturate-[1.05] sm:block"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/85 via-brand-dark/55 to-brand-dark/30 sm:bg-gradient-to-l sm:from-brand-dark/95 sm:via-brand-dark/70 sm:to-transparent" />
@@ -143,7 +140,7 @@ export function HomePage() {
             <img
               src={LOGO_URL}
               alt={SITE_NAME}
-              className="hero-logo-glow mb-4 h-32 w-auto max-w-[min(100%,320px)] rounded-2xl object-contain sm:mb-5 sm:h-44 sm:max-w-[min(100%,420px)] lg:h-48 lg:max-w-[min(100%,460px)]"
+              className="hero-logo-glow mb-4 h-20 w-auto max-w-[200px] rounded-2xl object-contain sm:mb-5 sm:h-28 sm:max-w-[260px] lg:h-32 lg:max-w-[300px]"
             />
             <div className="flex max-w-xl flex-col gap-2 sm:gap-2.5">
               <span className="mb-2 inline-block w-fit rounded-full border border-brand-gold/35 bg-brand-dark/50 px-3.5 py-1.5 text-xs font-semibold text-brand-gold backdrop-blur-sm sm:mb-3 sm:px-4 sm:py-1.5 sm:text-sm">

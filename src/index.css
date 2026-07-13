@@ -6,12 +6,23 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
+    width: 100%;
   }
 
   body {
     @apply font-arabic bg-slate-50 text-brand-dark antialiased;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-tap-highlight-color: transparent;
+    overflow-x: clip;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #root {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
   }
 
   html[dir='ltr'] body {
