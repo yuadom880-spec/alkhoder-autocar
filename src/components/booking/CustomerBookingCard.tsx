@@ -3,7 +3,9 @@ import { Calendar, Car, ChevronUp, CreditCard, MapPin, MessageCircle, Phone } fr
 import { Link } from 'react-router'
 import type { Booking, BookingStatus } from '../../lib/types'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { translateBranchCity, translateBranchName } from '../../lib/i18n/branches'
 import { formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -23,7 +25,10 @@ function whatsappMessage(b: Booking): string {
 }
 
 export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
+  const { locale } = useLocale()
   const [expanded, setExpanded] = useState(b.status === 'pending' || b.status === 'confirmed')
+  const branchName = b.branch_name ? translateBranchName(b.branch_name, locale) : null
+  const branchCity = b.branch_city ? translateBranchCity(b.branch_city, locale) : null
 
   const rentalLabel =
     b.rental_type === 'monthly'
@@ -44,11 +49,11 @@ export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
               </Badge>
             </div>
             <p className="text-sm text-slate-600">{rentalLabel}</p>
-            {b.branch_name && (
+            {branchName && (
               <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
                 <MapPin className="h-3 w-3 shrink-0" />
-                {b.branch_name}
-                {b.branch_city ? ` — ${b.branch_city}` : ''}
+                {branchName}
+                {branchCity ? ` — ${branchCity}` : ''}
               </p>
             )}
           </div>

@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, MapPin, Phone } from 'lucide-react'
 import { useCustomerBranch } from '../../context/CustomerBranchContext'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { getBranchDisplay } from '../../lib/i18n/branches'
 import { cn } from '../../lib/utils'
 
 interface HomeBranchPickerProps {
@@ -55,6 +57,7 @@ function BranchCard({
 
 /** اختيار الفرع — قابل للطي؛ بدون فرع يُعرض كل الأسطول */
 export function HomeBranchPicker({ browseTargetId = 'home-offers' }: HomeBranchPickerProps) {
+  const { locale } = useLocale()
   const { branches, selectedBranch, hasBranch, loading, setBranchId } = useCustomerBranch()
   const [expanded, setExpanded] = useState(false)
 
@@ -112,9 +115,11 @@ export function HomeBranchPicker({ browseTargetId = 'home-offers' }: HomeBranchP
                 <div className="w-full max-w-lg px-1">
                   <p className="text-xs sm:text-sm text-slate-500 mb-1.5">{copy.cars.browsingBranch}</p>
                   <p className="font-bold text-brand-dark text-base sm:text-lg leading-snug break-words">
-                    {selectedBranch.name}
+                    {getBranchDisplay(selectedBranch, locale).name}
                   </p>
-                  <p className="text-slate-500 text-sm mt-1">{selectedBranch.city}</p>
+                  <p className="text-slate-500 text-sm mt-1">
+                    {getBranchDisplay(selectedBranch, locale).city}
+                  </p>
                 </div>
               ) : (
                 <div className="max-w-xl">
@@ -208,8 +213,8 @@ export function HomeBranchPicker({ browseTargetId = 'home-offers' }: HomeBranchP
                         transition={{ delay: Math.min(i * 0.03, 0.2), duration: 0.25 }}
                       >
                         <BranchCard
-                          name={branch.name}
-                          city={branch.city}
+                          name={getBranchDisplay(branch, locale).name}
+                          city={getBranchDisplay(branch, locale).city}
                           phone={branch.phone}
                           onClick={() => pickBranch(branch.id)}
                         />

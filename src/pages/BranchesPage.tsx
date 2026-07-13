@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
 import { useLocale } from '../context/LocaleContext'
+import { getBranchDisplay } from '../lib/i18n/branches'
 import { formatBranchHours } from '../lib/i18n/labels'
 import { getProfileAbout, getProfileBranchRegions } from '../lib/i18n/profile'
 import { PROFILE_IMAGES } from '../lib/profile'
@@ -77,16 +78,18 @@ export function BranchesPage() {
           </div>
         ) : (
           <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">
-            {branches.map((branch) => (
+            {branches.map((branch) => {
+              const display = getBranchDisplay(branch, locale)
+              return (
               <div
                 key={branch.id}
                 className="overflow-hidden rounded-2xl bg-white shadow-md card-hover"
               >
                 <div className="relative flex min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] items-center justify-center overflow-hidden bg-slate-100 px-4 py-5 sm:px-5 sm:py-6">
-                  <BranchImage src={branch.image_url} alt={branch.name} />
+                  <BranchImage src={branch.image_url} alt={display.name} />
                   <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
                   <h2 className="absolute bottom-4 right-4 left-4 text-lg sm:text-xl font-bold text-white drop-shadow">
-                    {branch.name}
+                    {display.name}
                   </h2>
                 </div>
 
@@ -94,8 +97,8 @@ export function BranchesPage() {
                   <div className="flex items-start gap-3 text-sm text-slate-600">
                     <MapPin className="h-5 w-5 shrink-0 text-brand-green mt-0.5" />
                     <div>
-                      <p className="font-medium text-brand-dark">{branch.city}</p>
-                      <p>{branch.address}</p>
+                      <p className="font-medium text-brand-dark">{display.city}</p>
+                      <p>{display.address}</p>
                     </div>
                   </div>
 
@@ -138,7 +141,7 @@ export function BranchesPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>

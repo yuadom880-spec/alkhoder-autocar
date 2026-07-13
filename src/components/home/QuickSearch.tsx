@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router'
 import { motion } from 'framer-motion'
 import { Calendar, MapPin, Search } from 'lucide-react'
 import { useCustomerBranch } from '../../hooks/useCustomerBranch'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { formatBranchOption } from '../../lib/i18n/branches'
 import { Button } from '../ui/Button'
 
 const today = () => new Date().toISOString().split('T')[0]
 
 export function QuickSearch() {
+  const { locale } = useLocale()
   const navigate = useNavigate()
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -92,7 +95,7 @@ export function QuickSearch() {
                 <option value="">{copy.cars.allBranches}</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.name} — {b.city}
+                    {formatBranchOption(b, locale)}
                   </option>
                 ))}
               </select>

@@ -2,7 +2,9 @@ import { Calendar, Car, MapPin, Tag } from 'lucide-react'
 import type { BranchRecord, Car as CarType, FeaturedOffer, RentalPeriodType } from '../../lib/types'
 import { CarImage } from '../cars/CarImage'
 
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { getBranchDisplay } from '../../lib/i18n/branches'
 import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/featuredOffers'
 import { getCarOffer, getEffectivePrice, isOfferActive } from '../../lib/offers'
 import {
@@ -38,6 +40,8 @@ export function BookingSummary({
   rentalType = 'daily',
   branch = null,
 }: BookingSummaryProps) {
+  const { locale } = useLocale()
+  const branchDisplay = branch ? getBranchDisplay(branch, locale) : null
   const hasPromo = Boolean(promoOffer && isFeaturedOfferActive(promoOffer))
   const effectiveRentalType = hasPromo && promoOffer ? promoOffer.rental_type : rentalType
   const isMonthly = effectiveRentalType === 'monthly'
@@ -115,8 +119,8 @@ export function BookingSummary({
           <MapPin className="h-4 w-4 text-brand-green shrink-0 mt-0.5" />
           <div>
             <p className="text-[10px] text-slate-400">{copy.booking.pickupBranch}</p>
-            <p className="font-bold text-brand-dark">{branch.name}</p>
-            <p className="text-xs text-slate-500">{branch.city}</p>
+            <p className="font-bold text-brand-dark">{branchDisplay?.name}</p>
+            <p className="text-xs text-slate-500">{branchDisplay?.city}</p>
           </div>
         </div>
       )}

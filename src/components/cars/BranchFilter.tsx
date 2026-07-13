@@ -1,6 +1,8 @@
 import { MapPin, X } from 'lucide-react'
 import type { BranchRecord } from '../../lib/types'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { formatBranchOption, getBranchDisplay } from '../../lib/i18n/branches'
 import { cn } from '../../lib/utils'
 
 interface BranchFilterProps {
@@ -19,7 +21,9 @@ export function BranchFilter({
   loading = false,
   required = false,
 }: BranchFilterProps) {
+  const { locale } = useLocale()
   const selected = branches.find((b) => b.id === selectedBranchId) ?? null
+  const selectedDisplay = selected ? getBranchDisplay(selected, locale) : null
 
   return (
     <div className="space-y-3">
@@ -43,7 +47,7 @@ export function BranchFilter({
           )}
           {branches.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.name} — {b.city}
+              {formatBranchOption(b, locale)}
             </option>
           ))}
         </select>
@@ -54,7 +58,7 @@ export function BranchFilter({
           <p className="text-sm text-slate-700">
             {copy.cars.browsingBranch}:{' '}
             <strong className="text-brand-dark">
-              {selected.name} — {selected.city}
+              {selectedDisplay?.name} — {selectedDisplay?.city}
             </strong>
             {selected.phone && (
               <span className="block text-xs text-slate-500 mt-0.5" dir="ltr">

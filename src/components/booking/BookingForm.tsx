@@ -17,7 +17,9 @@ import {
   endDateForOneCalendarMonth,
 } from '../../lib/pricing'
 import { MonthlyPriceBreakdown } from './MonthlyPriceBreakdown'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { formatBranchOption, getBranchDisplay } from '../../lib/i18n/branches'
 import {
   buildPickupTimeValue,
   formatPickupTimeLabel,
@@ -89,6 +91,7 @@ export function BookingForm({
   notifyState = null,
   initialCustomer,
 }: BookingFormProps) {
+  const { locale } = useLocale()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<BookingFormData>({
     customer_name: initialCustomer?.name ?? '',
@@ -130,6 +133,11 @@ export function BookingForm({
   const selectedBranch = useMemo(
     () => branches.find((b) => b.id === branchId) ?? null,
     [branches, branchId],
+  )
+
+  const selectedBranchDisplay = useMemo(
+    () => (selectedBranch ? getBranchDisplay(selectedBranch, locale) : null),
+    [selectedBranch, locale],
   )
 
   const datesComplete = Boolean(form.start_date && form.end_date)
@@ -315,8 +323,8 @@ export function BookingForm({
             <p className="text-sm text-slate-600">{copy.booking.successContactBranch}</p>
             <div className="flex items-start gap-2 justify-end">
               <div>
-                <p className="font-bold text-brand-dark">{selectedBranch.name}</p>
-                <p className="text-xs text-slate-500">{selectedBranch.city}</p>
+                <p className="font-bold text-brand-dark">{selectedBranchDisplay?.name}</p>
+                <p className="text-xs text-slate-500">{selectedBranchDisplay?.city}</p>
               </div>
               <MapPin className="h-5 w-5 shrink-0 text-brand-green mt-0.5" />
             </div>
@@ -334,7 +342,7 @@ export function BookingForm({
             <a
               href={toWhatsAppLink(
                 contactPhone,
-                `السلام عليكم، أرسلت طلب حجز من الموقع وأحتاج تأكيد الحجز — فرع ${selectedBranch.name}`,
+                `السلام عليكم، أرسلت طلب حجز من الموقع وأحتاج تأكيد الحجز — فرع ${selectedBranchDisplay?.name ?? selectedBranch.name}`,
               )}
               target="_blank"
               rel="noopener noreferrer"
@@ -553,10 +561,10 @@ export function BookingForm({
                       value={branchId}
                       onChange={(e) => setBranchId(e.target.value)}
                     >
-                      <option value="">— اختر الفرع —</option>
+                      <option value="">{copy.cars.selectBranchPlaceholder}</option>
                       {branches.map((branch) => (
                         <option key={branch.id} value={branch.id}>
-                          {branch.name} — {branch.city}
+                          {formatBranchOption(branch, locale)}
                         </option>
                       ))}
                     </select>
@@ -573,7 +581,7 @@ export function BookingForm({
                     <>
                       <span className="text-slate-400 mx-2">·</span>
                       <span className="text-slate-500">{copy.booking.pickupBranch}: </span>
-                      <strong>{selectedBranch.name}</strong>
+                      <strong>{selectedBranchDisplay?.name}</strong>
                     </>
                   )}
                 </div>
@@ -689,7 +697,9 @@ export function BookingForm({
           {selectedBranch && (
             <div className="flex justify-between">
               <span className="text-slate-500">{copy.booking.pickupBranch}</span>
-              <span className="font-medium">{selectedBranch.name} — {selectedBranch.city}</span>
+              <span className="font-medium">
+                {selectedBranchDisplay?.name} — {selectedBranchDisplay?.city}
+              </span>
             </div>
           )}
           <div className="flex justify-between">
