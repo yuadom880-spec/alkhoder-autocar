@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ClipboardList, LogIn, LogOut, Menu, Phone, User, X } from 'lucide-react'
-import { MAIN_BRANCH_PHONE_LABEL, PHONE, PHONE_LINK } from '../../lib/constants'
+import { PHONE, PHONE_LINK } from '../../lib/constants'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { useLocale } from '../../context/LocaleContext'
+import { getMainBranchDisplay } from '../../lib/i18n/labels'
 
 import { Logo } from '../ui/Logo'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -16,7 +17,8 @@ export function Header() {
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const { pathname } = useLocation()
-  const { navLinks } = useLocale()
+  const { navLinks, locale } = useLocale()
+  const mainBranch = getMainBranchDisplay(locale)
   const { isLoggedIn, profile, signOut, isLoading } = useCustomerAuth()
 
   const displayAccount =
@@ -54,7 +56,7 @@ export function Header() {
             <LanguageSwitcher />
             <a
               href={PHONE_LINK}
-              title={MAIN_BRANCH_PHONE_LABEL}
+              title={mainBranch.phoneLabel}
               className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-green transition-colors"
             >
               <Phone className="h-4 w-4" />
@@ -194,14 +196,14 @@ export function Header() {
 
               <a
                 href={PHONE_LINK}
-                title={MAIN_BRANCH_PHONE_LABEL}
+                title={mainBranch.phoneLabel}
                 className="flex min-h-[48px] flex-col items-start gap-0.5 rounded-xl px-4 py-3.5 text-base font-medium text-slate-600 active:bg-slate-50"
               >
                 <span className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
                   <span dir="ltr">{PHONE}</span>
                 </span>
-                <span className="pr-6 text-xs text-slate-500">{MAIN_BRANCH_PHONE_LABEL}</span>
+                <span className="pr-6 text-xs text-slate-500">{mainBranch.phoneLabel}</span>
               </a>
               <Link to="/cars" onClick={() => setOpen(false)} className="mt-2">
                 <Button className="w-full min-h-[48px]" size="lg">

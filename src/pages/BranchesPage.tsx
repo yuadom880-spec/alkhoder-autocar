@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
 import { useLocale } from '../context/LocaleContext'
+import { formatBranchHours } from '../lib/i18n/labels'
 import { getProfileAbout, getProfileBranchRegions } from '../lib/i18n/profile'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { fetchBranches } from '../lib/supabase'
@@ -113,7 +114,7 @@ export function BranchesPage() {
 
                   <div className="flex items-center gap-3 text-sm text-slate-600">
                     <Clock className="h-5 w-5 shrink-0 text-brand-green" />
-                    <span>{branch.hours}</span>
+                    <span>{formatBranchHours(branch.hours, locale)}</span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 pt-1">

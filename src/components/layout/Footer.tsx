@@ -2,16 +2,15 @@ import { Link } from 'react-router'
 import { Mail, MapPin, Phone } from 'lucide-react'
 import {
   EMAIL_OSAMA,
-  MAIN_BRANCH,
   PHONE,
   PHONE_LINK,
   LOGO_URL,
   SITE_NAME_SHORT,
-  MAIN_BRANCH_PHONE_LABEL,
   WHATSAPP_LINK,
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 import { useLocale } from '../../context/LocaleContext'
+import { getMainBranchDisplay } from '../../lib/i18n/labels'
 import { getCityDisplayName, getSiteSeoPrimary } from '../../lib/i18n/seoPages'
 
 import { SEO_CITIES, SEO_KEYWORDS_FOOTER_TEXT } from '../../lib/seo'
@@ -21,6 +20,7 @@ import { SocialLinks } from './SocialLinks'
 export function Footer() {
   const { navLinks, locale } = useLocale()
   const siteName = getSiteSeoPrimary(locale)
+  const mainBranch = getMainBranchDisplay(locale)
 
   return (
     <footer className="bg-brand-dark text-slate-300">
@@ -84,7 +84,7 @@ export function Footer() {
                 >
                   <Phone className="h-4 w-4 shrink-0 mt-0.5 text-brand-gold" />
                   <span>
-                    {MAIN_BRANCH_PHONE_LABEL}
+                    {mainBranch.phoneLabel}
                     <span className="mt-0.5 block" dir="ltr">
                       {PHONE}
                     </span>
@@ -114,7 +114,7 @@ export function Footer() {
               <li className="flex items-start gap-2 text-slate-400">
                 <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-brand-gold" />
                 <span>
-                  {MAIN_BRANCH.address} — {MAIN_BRANCH.city}
+                  {mainBranch.address} — {mainBranch.city}
                 </span>
               </li>
               <li>
@@ -130,7 +130,7 @@ export function Footer() {
 
           <div>
             <h3 className="mb-4 text-sm font-bold text-white">{copy.footer.hours}</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">{MAIN_BRANCH.hours}</p>
+            <p className="text-sm text-slate-400 leading-relaxed">{mainBranch.hours}</p>
           </div>
 
           <div className="sm:col-span-2 lg:col-span-1">

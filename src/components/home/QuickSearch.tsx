@@ -17,11 +17,11 @@ export function QuickSearch() {
 
   const handleSearch = () => {
     if (!startDate || !endDate) {
-      setError('حدد التواريخ عشان نعرض لك السيارات')
+      setError(copy.home.quickSearchDateRequired)
       return
     }
     if (endDate < startDate) {
-      setError('تاريخ النهاية لازم يكون بعد البداية')
+      setError(copy.home.quickSearchDateOrder)
       return
     }
     const params = new URLSearchParams({ start: startDate, end: endDate })

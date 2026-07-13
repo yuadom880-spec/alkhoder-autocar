@@ -4,11 +4,13 @@ import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { OptimizedImage } from '../ui/OptimizedImage'
 import { Button } from '../ui/Button'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
 import { PROFILE_FLEET, PROFILE_IMAGES } from '../../lib/profile'
 import { cn } from '../../lib/utils'
 
 export function FleetShowcaseSection() {
+  const { locale } = useLocale()
   const [active, setActive] = useState(PROFILE_FLEET[0].id)
   const category = PROFILE_FLEET.find((c) => c.id === active) ?? PROFILE_FLEET[0]
 
@@ -31,7 +33,7 @@ export function FleetShowcaseSection() {
         <div className="mb-8 overflow-hidden rounded-2xl">
           <OptimizedImage
             src={PROFILE_IMAGES.fleetBanner}
-            alt="أسطول عبدالمجيد الخضر"
+            alt={copy.profile.fleetTitle}
             className="h-40 sm:h-56 w-full object-cover object-center"
             loading="lazy"
           />
@@ -50,8 +52,10 @@ export function FleetShowcaseSection() {
                   : 'bg-white text-slate-600 shadow-sm hover:bg-slate-50',
               )}
             >
-              {cat.title}
-              <span className="mr-1 text-xs opacity-70">({cat.titleEn})</span>
+              {locale === 'en' ? cat.titleEn : cat.title}
+              {locale === 'ar' && (
+                <span className="mr-1 text-xs opacity-70">({cat.titleEn})</span>
+              )}
             </button>
           ))}
         </div>

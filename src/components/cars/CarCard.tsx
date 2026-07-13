@@ -3,10 +3,11 @@ import { motion } from 'framer-motion'
 import { Calendar, Fuel, Settings2, Users } from 'lucide-react'
 import type { Car, CarAvailability, RentalPeriodType } from '../../lib/types'
 import { buildBookingQuery } from '../../lib/branchFilter'
-import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../../lib/carStatus'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { getCategoryLabel, getClassLabel, translateCarSpec } from '../../lib/i18n/labels'
 import { Badge } from '../ui/Badge'
 import { CarPrice, OfferBadge } from './CarPrice'
 import { CarAvailabilityBadge } from './CarAvailabilityBadge'
@@ -32,6 +33,7 @@ export function CarCard({
   rentalType = 'daily',
   availability,
 }: CarCardProps) {
+  const { locale } = useLocale()
   const query = buildBookingQuery({ branch: branchId, start: startDate, end: endDate, rental: rentalType })
   const detailUrl = `/cars/${car.id}${query}`
   const bookUrl = `/book/${car.id}${query}`
@@ -50,8 +52,8 @@ export function CarCard({
         <CarImage src={car.image_url} alt={car.name} variant="card">
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
             <OfferBadge car={car} rentalType={rentalType} branchId={branchId} />
-            <Badge>{getCategoryLabel(car.category)}</Badge>
-            <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
+            <Badge>{getCategoryLabel(car.category, locale)}</Badge>
+            <Badge variant="info">{getClassLabel(car.car_class, locale)}</Badge>
             {availability && (
               <CarAvailabilityBadge
                 availability={availability}
@@ -87,22 +89,22 @@ export function CarCard({
         <div className="mb-4 flex flex-wrap gap-3 text-xs text-slate-500">
           <span className="flex items-center gap-1">
             <Settings2 className="h-3.5 w-3.5" />
-            {car.specs.transmission}
+            {translateCarSpec(car.specs.transmission, locale)}
           </span>
           <span className="flex items-center gap-1">
             <Fuel className="h-3.5 w-3.5" />
-            {car.specs.fuel}
+            {translateCarSpec(car.specs.fuel, locale)}
           </span>
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            {car.specs.seats} مقاعد
+            {car.specs.seats} {copy.detail.seatsUnit}
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <Link to={detailUrl}>
             <Button variant="outline" size="sm" className="w-full">
-              التفاصيل
+              {copy.cars.details}
             </Button>
           </Link>
           {canBook ? (

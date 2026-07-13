@@ -1,12 +1,9 @@
 import { Search } from 'lucide-react'
 import type { CarCategory, CarClass } from '../../lib/types'
-import {
-  CAR_CATEGORIES,
-  CAR_CLASSES,
-  CATEGORY_LABELS,
-  CLASS_LABELS,
-} from '../../lib/constants'
+import { CAR_CATEGORIES, CAR_CLASSES } from '../../lib/constants'
+import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { getCategoryLabel, getClassLabel } from '../../lib/i18n/labels'
 import { cn } from '../../lib/utils'
 
 interface CarFiltersProps {
@@ -53,22 +50,6 @@ function FilterChips<T extends string>({
   )
 }
 
-const categoryOptions: { value: CarCategory | 'all'; label: string }[] = [
-  { value: 'all', label: 'الكل' },
-  ...CAR_CATEGORIES.map((value) => ({
-    value,
-    label: CATEGORY_LABELS[value],
-  })),
-]
-
-const classOptions: { value: CarClass | 'all'; label: string }[] = [
-  { value: 'all', label: 'الكل' },
-  ...CAR_CLASSES.map((value) => ({
-    value,
-    label: CLASS_LABELS[value],
-  })),
-]
-
 export function CarFilters({
   search,
   onSearchChange,
@@ -77,26 +58,42 @@ export function CarFilters({
   carClass,
   onClassChange,
 }: CarFiltersProps) {
+  const { locale } = useLocale()
+
+  const categoryOptions: { value: CarCategory | 'all'; label: string }[] = [
+    { value: 'all', label: copy.cars.filterAll },
+    ...CAR_CATEGORIES.map((value) => ({
+      value,
+      label: getCategoryLabel(value, locale),
+    })),
+  ]
+
+  const classOptions: { value: CarClass | 'all'; label: string }[] = [
+    { value: 'all', label: copy.cars.filterAll },
+    ...CAR_CLASSES.map((value) => ({
+      value,
+      label: getClassLabel(value, locale),
+    })),
+  ]
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="search"
-          placeholder="ابحث عن سيارة..."
+          className="input-field pr-10"
+          placeholder={copy.cars.searchPlaceholder}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="input-field pr-11"
         />
       </div>
-
       <FilterChips
         label={copy.cars.filterCategory}
         value={category}
         options={categoryOptions}
         onChange={onCategoryChange}
       />
-
       <FilterChips
         label={copy.cars.filterClass}
         value={carClass}

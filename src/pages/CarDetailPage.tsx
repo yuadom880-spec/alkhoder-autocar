@@ -5,7 +5,8 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { CarAvailabilityBadge } from '../components/cars/CarAvailabilityBadge'
-import { getCategoryLabel, getClassLabel } from '../lib/constants'
+import { useLocale } from '../context/LocaleContext'
+import { getCategoryLabel, getClassLabel, translateCarSpec } from '../lib/i18n/labels'
 import { isCarAvailableForBranch } from '../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../lib/carStatus'
 import { copy } from '../lib/copy'
@@ -26,6 +27,7 @@ import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { formatDate, formatPrice } from '../lib/utils'
 
 export function CarDetailPage() {
+  const { locale } = useLocale()
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const [car, setCar] = useState<Car | null>(null)
@@ -163,8 +165,8 @@ export function CarDetailPage() {
             <div>
               <div className="mb-4 flex flex-wrap gap-2">
                 <OfferBadge car={car} rentalType={rentalType} branchId={hasBranch ? branchId : null} />
-                <Badge>{getCategoryLabel(car.category)}</Badge>
-                <Badge variant="info">{getClassLabel(car.car_class)}</Badge>
+                <Badge>{getCategoryLabel(car.category, locale)}</Badge>
+                <Badge variant="info">{getClassLabel(car.car_class, locale)}</Badge>
                 {availability && (
                   <CarAvailabilityBadge availability={availability} showDatesHint={Boolean(start && end)} />
                 )}
@@ -238,8 +240,12 @@ export function CarDetailPage() {
               <h2 className="font-bold text-brand-dark mb-3">{copy.detail.specs}</h2>
               <div className="grid grid-cols-2 gap-3 mb-8">
                 {[
-                  { icon: Settings2, label: copy.detail.transmission, value: car.specs.transmission },
-                  { icon: Fuel, label: copy.detail.fuel, value: car.specs.fuel },
+                  {
+                    icon: Settings2,
+                    label: copy.detail.transmission,
+                    value: translateCarSpec(car.specs.transmission, locale),
+                  },
+                  { icon: Fuel, label: copy.detail.fuel, value: translateCarSpec(car.specs.fuel, locale) },
                   { icon: Users, label: copy.detail.seats, value: `${car.specs.seats} ${copy.detail.seatsUnit}` },
                   {
                     icon: Snowflake,

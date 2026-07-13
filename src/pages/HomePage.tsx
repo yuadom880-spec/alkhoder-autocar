@@ -34,6 +34,7 @@ import {
 } from '../lib/constants'
 import { useLocale } from '../context/LocaleContext'
 import { getSeoHome } from '../lib/i18n'
+import { getMainBranchDisplay } from '../lib/i18n/labels'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
@@ -46,6 +47,7 @@ import type { Car as CarType } from '../lib/types'
 export function HomePage() {
   const { locale } = useLocale()
   const seoHome = getSeoHome(locale)
+  const mainBranch = getMainBranchDisplay(locale)
   const [cars, setCars] = useState<CarType[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
@@ -261,7 +263,7 @@ export function HomePage() {
             <div className="space-y-3 text-sm text-green-100">
               <p className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 shrink-0 mt-0.5" />
-                {MAIN_BRANCH.address} — {MAIN_BRANCH.city}
+                {mainBranch.address} — {mainBranch.city}
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="h-5 w-5 shrink-0" />
@@ -271,7 +273,7 @@ export function HomePage() {
               </p>
               <p className="flex items-center gap-2">
                 <Clock className="h-5 w-5 shrink-0" />
-                {MAIN_BRANCH.hours}
+                {mainBranch.hours}
               </p>
             </div>
             <div className="mt-5">
