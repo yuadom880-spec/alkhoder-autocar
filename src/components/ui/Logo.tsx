@@ -15,10 +15,10 @@ interface LogoProps {
 }
 
 const sizes: Record<LogoSize, { img: string; text: string; sub: string }> = {
-  sm: { img: 'h-9 w-9', text: 'text-sm', sub: 'text-[9px]' },
-  md: { img: 'h-10 w-10', text: 'text-base', sub: 'text-[10px]' },
-  lg: { img: 'h-14 w-14', text: 'text-lg', sub: 'text-xs' },
-  xl: { img: 'h-20 w-20 sm:h-24 sm:w-24', text: 'text-xl', sub: 'text-sm' },
+  sm: { img: 'h-12 w-12', text: 'text-sm', sub: 'text-[9px]' },
+  md: { img: 'h-14 w-14', text: 'text-base', sub: 'text-[10px]' },
+  lg: { img: 'h-18 w-18', text: 'text-lg', sub: 'text-xs' },
+  xl: { img: 'h-24 w-24 sm:h-28 sm:w-28', text: 'text-xl', sub: 'text-sm' },
 }
 
 export function Logo({
@@ -37,8 +37,8 @@ export function Logo({
         alt={SITE_NAME}
         className={cn(
           s.img,
-          'shrink-0 object-cover rounded-xl',
-          compact && 'h-9 w-9 sm:h-9',
+          'shrink-0 object-contain rounded-xl',
+          compact && 'h-12 w-12 sm:h-12',
         )}
       />
       {showText && (
@@ -88,7 +88,7 @@ export function LogoLight({ size = 'md', linkTo = '/' }: { size?: LogoSize; link
       <img
         src={LOGO_URL}
         alt={SITE_NAME}
-        className={cn(s.img, 'object-cover rounded-xl')}
+        className={cn(s.img, 'object-contain rounded-xl')}
       />
       <div className="leading-tight hidden sm:block">
         <span className={cn('block font-bold text-white', s.text)}>{copy.site.logoTitle}</span>
