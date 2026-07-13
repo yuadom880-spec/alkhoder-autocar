@@ -77,7 +77,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md safe-top">
-        <div className="container-main flex min-h-[3.5rem] sm:h-16 items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0">
+        <div className="container-main flex min-h-[4rem] sm:h-[4.5rem] items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0">
           <Logo size="sm" showText compact className="min-w-0 flex-1 sm:flex-none sm:max-w-none" />
 
           <nav className="hidden items-center gap-1 lg:flex">

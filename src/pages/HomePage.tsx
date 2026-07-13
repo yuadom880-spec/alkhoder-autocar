@@ -143,7 +143,7 @@ export function HomePage() {
             <img
               src={LOGO_URL}
               alt={SITE_NAME}
-              className="hero-logo-glow mb-3 h-24 w-auto max-w-[220px] rounded-2xl object-contain sm:mb-4 sm:h-36 sm:max-w-[280px]"
+              className="hero-logo-glow mb-4 h-32 w-auto max-w-[min(100%,320px)] rounded-2xl object-contain sm:mb-5 sm:h-44 sm:max-w-[min(100%,420px)] lg:h-48 lg:max-w-[min(100%,460px)]"
             />
             <div className="flex max-w-xl flex-col gap-2 sm:gap-2.5">
               <span className="mb-2 inline-block w-fit rounded-full border border-brand-gold/35 bg-brand-dark/50 px-3.5 py-1.5 text-xs font-semibold text-brand-gold backdrop-blur-sm sm:mb-3 sm:px-4 sm:py-1.5 sm:text-sm">
