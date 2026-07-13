@@ -1,7 +1,7 @@
 import { EMAIL_OSAMA, SITE_COMPANY_NAME, SITE_NAME } from './constants'
 
 export const PRIVACY_POLICY_URL = 'https://alkhodercar.com/privacy'
-export const PRIVACY_POLICY_LAST_UPDATED = '12 يوليو 2026'
+export const PRIVACY_POLICY_LAST_UPDATED = '13 يوليو 2026'
 
 export type PrivacySection = {
   title: string

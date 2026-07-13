@@ -1,5 +1,6 @@
 /** نصوص الموقع — فصحى سعودية بسيطة + كلمات إنجليزية */
 export const copyAr = {
+  locale: 'ar' as const,
   shared: {
     pricesIncludeVat: 'جميع الأسعار شاملة ضريبة القيمة المضافة (15%)',
   },
@@ -447,6 +448,14 @@ export const copyAr = {
     hasAccount: 'لديك حساب؟ سجّل دخولك',
     noAccount: 'ليس لديك حساب؟ أنشئ حساباً',
     logout: 'تسجيل خروج',
+    deleteAccount: 'حذف الحساب',
+    deleteAccountTitle: 'حذف الحساب نهائياً؟',
+    deleteAccountConfirm:
+      'سيتم حذف بيانات حسابك ولن تتمكن من تسجيل الدخول بهذا البريد. حجوزاتك السابقة تبقى مسجّلة لدى الشركة بدون ربط بحسابك.',
+    deleteAccountCancel: 'إلغاء',
+    deleteAccountConfirmBtn: 'نعم، احذف حسابي',
+    deleteAccountSuccess: 'تم حذف حسابك بنجاح',
+    deleteAccountWorking: 'جاري حذف الحساب...',
     loggedInAs: 'مسجّل كـ',
     emailVerifyTitle: 'تأكيد البريد الإلكتروني',
     emailVerifySub:
@@ -469,6 +478,11 @@ export const copyAr = {
       emailNotConfirmed: 'يجب تأكيد بريدك أولاً — أدخل كود التحقق المرسل لإيميلك',
       pendingVerify:
         'تم إرسال كود التحقق لهذا البريد — أدخل الكود أدناه. لا تُعِد التسجيل حتى لا يُستهلك حد الإيميلات',
+      notAuthenticated: 'يجب تسجيل الدخول لحذف حسابك',
+      adminCannotDelete: 'حسابات الإدارة لا تُحذف من الموقع — استخدم لوحة الإدارة',
+      accountNotFound: 'الحساب غير موجود أو تم حذفه مسبقاً',
+      deleteNotEnabled:
+        'حذف الحساب غير مفعّل بعد — شغّل supabase/migrations/006_delete_customer_account.sql في Supabase',
     },
   },
   privacy: {

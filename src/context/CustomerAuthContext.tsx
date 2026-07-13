@@ -14,6 +14,7 @@ import {
   isSupabaseConfigured,
   resendSignupEmailOtp,
   signInCustomer,
+  deleteCustomerAccount,
   signOutCustomer,
   signUpCustomer,
   supabase,
@@ -32,6 +33,7 @@ interface CustomerAuthContextValue {
   verifyEmailOtp: (email: string, code: string) => Promise<void>
   resendEmailOtp: (email: string) => Promise<void>
   signOut: () => Promise<void>
+  deleteAccount: () => Promise<void>
   refresh: () => Promise<void>
 }
 
@@ -121,6 +123,11 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
     await refresh()
   }, [refresh])
 
+  const deleteAccount = useCallback(async () => {
+    await deleteCustomerAccount()
+    await refresh()
+  }, [refresh])
+
   const value = useMemo(
     () => ({
       user,
@@ -132,9 +139,21 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
       verifyEmailOtp,
       resendEmailOtp,
       signOut,
+      deleteAccount,
       refresh,
     }),
-    [user, profile, isLoading, signIn, signUp, verifyEmailOtp, resendEmailOtp, signOut, refresh],
+    [
+      user,
+      profile,
+      isLoading,
+      signIn,
+      signUp,
+      verifyEmailOtp,
+      resendEmailOtp,
+      signOut,
+      deleteAccount,
+      refresh,
+    ],
   )
 
   return (

@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { ClipboardList, LogIn, LogOut, Menu, Phone, User, X } from 'lucide-react'
+import {
+  ClipboardList,
+  LogIn,
+  LogOut,
+  Menu,
+  Phone,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react'
 import { PHONE, PHONE_LINK } from '../../lib/constants'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { useLocale } from '../../context/LocaleContext'
 import { getMainBranchDisplay } from '../../lib/i18n/labels'
+import { formatAuthErrorMessage } from '../../lib/authErrors'
 
 import { Logo } from '../ui/Logo'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -12,21 +22,56 @@ import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { CustomerAuthModal } from '../auth/CustomerAuthModal'
+import { DeleteAccountDialog } from '../auth/DeleteAccountDialog'
 
 export function Header() {
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
   const { pathname } = useLocation()
   const { navLinks, locale } = useLocale()
   const mainBranch = getMainBranchDisplay(locale)
-  const { isLoggedIn, profile, signOut, isLoading } = useCustomerAuth()
+  const { isLoggedIn, profile, signOut, deleteAccount, isLoading } = useCustomerAuth()
 
   const displayAccount =
     profile?.full_name?.trim() || profile?.email?.trim() || null
 
+  useEffect(() => {
+    if (!accountMenuOpen) return
+    const onDocClick = (e: MouseEvent) => {
+      if (!accountMenuRef.current?.contains(e.target as Node)) {
+        setAccountMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [accountMenuOpen])
+
+  useEffect(() => {
+    if (!toast) return
+    const t = window.setTimeout(() => setToast(null), 4000)
+    return () => window.clearTimeout(t)
+  }, [toast])
+
   const handleSignOut = async () => {
     await signOut()
     setOpen(false)
+    setAccountMenuOpen(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccount()
+      setOpen(false)
+      setAccountMenuOpen(false)
+      setToast(copy.customerAuth.deleteAccountSuccess)
+    } catch (err) {
+      setToast(formatAuthErrorMessage(err))
+      throw err
+    }
   }
 
   return (
@@ -65,7 +110,7 @@ export function Header() {
 
             {!isLoading &&
               (isLoggedIn ? (
-                <div className="flex items-center gap-2">
+                <div className="relative flex items-center gap-2" ref={accountMenuRef}>
                   <Link
                     to="/my-bookings"
                     className="flex items-center gap-1.5 rounded-lg border border-brand-green/25 bg-brand-green/5 px-3 py-2 text-sm font-bold text-brand-green transition-colors hover:bg-brand-green/10"
@@ -73,21 +118,65 @@ export function Header() {
                     <ClipboardList className="h-4 w-4" />
                     {copy.myBookings.title}
                   </Link>
-                  <span
-                    className="hidden max-w-[120px] truncate text-xs font-semibold text-slate-600 xl:inline"
-                    dir="ltr"
-                    title={displayAccount ?? undefined}
-                  >
-                    {displayAccount}
-                  </span>
                   <button
                     type="button"
-                    onClick={() => void handleSignOut()}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                    onClick={() => setAccountMenuOpen((v) => !v)}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                    aria-expanded={accountMenuOpen}
+                    aria-haspopup="menu"
                   >
-                    <LogOut className="h-4 w-4" />
-                    {copy.customerAuth.logout}
+                    <User className="h-4 w-4 text-brand-green" />
+                    <span
+                      className="hidden max-w-[120px] truncate xl:inline"
+                      dir="ltr"
+                      title={displayAccount ?? undefined}
+                    >
+                      {displayAccount}
+                    </span>
                   </button>
+                  {accountMenuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute top-full mt-2 min-w-[220px] rounded-xl border border-slate-200 bg-white p-2 shadow-lg ltr:right-0 rtl:left-0"
+                    >
+                      <p
+                        className="px-3 py-2 text-xs font-semibold text-slate-500"
+                        dir="ltr"
+                      >
+                        {displayAccount}
+                      </p>
+                      <Link
+                        to="/my-bookings"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      >
+                        <ClipboardList className="h-4 w-4" />
+                        {copy.myBookings.title}
+                      </Link>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => void handleSignOut()}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        {copy.customerAuth.logout}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setAccountMenuOpen(false)
+                          setDeleteOpen(true)
+                        }}
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {copy.customerAuth.deleteAccount}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <button
@@ -185,6 +274,17 @@ export function Header() {
                       <LogOut className="h-4 w-4" />
                       {copy.customerAuth.logout}
                     </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full min-h-[44px] text-red-700 border-red-200 hover:bg-red-50"
+                      onClick={() => {
+                        setOpen(false)
+                        setDeleteOpen(true)
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      {copy.customerAuth.deleteAccount}
+                    </Button>
                   </div>
                 </div>
               )}
@@ -211,6 +311,19 @@ export function Header() {
       </header>
 
       <CustomerAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <DeleteAccountDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteAccount}
+      />
+      {toast && (
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 z-[70] max-w-sm -translate-x-1/2 rounded-xl bg-brand-dark px-4 py-3 text-center text-sm font-medium text-white shadow-lg"
+        >
+          {toast}
+        </div>
+      )}
     </>
   )
 }

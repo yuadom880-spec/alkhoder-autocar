@@ -72,18 +72,30 @@ const sectionsAr: PrivacySection[] = [
     title: 'مدة الاحتفاظ بالبيانات',
     paragraphs: [
       'نحتفظ ببيانات حسابك طالما كان حسابك نشطاً أو حسب ما تقتضيه متطلبات الخدمة والقانون.',
-      'بيانات الحجوزات تُحفظ لأغراض تشغيلية ومحاسبية وفق سياسات الشركة والأنظمة السعودية.',
-      'يمكنك طلب حذف حسابك أو تصحيح بياناتك عبر التواصل معنا (انظر قسم «حقوقك»).',
+      'بيانات الحجوزات تُحفظ لأغراض تشغيلية ومحاسبية وفق سياسات الشركة والأنظمة السعودية حتى بعد حذف حسابك.',
+      'يمكنك حذف حسابك من التطبيق أو الموقع، أو طلب تصحيح بياناتك عبر التواصل معنا (انظر الأقسام «حذف الحساب» و«حقوقك»).',
     ],
   },
   {
     title: 'حقوقك',
     paragraphs: ['لديك الحق في:'],
     bullets: [
-      'الاطلاع على بياناتك الشخصية وتحديثها من داخل التطبيق أو عبر التواصل معنا.',
-      'طلب حذف حسابك وبياناتك (ما لم يمنعنا القانون من ذلك).',
+      'الاطلاع على بياناتك الشخصية وتحديثها من داخل التطبيق أو الموقع أو عبر التواصل معنا.',
+      'حذف حسابك وبياناتك الشخصية من التطبيق أو الموقع (ما لم يمنعنا القانون من ذلك).',
       'الاعتراض على معالجة بياناتك أو سحب موافقتك حيث ينطبق ذلك.',
       'تقديم شكوى إلى الجهة المختصة في المملكة إذا رأيت أن حقوقك مُنتهكة.',
+    ],
+  },
+  {
+    title: 'حذف الحساب',
+    paragraphs: [
+      'يمكنك حذف حسابك نهائياً من داخل تطبيق الجوال أو الموقع الإلكتروني دون الحاجة للتواصل معنا.',
+      'عند الحذف: تُزال بيانات حسابك (الاسم، البريد، كلمة المرور) من أنظمتنا. تبقى سجلات الحجوزات السابقة لدى الشركة لأغراض تشغيلية ومحاسبية لكن دون ربطها بحسابك.',
+      `يمكنك أيضاً طلب الحذف أو تصحيح البيانات عبر البريد: ${EMAIL_OSAMA}`,
+    ],
+    bullets: [
+      'التطبيق: أيقونة الحساب في الشريط العلوي → حذف الحساب → تأكيد.',
+      'الموقع (كمبيوتر أو جوال): قائمة الحساب → حذف الحساب → تأكيد.',
     ],
   },
   {
@@ -186,18 +198,30 @@ const sectionsEn: PrivacySection[] = [
     title: 'Data retention',
     paragraphs: [
       'We retain your account data while your account is active or as required by service and legal requirements.',
-      'Booking data is kept for operational and accounting purposes in line with company policies and Saudi regulations.',
-      'You may request deletion or correction of your data by contacting us (see "Your rights").',
+      'Booking data is kept for operational and accounting purposes in line with company policies and Saudi regulations, even after you delete your account.',
+      'You may delete your account from the app or website, or request correction of your data by contacting us (see "Account deletion" and "Your rights").',
     ],
   },
   {
     title: 'Your rights',
     paragraphs: ['You have the right to:'],
     bullets: [
-      'Access and update your personal data within the app or by contacting us.',
-      'Request deletion of your account and data (unless prevented by law).',
+      'Access and update your personal data within the app, on the website, or by contacting us.',
+      'Delete your account and personal data from the app or website (unless prevented by law).',
       'Object to processing of your data or withdraw consent where applicable.',
       'File a complaint with the competent authority in the Kingdom if you believe your rights have been violated.',
+    ],
+  },
+  {
+    title: 'Account deletion',
+    paragraphs: [
+      'You can permanently delete your account from the mobile app or website without contacting us.',
+      'When deleted: your account data (name, email, password) is removed from our systems. Past booking records remain with the company for operational and accounting purposes but are unlinked from your account.',
+      `You may also request deletion or correction by email: ${EMAIL_OSAMA}`,
+    ],
+    bullets: [
+      'App: account icon in the top bar → Delete account → Confirm.',
+      'Website (desktop or mobile): Account menu → Delete account → Confirm.',
     ],
   },
   {
@@ -243,5 +267,5 @@ export function getPrivacySections(locale: Locale): PrivacySection[] {
 }
 
 export function getPrivacyLastUpdated(locale: Locale): string {
-  return locale === 'en' ? 'July 12, 2026' : '12 يوليو 2026'
+  return locale === 'en' ? 'July 13, 2026' : '13 يوليو 2026'
 }

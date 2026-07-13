@@ -1,5 +1,6 @@
 /** Site copy — English */
 export const copyEn = {
+  locale: 'en' as const,
   shared: {
     pricesIncludeVat: 'All prices include VAT (15%)',
   },
@@ -447,6 +448,14 @@ export const copyEn = {
     hasAccount: 'Have an account? Sign in',
     noAccount: 'No account? Create one',
     logout: 'Sign out',
+    deleteAccount: 'Delete account',
+    deleteAccountTitle: 'Delete account permanently?',
+    deleteAccountConfirm:
+      'Your account data will be permanently deleted and you will not be able to sign in with this email again. Your past bookings remain on record with the company, unlinked from your account.',
+    deleteAccountCancel: 'Cancel',
+    deleteAccountConfirmBtn: 'Yes, delete my account',
+    deleteAccountSuccess: 'Your account has been deleted successfully',
+    deleteAccountWorking: 'Deleting account...',
     loggedInAs: 'Signed in as',
     emailVerifyTitle: 'Verify your email',
     emailVerifySub:
@@ -469,6 +478,11 @@ export const copyEn = {
       emailNotConfirmed: 'You must verify your email first — enter the code sent to your inbox',
       pendingVerify:
         'A verification code was sent to this email — enter it below. Do not register again to avoid email limits',
+      notAuthenticated: 'You must be signed in to delete your account',
+      adminCannotDelete: 'Admin accounts cannot be deleted from the website — use the admin panel',
+      accountNotFound: 'Account not found or already deleted',
+      deleteNotEnabled:
+        'Account deletion is not enabled yet — run supabase/migrations/006_delete_customer_account.sql in Supabase',
     },
   },
   privacy: {

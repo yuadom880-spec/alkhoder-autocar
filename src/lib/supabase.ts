@@ -1318,6 +1318,14 @@ export async function signOutCustomer() {
   if (error) throw new Error(formatError(error))
 }
 
+export async function deleteCustomerAccount() {
+  const client = requireSupabase()
+  const { error } = await client.rpc('delete_customer_account')
+  if (error) throw new Error(formatError(error))
+  const { error: signOutError } = await client.auth.signOut()
+  if (signOutError) throw new Error(formatError(signOutError))
+}
+
 export async function fetchCustomerProfile(): Promise<CustomerProfile | null> {
   const client = requireSupabase()
   const { data: sessionData } = await client.auth.getSession()
