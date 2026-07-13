@@ -93,18 +93,14 @@ export function BookingPage() {
       if (cancelled) return
 
       if (!carData) {
-        setLoadError(
-          promo
-            ? 'السيارة المرتبطة بالعرض غير موجودة — تأكد من ربط العرض بسيارة من لوحة الإدارة'
-            : copy.detail.notFound,
-        )
+        setLoadError(promo ? copy.booking.carNotLinkedToOffer : copy.detail.notFound)
         setCar(null)
         setPromoOffer(promo)
         return
       }
 
       if (branchId && !carMatchesBranch(carData, branchId)) {
-        setLoadError('هذه السيارة غير متاحة في الفرع المحدد — ارجع لصفحة السيارات واختر فرعاً آخر')
+        setLoadError(copy.booking.carNotInBranch)
         setCar(carData)
         setPromoOffer(promo)
         setBranches(branchesData)
@@ -119,7 +115,7 @@ export function BookingPage() {
 
     load()
       .catch((err) => {
-        if (!cancelled) setLoadError(err instanceof Error ? err.message : 'فشل تحميل الحجز')
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : copy.booking.loadFailed)
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -167,11 +163,11 @@ export function BookingPage() {
         </h1>
         {promoOffer && (
           <p className="text-sm text-slate-500 mb-4">
-            العرض: <strong>{promoOffer.title}</strong>
+            {copy.booking.offerLabel}: <strong>{promoOffer.title}</strong>
           </p>
         )}
         <Link to="/cars" className="text-brand-green hover:underline">
-          العودة للسيارات
+          {copy.booking.backToCars}
         </Link>
       </div>
     )

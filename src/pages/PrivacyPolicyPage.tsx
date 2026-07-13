@@ -3,26 +3,28 @@ import { Mail } from 'lucide-react'
 import { PageSeo } from '../components/seo/PageSeo'
 import { EMAIL_OSAMA, SITE_COMPANY_NAME } from '../lib/constants'
 import { copy } from '../lib/copy'
-import {
-  PRIVACY_POLICY_LAST_UPDATED,
-  PRIVACY_POLICY_SECTIONS,
-  PRIVACY_POLICY_URL,
-} from '../lib/privacyPolicy'
+import { useLocale } from '../context/LocaleContext'
+import { getPrivacyLastUpdated, getPrivacySections } from '../lib/i18n/privacy'
+import { PRIVACY_POLICY_URL } from '../lib/privacyPolicy'
 
 export function PrivacyPolicyPage() {
+  const { locale } = useLocale()
+  const sections = getPrivacySections(locale)
+  const lastUpdated = getPrivacyLastUpdated(locale)
+
   return (
     <div className="page-shell">
       <PageSeo />
       <div className="container-main max-w-3xl">
-        <p className="mb-2 text-sm text-brand-green font-semibold">سياسة الخصوصية</p>
+        <p className="mb-2 text-sm text-brand-green font-semibold">{copy.privacy.title}</p>
         <h1 className="section-title mb-3">{copy.privacy.title}</h1>
         <p className="text-sm text-slate-500 mb-2">{SITE_COMPANY_NAME}</p>
         <p className="text-sm text-slate-500 mb-8">
-          {copy.privacy.lastUpdated}: {PRIVACY_POLICY_LAST_UPDATED}
+          {copy.privacy.lastUpdated}: {lastUpdated}
         </p>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-8 shadow-sm space-y-8">
-          {PRIVACY_POLICY_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <section key={section.title}>
               <h2 className="text-lg font-bold text-brand-dark mb-3">{section.title}</h2>
               {section.paragraphs.map((p) => (

@@ -240,7 +240,7 @@ export function CarDetailPage() {
                 {[
                   { icon: Settings2, label: copy.detail.transmission, value: car.specs.transmission },
                   { icon: Fuel, label: copy.detail.fuel, value: car.specs.fuel },
-                  { icon: Users, label: copy.detail.seats, value: `${car.specs.seats} مقاعد` },
+                  { icon: Users, label: copy.detail.seats, value: `${car.specs.seats} ${copy.detail.seatsUnit}` },
                   {
                     icon: Snowflake,
                     label: copy.detail.ac,

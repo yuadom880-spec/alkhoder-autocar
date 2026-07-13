@@ -1,17 +1,22 @@
 import { Link } from 'react-router'
 import { ArrowLeft, MapPin } from 'lucide-react'
 import { Button } from '../components/ui/Button'
+import { useLocale } from '../context/LocaleContext'
+import { copy } from '../lib/copy'
+import { getCityIntro } from '../lib/i18n/locations'
+import { getCityDisplayName } from '../lib/i18n/seoPages'
 import { SEO_CITIES } from '../lib/seo'
 
 export function LocationsIndexPage() {
+  const { locale } = useLocale()
+
   return (
     <div className="page-shell">
       <div className="container-main">
         <div className="mb-10 max-w-3xl">
-          <h1 className="section-title mb-4">ايجار سيارات في مدن السعودية</h1>
+          <h1 className="section-title mb-4">{copy.locations.indexTitle}</h1>
           <p className="text-slate-600 leading-relaxed text-base sm:text-lg">
-            عبدالمجيد الخضر لتأجير السيارات — تأجير وايجار سيارات يومي وشهري في جدة والرياض ومكة
-            المكرمة والمدينة المنورة ومدن أخرى. اختر مدينتك واحجز اونلاين.
+            {copy.locations.indexSubtitle}
           </p>
         </div>
 
@@ -26,9 +31,11 @@ export function LocationsIndexPage() {
                 <MapPin className="h-5 w-5" />
               </div>
               <h2 className="mb-2 text-lg font-bold text-brand-dark group-hover:text-brand-green transition-colors">
-                ايجار سيارات {city.nameAr}
+                {copy.locations.cityTitle(getCityDisplayName(city.slug, locale))}
               </h2>
-              <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">{city.intro}</p>
+              <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">
+                {getCityIntro(city.slug, locale)}
+              </p>
             </Link>
           ))}
         </div>
@@ -36,7 +43,7 @@ export function LocationsIndexPage() {
         <div className="mt-10 text-center">
           <Link to="/cars">
             <Button>
-              تصفح كل السيارات
+              {copy.locations.browseAllCars}
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>

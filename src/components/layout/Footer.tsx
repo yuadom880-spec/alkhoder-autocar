@@ -3,22 +3,25 @@ import { Mail, MapPin, Phone } from 'lucide-react'
 import {
   EMAIL_OSAMA,
   MAIN_BRANCH,
-  NAV_LINKS,
   PHONE,
   PHONE_LINK,
   LOGO_URL,
   SITE_NAME_SHORT,
-  SITE_SEO_PRIMARY,
   MAIN_BRANCH_PHONE_LABEL,
   WHATSAPP_LINK,
 } from '../../lib/constants'
 import { copy } from '../../lib/copy'
+import { useLocale } from '../../context/LocaleContext'
+import { getCityDisplayName, getSiteSeoPrimary } from '../../lib/i18n/seoPages'
 
 import { SEO_CITIES, SEO_KEYWORDS_FOOTER_TEXT } from '../../lib/seo'
 import { CopyrightNotice } from './CopyrightNotice'
 import { SocialLinks } from './SocialLinks'
 
 export function Footer() {
+  const { navLinks, locale } = useLocale()
+  const siteName = getSiteSeoPrimary(locale)
+
   return (
     <footer className="bg-brand-dark text-slate-300">
       <div className="container-main py-10 sm:py-12 lg:py-16">
@@ -27,7 +30,7 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-3 mb-4">
               <img src={LOGO_URL} alt={copy.footer.brandAlt} className="h-12 w-auto rounded-lg object-contain" />
               <div>
-                <span className="block text-lg font-bold text-white">{SITE_SEO_PRIMARY}</span>
+                <span className="block text-lg font-bold text-white">{siteName}</span>
                 <span className="block text-xs text-slate-400">{SITE_NAME_SHORT}</span>
               </div>
             </Link>
@@ -42,7 +45,7 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-bold text-white">{copy.footer.quickLinks}</h3>
             <ul className="space-y-2">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
@@ -57,7 +60,7 @@ export function Footer() {
                   to="/cars"
                   className="text-sm text-slate-400 hover:text-brand-gold transition-colors"
                 >
-                  احجز سيارتك الآن
+                  {copy.footer.bookNowLink}
                 </Link>
               </li>
               <li>
@@ -104,7 +107,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
                 >
-                  <span className="text-brand-gold">واتساب</span>
+                  <span className="text-brand-gold">{copy.footer.whatsapp}</span>
                   <span dir="ltr">{PHONE}</span>
                 </a>
               </li>
@@ -131,11 +134,11 @@ export function Footer() {
           </div>
 
           <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="mb-4 text-sm font-bold text-white">ايجار سيارات</h3>
+            <h3 className="mb-4 text-sm font-bold text-white">{copy.footer.rentalCities}</h3>
             <ul className="space-y-2">
               <li>
                 <Link to="/locations" className="text-sm text-slate-400 hover:text-brand-gold transition-colors">
-                  كل المدن
+                  {copy.footer.allCities}
                 </Link>
               </li>
               {SEO_CITIES.slice(0, 5).map((city) => (
@@ -144,7 +147,7 @@ export function Footer() {
                     to={`/locations/${city.slug}`}
                     className="text-sm text-slate-400 hover:text-brand-gold transition-colors"
                   >
-                    ايجار سيارات {city.nameAr}
+                    {copy.footer.rentalInCity(getCityDisplayName(city.slug, locale))}
                   </Link>
                 </li>
               ))}

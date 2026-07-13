@@ -32,7 +32,8 @@ import {
   SITE_NAME_EN,
   WHATSAPP_LINK,
 } from '../lib/constants'
-import { SEO_HOME_H1, SEO_HOME_SUBTITLE } from '../lib/seo'
+import { useLocale } from '../context/LocaleContext'
+import { getSeoHome } from '../lib/i18n'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
@@ -43,6 +44,8 @@ import type { BookingBlock } from '../lib/types'
 import type { Car as CarType } from '../lib/types'
 
 export function HomePage() {
+  const { locale } = useLocale()
+  const seoHome = getSeoHome(locale)
   const [cars, setCars] = useState<CarType[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
@@ -131,9 +134,9 @@ export function HomePage() {
                 {copy.site.tagline}
               </span>
               <h1 className="mt-1 font-extrabold leading-snug text-[clamp(1.35rem,5.8vw,2.75rem)] text-white sm:mt-1.5">
-                {SEO_HOME_H1}
+                {seoHome.h1}
               </h1>
-              <p className="text-sm font-semibold text-brand-gold sm:text-lg">{SEO_HOME_SUBTITLE}</p>
+              <p className="text-sm font-semibold text-brand-gold sm:text-lg">{seoHome.subtitle}</p>
               <p className="hidden text-slate-300 sm:block sm:text-base">{SITE_NAME_EN}</p>
               <p className="hidden text-lg font-bold text-white sm:block sm:text-2xl">
                 {copy.site.heroTitle}

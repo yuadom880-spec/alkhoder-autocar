@@ -97,14 +97,14 @@ export function OfferBookingPage() {
           )}
 
           <div>
-            <label className="label-field">اختر السيارة *</label>
+            <label className="label-field">{copy.booking.selectCar}</label>
             <select
               className="input-field"
               value={selectedCarId}
               onChange={(e) => setSelectedCarId(e.target.value)}
               disabled={!hasBranch}
             >
-              <option value="">— اختر سيارة —</option>
+              <option value="">{copy.booking.selectCarPlaceholder}</option>
               {branchCars.map((car) => (
                 <option key={car.id} value={car.id}>
                   {car.name}
@@ -126,7 +126,7 @@ export function OfferBookingPage() {
             disabled={!selectedCarId || !hasBranch}
             onClick={handleContinue}
           >
-            متابعة الحجز
+            {copy.booking.continueBooking}
           </Button>
         </div>
       </div>

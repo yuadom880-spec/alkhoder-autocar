@@ -6,12 +6,17 @@ import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
-import { PROFILE_ABOUT, PROFILE_BRANCH_REGIONS, PROFILE_IMAGES } from '../lib/profile'
+import { useLocale } from '../context/LocaleContext'
+import { getProfileAbout, getProfileBranchRegions } from '../lib/i18n/profile'
+import { PROFILE_IMAGES } from '../lib/profile'
 import { fetchBranches } from '../lib/supabase'
 import type { BranchRecord } from '../lib/types'
 import { toPhoneLink } from '../lib/utils'
 
 export function BranchesPage() {
+  const { locale } = useLocale()
+  const profileAbout = getProfileAbout(locale)
+  const branchRegions = getProfileBranchRegions(locale)
   const [branches, setBranches] = useState<BranchRecord[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -29,21 +34,21 @@ export function BranchesPage() {
           <h1 className="section-title">{copy.branches.title}</h1>
           <p className="section-subtitle">{copy.branches.subtitle}</p>
           <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
-            {PROFILE_ABOUT.branchesIntro}
+            {profileAbout.branchesIntro}
           </p>
         </div>
 
         <div className="mb-12 overflow-hidden rounded-3xl shadow-md">
           <OptimizedImage
             src={PROFILE_IMAGES.branchesMap}
-            alt="فروع شركة عبدالمجيد الخضر في المملكة"
+            alt={copy.branches.mapAlt}
             className="h-48 sm:h-64 lg:h-80 w-full object-cover object-center"
             loading="lazy"
           />
         </div>
 
         <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PROFILE_BRANCH_REGIONS.map((region) => (
+          {branchRegions.map((region) => (
             <div
               key={region.region}
               className="rounded-2xl bg-white p-5 shadow-sm border border-slate-100"
@@ -67,7 +72,7 @@ export function BranchesPage() {
           <LoadingSpinner />
         ) : branches.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500">لا توجد فروع متاحة حالياً</p>
+            <p className="text-slate-500">{copy.branches.noBranches}</p>
           </div>
         ) : (
           <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">

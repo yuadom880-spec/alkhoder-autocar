@@ -19,11 +19,11 @@ export function Tigo7ProCard() {
         <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center sm:gap-4">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-gold px-4 py-1.5 text-sm font-bold text-brand-dark shadow-sm">
             <Sparkles className="h-4 w-4" />
-            جديدنا
+            {copy.home.newBadge}
           </span>
           <div>
             <p className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-              <span className="text-brand-gold">تيجو 7 برو</span>
+              <span className="text-brand-gold">{copy.home.tigo7ProName}</span>
             </p>
             <p className="mt-1 text-sm text-green-100/90 sm:text-base">
               {copy.home.newTigo7ProSub}
@@ -72,14 +72,14 @@ export function BrandWelcomeVideoSection() {
             <div className="pointer-events-none absolute -left-10 top-0 h-28 w-28 rounded-full bg-brand-gold/10 blur-2xl" />
             <div className="pointer-events-none absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-brand-green/15 blur-2xl" />
             <p className="relative text-sm font-bold tracking-wide text-brand-gold sm:text-base">
-              ياهلا بك
+              {copy.home.welcomeBadge}
             </p>
             <h2 className="relative mt-2 font-display text-xl font-extrabold leading-snug text-white sm:text-2xl lg:text-[1.75rem]">
-              في{' '}
+              {copy.home.brandVideoTitleIn}{' '}
               <span className="bg-gradient-to-l from-brand-gold to-amber-200 bg-clip-text text-transparent">
-                عبدالمجيد الخضر
+                {copy.home.brandVideoCompanyHighlight}
               </span>{' '}
-              لتأجير السيارات
+              {copy.home.brandVideoCompanySuffix}
             </h2>
             <p className="relative mx-auto mt-3 max-w-lg text-sm leading-relaxed text-green-100/85 sm:text-base">
               {copy.home.brandVideoWelcomeSub}

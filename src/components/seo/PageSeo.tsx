@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { SITE_COPYRIGHT_NOTICE, SITE_META_AUTHOR, SITE_SEO_PRIMARY } from '../../lib/constants'
+import { SITE_COPYRIGHT_NOTICE, SITE_META_AUTHOR } from '../../lib/constants'
+import { useLocale } from '../../context/LocaleContext'
+import { getOgLocale, getPageSeoForLocale, getSiteSeoPrimary } from '../../lib/i18n/seoPages'
 import {
   buildPageJsonLdGraph,
   getCanonicalUrl,
-  getPageSeo,
   getSiteUrl,
-  SEO_KEYWORDS,
 } from '../../lib/seo'
 
 const JSON_LD_ID = 'alkhoder-structured-data'
@@ -43,12 +43,13 @@ function upsertLink(rel: string, href: string) {
 
 export function PageSeo() {
   const { pathname } = useLocation()
+  const { locale } = useLocale()
 
   useEffect(() => {
-    const seo = getPageSeo(pathname)
+    const seo = getPageSeoForLocale(pathname, locale)
     const origin = getSiteUrl()
     const canonical = getCanonicalUrl(pathname, origin)
-    const keywords = (seo.keywords ?? SEO_KEYWORDS).join(', ')
+    const keywords = (seo.keywords ?? []).join(', ')
     const robots = seo.noindex ? 'noindex, nofollow' : 'index, follow'
 
     document.title = seo.title
@@ -62,16 +63,16 @@ export function PageSeo() {
     upsertPropertyMeta('og:title', seo.title)
     upsertPropertyMeta('og:description', seo.description)
     upsertPropertyMeta('og:type', 'website')
-    upsertPropertyMeta('og:locale', 'ar_SA')
+    upsertPropertyMeta('og:locale', getOgLocale(locale))
     upsertPropertyMeta('og:url', canonical)
     upsertPropertyMeta('og:image', `${origin}/favicon-192.png`)
-    upsertPropertyMeta('og:site_name', SITE_SEO_PRIMARY)
+    upsertPropertyMeta('og:site_name', getSiteSeoPrimary(locale))
 
     upsertMeta('twitter:card', 'summary_large_image')
     upsertMeta('twitter:title', seo.title)
     upsertMeta('twitter:description', seo.description)
     upsertMeta('twitter:image', `${origin}/favicon-192.png`)
-    upsertMeta('application-name', SITE_SEO_PRIMARY)
+    upsertMeta('application-name', getSiteSeoPrimary(locale))
 
     let script = document.getElementById(JSON_LD_ID) as HTMLScriptElement | null
     if (!script) {
@@ -81,7 +82,7 @@ export function PageSeo() {
       document.head.appendChild(script)
     }
     script.textContent = JSON.stringify(buildPageJsonLdGraph(pathname, origin))
-  }, [pathname])
+  }, [pathname, locale])
 
   return null
 }

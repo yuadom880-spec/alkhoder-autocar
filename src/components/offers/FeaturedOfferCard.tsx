@@ -7,7 +7,7 @@ import {
   getFeaturedOfferPriceLabel,
   getFeaturedOfferSavings,
   isFeaturedOfferActive,
-  RENTAL_TYPE_LABELS,
+  getRentalTypeLabels,
 } from '../../lib/featuredOffers'
 import { copy } from '../../lib/copy'
 import { formatPrice } from '../../lib/utils'
@@ -21,6 +21,7 @@ interface FeaturedOfferCardProps {
 }
 
 export function FeaturedOfferCard({ offer, index = 0 }: FeaturedOfferCardProps) {
+  const rentalTypeLabels = getRentalTypeLabels()
   const active = isFeaturedOfferActive(offer)
   const savings = getFeaturedOfferSavings(offer)
   const link = getFeaturedOfferLink(offer)
@@ -41,12 +42,12 @@ export function FeaturedOfferCard({ offer, index = 0 }: FeaturedOfferCardProps) 
             {isMonthly ? (
               <span className="flex items-center gap-1">
                 <CalendarRange className="h-3 w-3" />
-                {RENTAL_TYPE_LABELS.monthly}
+                {rentalTypeLabels.monthly}
               </span>
             ) : (
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {RENTAL_TYPE_LABELS.daily}
+                {rentalTypeLabels.daily}
               </span>
             )}
           </Badge>

@@ -5,7 +5,7 @@ import {
   getFeaturedOfferLink,
   getFeaturedOfferPriceLabel,
   isFeaturedOfferActive,
-  RENTAL_TYPE_LABELS,
+  getRentalTypeLabels,
 } from '../../lib/featuredOffers'
 import { copy } from '../../lib/copy'
 import { Badge } from '../ui/Badge'
@@ -18,6 +18,7 @@ interface PromoOfferBannerProps {
 }
 
 export function PromoOfferBanner({ offer, showBookButton = true }: PromoOfferBannerProps) {
+  const rentalTypeLabels = getRentalTypeLabels()
   if (!isFeaturedOfferActive(offer)) return null
 
   return (
@@ -35,7 +36,7 @@ export function PromoOfferBanner({ offer, showBookButton = true }: PromoOfferBan
               {copy.offers.activePromo}
             </Badge>
             <Badge variant={offer.rental_type === 'monthly' ? 'info' : 'warning'}>
-              {RENTAL_TYPE_LABELS[offer.rental_type]}
+              {rentalTypeLabels[offer.rental_type]}
             </Badge>
             {offer.badge_text && <Badge variant="warning">{offer.badge_text}</Badge>}
           </div>

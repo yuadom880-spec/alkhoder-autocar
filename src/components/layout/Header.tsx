@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { ClipboardList, LogIn, LogOut, Menu, Phone, User, X } from 'lucide-react'
-import { MAIN_BRANCH_PHONE_LABEL, NAV_LINKS, PHONE, PHONE_LINK } from '../../lib/constants'
+import { MAIN_BRANCH_PHONE_LABEL, PHONE, PHONE_LINK } from '../../lib/constants'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { useLocale } from '../../context/LocaleContext'
 
 import { Logo } from '../ui/Logo'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/Button'
@@ -14,6 +16,7 @@ export function Header() {
   const [open, setOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const { pathname } = useLocation()
+  const { navLinks } = useLocale()
   const { isLoggedIn, profile, signOut, isLoading } = useCustomerAuth()
 
   const displayAccount =
@@ -31,7 +34,7 @@ export function Header() {
           <Logo size="sm" showText className="min-w-0 flex-1 pr-1 sm:flex-none sm:pr-0" />
 
           <nav className="hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -48,6 +51,7 @@ export function Header() {
           </nav>
 
           <div className="hidden items-center gap-2 lg:flex">
+            <LanguageSwitcher />
             <a
               href={PHONE_LINK}
               title={MAIN_BRANCH_PHONE_LABEL}
@@ -110,16 +114,17 @@ export function Header() {
                 {copy.nav.login}
               </button>
             )}
+            <LanguageSwitcher />
             <Link to="/branches">
               <Button size="sm" variant="outline" className="min-h-[40px] px-3 text-xs">
-                فروعنا
+                {copy.nav.branches}
               </Button>
             </Link>
             <button
               type="button"
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200"
               onClick={() => setOpen(!open)}
-              aria-label="القائمة"
+              aria-label={copy.nav.menu}
               aria-expanded={open}
             >
               {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -130,7 +135,7 @@ export function Header() {
         {open && (
           <div className="border-t border-slate-100 bg-white px-4 py-3 pb-4 lg:hidden shadow-lg">
             <nav className="flex flex-col gap-1">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}

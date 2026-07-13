@@ -2,25 +2,27 @@ import { motion } from 'framer-motion'
 import { Award, Globe2, Headphones, Sparkles, Target } from 'lucide-react'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
-import {
-  PROFILE_ABOUT,
-  PROFILE_IMAGES,
-  PROFILE_STRATEGIC_GOALS,
-} from '../lib/profile'
+import { useLocale } from '../context/LocaleContext'
+import { getProfileAbout, getProfileStrategicGoals } from '../lib/i18n/profile'
+import { PROFILE_IMAGES } from '../lib/profile'
 
 const goalIcons = [Globe2, Sparkles, Award, Headphones]
 
 export function AboutPage() {
+  const { locale } = useLocale()
+  const profileAbout = getProfileAbout(locale)
+  const strategicGoals = getProfileStrategicGoals(locale)
+
   return (
     <div className="page-shell">
       <div className="container-main">
         <div className="mb-10 max-w-3xl">
           <h1 className="section-title mb-4">{copy.about.title}</h1>
           <p className="text-slate-600 leading-relaxed text-base sm:text-lg mb-4">
-            {PROFILE_ABOUT.intro}
+            {profileAbout.intro}
           </p>
           <p className="text-slate-500 leading-relaxed text-sm sm:text-base">
-            {PROFILE_ABOUT.extended}
+            {profileAbout.extended}
           </p>
         </div>
 
@@ -40,7 +42,7 @@ export function AboutPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold mb-2">{copy.about.visionTitle}</h2>
-              <p className="text-green-100 leading-relaxed">{PROFILE_ABOUT.vision}</p>
+              <p className="text-green-100 leading-relaxed">{profileAbout.vision}</p>
             </div>
           </div>
         </div>
@@ -48,7 +50,7 @@ export function AboutPage() {
         <div className="mb-16">
           <h2 className="section-title mb-8">{copy.about.goalsTitle}</h2>
           <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-            {PROFILE_STRATEGIC_GOALS.map((goal, i) => {
+            {strategicGoals.map((goal, i) => {
               const Icon = goalIcons[i]
               return (
                 <motion.div
@@ -62,7 +64,6 @@ export function AboutPage() {
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green sm:mb-4 sm:h-12 sm:w-12">
                     <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
-                  <p className="hidden text-xs text-brand-green mb-1 sm:block">{goal.titleEn}</p>
                   <h3 className="mb-1.5 text-sm font-bold text-brand-dark sm:mb-2 sm:text-base">
                     {goal.title}
                   </h3>

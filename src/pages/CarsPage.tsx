@@ -149,7 +149,7 @@ export function CarsPage() {
                 onChange={(e) => setOffersOnly(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
               />
-              <span className="text-red-600 font-medium">العروض فقط 🔥</span>
+              <span className="text-red-600 font-medium">{copy.cars.offersOnly}</span>
             </label>
             {startDate && endDate && (
               <label className="flex min-h-[44px] items-center gap-2.5 text-sm cursor-pointer">
@@ -172,7 +172,7 @@ export function CarsPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as FleetSortOption)}
               >
-                <option value="default">الافتراضي</option>
+                <option value="default">{copy.cars.sortDefault}</option>
                 <option value="price-asc">{copy.cars.sortLow}</option>
                 <option value="price-desc">{copy.cars.sortHigh}</option>
               </select>

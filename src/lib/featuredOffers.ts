@@ -1,4 +1,5 @@
 import type { Car, FeaturedOffer, RentalPeriodType } from './types'
+import { copy } from './copy'
 import { isCarAvailableForBranch } from './carBranchAvailability'
 import {
   getCarOffer,
@@ -18,6 +19,14 @@ export const FEATURED_OFFER_MIN_SAVINGS = 200
 export const RENTAL_TYPE_LABELS: Record<RentalPeriodType, string> = {
   daily: 'إيجار يومي',
   monthly: 'إيجار شهري',
+}
+
+/** Locale-aware labels for customer UI (uses live copy binding). */
+export function getRentalTypeLabels(): Record<RentalPeriodType, string> {
+  return {
+    daily: copy.cars.rentalDaily,
+    monthly: copy.cars.rentalMonthly,
+  }
 }
 
 export function isFeaturedOfferActive(offer: FeaturedOffer): boolean {
