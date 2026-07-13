@@ -435,15 +435,10 @@ export async function fetchBookingBlocks(
   }
 
   const client = requireSupabase()
-  let query = client
-    .from(BOOKINGS_TABLE)
-    .select('id, car_id, start_date, end_date, status, branch_id')
-    .in('status', ['pending', 'confirmed'])
-
-  if (carId) query = query.eq('car_id', carId)
-  if (branchId) query = query.eq('branch_id', branchId)
-
-  const { data: rows, error: qErr } = await query
+  const { data: rows, error: qErr } = await client.rpc('get_booking_blocks', {
+    p_car_id: carId ?? null,
+    p_branch_id: branchId ?? null,
+  })
   if (qErr) throw new Error(formatError(qErr))
 
   return ((rows as BookingBlock[]) ?? []).map((b) => ({
