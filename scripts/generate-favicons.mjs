@@ -26,7 +26,7 @@ const SIZES = [
 
 async function generateSquareIcon(size) {
   return sharp(logoPath)
-    .resize(size, size, { fit: 'cover', kernel: sharp.kernel.lanczos3 })
+    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 }, kernel: sharp.kernel.lanczos3 })
     .png()
     .toBuffer()
 }
