@@ -1,4 +1,5 @@
 import { isCarAvailableForBranch } from './carBranchAvailability'
+import { isCarExclusiveToBranch } from './branchFilter'
 import { copy } from './copy'
 import type { Car, CarAvailability } from './types'
 
@@ -39,6 +40,36 @@ export function getAdminCarToggleLabel(car: Car, branchId?: string | null): stri
       : copy.admin.enableBookingHere
   }
   return car.is_available ? copy.admin.stopBooking : copy.admin.enableBooking
+}
+
+export function canBranchAdminPermanentlyDeleteCar(
+  car: Car,
+  branchScopeId: string | null | undefined,
+): boolean {
+  if (!branchScopeId) return false
+  return isCarExclusiveToBranch(car, branchScopeId)
+}
+
+export function getAdminCarDeleteLabel(
+  car: Car,
+  branchScopeId: string | null | undefined,
+  isBranchAdmin: boolean,
+): string {
+  if (!isBranchAdmin || canBranchAdminPermanentlyDeleteCar(car, branchScopeId)) return 'حذف'
+  return 'إزالة'
+}
+
+export function confirmAdminCarDelete(
+  car: Car,
+  branchScopeId: string | null | undefined,
+  isBranchAdmin: boolean,
+): boolean {
+  const permanent =
+    !isBranchAdmin || canBranchAdminPermanentlyDeleteCar(car, branchScopeId)
+  const message = permanent
+    ? `هل تريد حذف "${car.name}" نهائياً من النظام؟`
+    : `هل تريد إزالة "${car.name}" من فرعك؟`
+  return confirm(message)
 }
 
 export function confirmAdminCarAvailabilityToggle(

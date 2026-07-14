@@ -6,6 +6,13 @@ function branchListIncludes(ids: string[], branchId: string): boolean {
   return ids.some((id) => normalizeBranchIdForStorage(id) === target)
 }
 
+/** سيارة مخصصة لفرع واحد فقط — يمكن لموظف ذلك الفرع حذفها نهائياً */
+export function isCarExclusiveToBranch(car: Car, branchId: string): boolean {
+  const ids = car.branch_ids ?? []
+  if (ids.length !== 1) return false
+  return branchListIncludes(ids, branchId)
+}
+
 /** سيارة بدون فروع محددة = متاحة في كل الفروع */
 export function carMatchesBranch(car: Car, branchId: string | null | undefined): boolean {
   if (!branchId) return true

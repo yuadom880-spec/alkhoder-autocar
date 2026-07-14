@@ -25,7 +25,9 @@ import {
 } from '../../lib/supabase'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
 import {
+  canBranchAdminPermanentlyDeleteCar,
   confirmAdminCarAvailabilityToggle,
+  confirmAdminCarDelete,
   getAdminCarStatusLabel,
   getAdminCarToggleLabel,
 } from '../../lib/carStatus'
@@ -73,22 +75,24 @@ export function AdminCarsPage() {
   )
 
   const handleDelete = async (car: Car) => {
-    const confirmMsg = isBranchAdmin
-      ? `هل تريد إزالة "${car.name}" من فرعك؟`
-      : `هل تريد حذف "${car.name}"؟`
-    if (!confirm(confirmMsg)) return
+    if (!confirmAdminCarDelete(car, branchScopeId, isBranchAdmin)) return
     setDeleting(car.id)
     try {
-      if (isBranchAdmin && branchScopeId) {
+      const permanentDelete =
+        !isBranchAdmin ||
+        !branchScopeId ||
+        canBranchAdminPermanentlyDeleteCar(car, branchScopeId)
+
+      if (permanentDelete) {
+        await deleteCar(car.id)
+        setCars((prev) => prev.filter((c) => c.id !== car.id))
+      } else {
         const updated = await removeCarFromBranchScope(car.id, branchScopeId)
         if (carMatchesBranch(updated, branchScopeId)) {
           setCars((prev) => prev.map((c) => (c.id === car.id ? updated : c)))
         } else {
           setCars((prev) => prev.filter((c) => c.id !== car.id))
         }
-      } else {
-        await deleteCar(car.id)
-        setCars((prev) => prev.filter((c) => c.id !== car.id))
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'فشل الحذف')

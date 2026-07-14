@@ -4,6 +4,7 @@ import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import {
+  getAdminCarDeleteLabel,
   getAdminCarStatusLabel,
   getAdminCarToggleLabel,
   isCarEnabledForAdminScope,
@@ -120,7 +121,7 @@ export function AdminCarMobileCard({
           onClick={onDelete}
         >
           <Trash2 className="h-4 w-4" />
-          {isBranchAdmin ? 'إزالة' : 'حذف'}
+          {getAdminCarDeleteLabel(car, branchScopeId, isBranchAdmin)}
         </Button>
       </div>
     </article>
