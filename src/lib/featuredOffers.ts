@@ -14,8 +14,8 @@ import { getCarDisplayName, resolveCarForBranch } from './carBranchProfile'
 import { getCarBasePrice } from './pricing'
 import { formatPrice } from './utils'
 
-/** الحد الأدنى للخصم ليظهر العرض تلقائياً في العروض المميزة */
-export const FEATURED_OFFER_MIN_SAVINGS = 200
+/** أي خصم فعلي (حتى 1 ر.س) يظهر في العروض — مثل فلتر أسطول السيارات */
+export const FEATURED_OFFER_MIN_SAVINGS = 1
 
 export const RENTAL_TYPE_LABELS: Record<RentalPeriodType, string> = {
   daily: 'إيجار يومي',
@@ -114,7 +114,7 @@ export function carToFeaturedOffer(
   }
 
   const savings = getOfferSavings(car, rentalType, branchId)
-  if (savings <= FEATURED_OFFER_MIN_SAVINGS) return null
+  if (savings < FEATURED_OFFER_MIN_SAVINGS) return null
 
   const carOffer = getResolvedCarOffer(car, rentalType, branchId)
   if (!carOffer) return null

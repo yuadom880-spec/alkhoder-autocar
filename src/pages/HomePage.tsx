@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { CarCard } from '../components/cars/CarCard'
+import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
@@ -40,6 +41,7 @@ import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
+import { hasAnyOffer } from '../lib/offers'
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
 
 import type { BookingBlock } from '../lib/types'
@@ -52,6 +54,7 @@ export function HomePage() {
   const [cars, setCars] = useState<CarType[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
+  const [offersOnly, setOffersOnly] = useState(false)
   const { rentalType, setRentalType } = useRentalPeriod()
   const { branchId, hasBranch } = useCustomerBranch()
 
@@ -85,6 +88,10 @@ export function HomePage() {
   const fleetCars = useMemo(() => {
     return cars
       .filter((car) => carMatchesBranch(car, hasBranch ? branchId : null))
+      .filter(
+        (car) =>
+          !offersOnly || hasAnyOffer(car, hasBranch ? branchId : null),
+      )
       .map((car) => ({
         car,
         availability: getCarAvailability(
@@ -95,7 +102,7 @@ export function HomePage() {
           hasBranch ? branchId : null,
         ),
       }))
-  }, [cars, blocks, branchId, hasBranch])
+  }, [cars, blocks, branchId, hasBranch, offersOnly])
 
   return (
     <>
@@ -236,9 +243,15 @@ export function HomePage() {
             <PricesIncludeVatNote />
           </div>
 
-          <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
-            <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4">
+            <div>
+              <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+              <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 mb-2">{copy.cars.offersOnly}</p>
+              <FleetOffersToggle offersOnly={offersOnly} onChange={setOffersOnly} />
+            </div>
           </div>
 
           {hasBranch && (
@@ -247,6 +260,10 @@ export function HomePage() {
 
           {loading ? (
             <LoadingSpinner />
+          ) : fleetCars.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
+              {offersOnly ? copy.offers.noOffers : copy.cars.noCarsInBranch}
+            </p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {fleetCars.map(({ car, availability }, i) => (

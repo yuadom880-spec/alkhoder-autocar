@@ -811,7 +811,7 @@ export async function fetchFeaturedOffers(
   return ((data as FeaturedOffer[]) ?? []).map(normalizeFeaturedOffer)
 }
 
-/** العروض المميزة المعروضة = عروض الإدارة + سيارات بخصم أكثر من 200 ر.س */
+/** العروض المميزة المعروضة = عروض الإدارة + سيارات بخصم فعلي (أي مبلغ) */
 export async function fetchDisplayedFeaturedOffers(
   options: FetchFeaturedOffersOptions = {},
 ): Promise<FeaturedOffer[]> {

@@ -135,6 +135,7 @@ export const copyEn = {
     filterClass: 'Class',
     filterAll: 'All',
     searchPlaceholder: 'Search for a car...',
+    fleetViewAll: 'All cars',
     offersOnly: 'Offers only 🔥',
     sortDefault: 'Default',
     details: 'Details',
