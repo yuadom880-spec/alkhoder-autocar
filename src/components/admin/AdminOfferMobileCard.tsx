@@ -54,7 +54,7 @@ export function AdminOfferMobileCard({
                   ? 'ظاهر في فرعك'
                   : 'مفعّل'
                 : isBranchAdmin
-                  ? 'موقوف في فرعك'
+                  ? 'غير مفعّل في فرعك حالياً'
                   : 'موقوف'}
             </Badge>
             {offer.is_featured && <Badge variant="warning">مميز</Badge>}

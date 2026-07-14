@@ -1,6 +1,6 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { carMatchesBranch } from './branchFilter'
-import { offerMatchesBranch } from './featuredOfferBranch'
+import { offerBelongsToBranchAdmin, offerMatchesBranch } from './featuredOfferBranch'
 import { isFeaturedOfferVisibleForBranch } from './featuredOffers'
 import type { Booking, Car, FeaturedOffer } from './types'
 
@@ -44,7 +44,7 @@ export function filterOffersForAdminByBranch(
   branchId: string | null | undefined,
 ): FeaturedOffer[] {
   if (!branchId) return offers
-  return offers.filter((o) => offerMatchesBranch(o, branchId))
+  return offers.filter((o) => offerBelongsToBranchAdmin(o, branchId))
 }
 
 /** عروض الفرع — مع احترام إيقاف العرض لفرع محدد فقط */

@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { carMatchesBranch } from './branchFilter'
 import { fetchBranches } from './supabase'
 import type { FeaturedOffer, FeaturedOfferFormData } from './types'
 
@@ -30,6 +31,24 @@ export function offerMatchesBranch(
   if (offer.car?.branch_ids?.length) {
     return branchListIncludes(offer.car.branch_ids, branchId)
   }
+  return true
+}
+
+/**
+ * هل العرض يخص فرع موظف الإدارة في لوحة التحكم؟
+ * لا يستبعد العروض الموقوفة في الفرع — الإيقاف يخصّ العميل فقط.
+ */
+export function offerBelongsToBranchAdmin(
+  offer: FeaturedOffer,
+  branchId: string | null | undefined,
+): boolean {
+  if (!branchId) return true
+
+  const enabled = offer.branch_ids ?? []
+  if (enabled.length > 0) return branchListIncludes(enabled, branchId)
+
+  if (offer.car) return carMatchesBranch(offer.car, branchId)
+
   return true
 }
 
