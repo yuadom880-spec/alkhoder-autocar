@@ -102,7 +102,7 @@ export function AdminOffersPage() {
   }
 
   const toggleField = async (offer: FeaturedOffer, field: 'is_featured') => {
-    if (isAutoCarFeaturedOffer(offer)) return
+    if (isBranchAdmin || isAutoCarFeaturedOffer(offer)) return
     setUpdating(offer.id)
     try {
       const updated = await updateFeaturedOffer(offer.id, {
@@ -247,7 +247,7 @@ export function AdminOffersPage() {
                             >
                               <Power className="h-4 w-4" />
                             </Button>
-                            {!isAutoCarFeaturedOffer(offer) && (
+                            {!isBranchAdmin && !isAutoCarFeaturedOffer(offer) && (
                               <Button
                                 size="sm"
                                 variant="ghost"

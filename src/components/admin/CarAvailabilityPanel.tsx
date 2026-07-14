@@ -31,14 +31,16 @@ export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailability
   const [toggling, setToggling] = useState(false)
 
   useEffect(() => {
-    fetchBookingBlocks(car.id)
+    fetchBookingBlocks(car.id, branchScopeId)
       .then(setBlocks)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [car.id])
+  }, [car.id, branchScopeId])
 
   const today = new Date().toISOString().split('T')[0]
-  const activeBlocks = getCarBlocks(car.id, blocks).filter((b) => b.end_date >= today)
+  const activeBlocks = getCarBlocks(car.id, blocks, undefined, branchScopeId).filter(
+    (b) => b.end_date >= today,
+  )
 
   const handleToggle = async () => {
     if (!confirmAdminCarAvailabilityToggle(car, branchScopeId)) return

@@ -12,7 +12,7 @@ import {
   setCarBranchPrices,
   updateCar,
 } from '../../lib/supabase'
-import { carMatchesBranch } from '../../lib/branchFilter'
+import { carMatchesBranch, isCarExclusiveToBranch } from '../../lib/branchFilter'
 import type { Car } from '../../lib/types'
 
 export function AdminCarFormPage() {
@@ -78,17 +78,22 @@ export function AdminCarFormPage() {
                     price_per_day: data.price_per_day,
                     price_per_month: data.price_per_month,
                   })
-                  const { price_per_day: _d, price_per_month: _m, ...globalPatch } = data
-                  await updateCar(id, {
-                    ...globalPatch,
-                    unavailable_branch_ids: car.unavailable_branch_ids ?? [],
-                  })
+                  if (isCarExclusiveToBranch(car, branchScopeId)) {
+                    const { price_per_day: _d, price_per_month: _m, ...globalPatch } = data
+                    await updateCar(id, {
+                      ...globalPatch,
+                      branch_ids: [branchScopeId],
+                      unavailable_branch_ids: car.unavailable_branch_ids ?? [],
+                    })
+                  }
                 } else {
                   await updateCar(id, {
                     ...data,
                     unavailable_branch_ids: car.unavailable_branch_ids ?? [],
                   })
                 }
+              } else if (branchScopeId) {
+                await createCar({ ...data, branch_ids: [branchScopeId] })
               } else {
                 await createCar(data)
               }

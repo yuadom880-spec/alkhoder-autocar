@@ -86,16 +86,18 @@ export function AdminOfferMobileCard({
         </Button>
         {!isAuto && (
           <>
-            <Button
-              size="sm"
-              variant="outline"
-              className="min-h-[44px] bg-white"
-              isLoading={updating}
-              onClick={onToggleFeatured}
-            >
-              <Star className={`h-4 w-4 ${offer.is_featured ? 'fill-brand-gold text-brand-gold' : ''}`} />
-              تمييز
-            </Button>
+            {!isBranchAdmin && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="min-h-[44px] bg-white"
+                isLoading={updating}
+                onClick={onToggleFeatured}
+              >
+                <Star className={`h-4 w-4 ${offer.is_featured ? 'fill-brand-gold text-brand-gold' : ''}`} />
+                تمييز
+              </Button>
+            )}
             <Link to={`/admin/offers/${offer.id}/edit`}>
               <Button size="sm" variant="outline" className="w-full min-h-[44px] bg-white">
                 <Edit className="h-4 w-4" />

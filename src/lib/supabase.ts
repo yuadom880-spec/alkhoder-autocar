@@ -798,6 +798,8 @@ export async function createFeaturedOffer(form: FeaturedOfferFormData): Promise<
     return offer
   }
 
+  await requireSupabaseAdminAuth()
+
   const client = requireSupabase()
   const { data: row, error } = await client.from(OFFERS_TABLE).insert(data).select().single()
   if (error) throw new Error(formatError(error))
@@ -903,6 +905,8 @@ export async function setFeaturedOfferBranchVisibility(
     return offers[idx]
   }
 
+  await requireSupabaseAdminAuth()
+
   const client = requireSupabase()
   const { data: row, error } = await client
     .from(OFFERS_TABLE)
@@ -1000,6 +1004,8 @@ export async function updateFeaturedOffer(
     return offers[idx]
   }
 
+  await requireSupabaseAdminAuth()
+
   const client = requireSupabase()
   const { data: row, error } = await client
     .from(OFFERS_TABLE)
@@ -1034,6 +1040,8 @@ export async function deleteFeaturedOffer(
     saveDemoOffers(getDemoOffers().filter((o) => o.id !== id))
     return
   }
+
+  await requireSupabaseAdminAuth()
 
   const client = requireSupabase()
   const { error } = await client.from(OFFERS_TABLE).delete().eq('id', id)

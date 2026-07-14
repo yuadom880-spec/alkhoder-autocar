@@ -34,7 +34,7 @@ export function filterCarsByBranch(cars: Car[], branchId: string | null | undefi
 export function getBranchesForCar(car: Car, branches: BranchRecord[]): BranchRecord[] {
   const ids = car.branch_ids ?? []
   if (ids.length === 0) return branches
-  return branches.filter((b) => ids.includes(b.id))
+  return branches.filter((b) => branchListIncludes(ids, b.id))
 }
 
 export function findBranch(branches: BranchRecord[], branchId: string | null | undefined): BranchRecord | null {
@@ -49,7 +49,10 @@ export function formatCarBranchLabels(
   const ids = car.branch_ids ?? []
   if (ids.length === 0) return 'كل الفروع'
   const names = ids
-    .map((id) => branches.find((b) => b.id === id)?.name)
+    .map((id) => {
+      const target = normalizeBranchIdForStorage(id)
+      return branches.find((b) => normalizeBranchIdForStorage(b.id) === target)?.name
+    })
     .filter(Boolean)
   return names.length > 0 ? names.join('، ') : 'كل الفروع'
 }

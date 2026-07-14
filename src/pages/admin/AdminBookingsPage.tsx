@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { useAdminBranch } from '../../context/AdminBranchContext'
-import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
+import {
+  assertBookingBelongsToBranch,
+  filterBookingsByBranch,
+} from '../../lib/adminBranchFilters'
 import { Download, RefreshCw, Search } from 'lucide-react'
 import { exportBookingsCsv } from '../../lib/adminAnalytics'
 import { BookingAdminCard } from '../../components/admin/BookingAdminCard'
@@ -87,6 +90,7 @@ export function AdminBookingsPage() {
     setUpdating(id)
     const previous = bookings.find((b) => b.id === id)
     try {
+      assertBookingBelongsToBranch(previous, filterBranchId)
       const updated = await updateBookingStatus(id, status)
       setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)))
       await handleBookingStatusNotification(updated, status, previous?.status)
@@ -100,6 +104,7 @@ export function AdminBookingsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل تبي تحذف حجز "${name}"؟`)) return
     try {
+      assertBookingBelongsToBranch(bookings.find((b) => b.id === id), filterBranchId)
       await deleteBooking(id)
       setBookings((prev) => prev.filter((b) => b.id !== id))
     } catch (err) {

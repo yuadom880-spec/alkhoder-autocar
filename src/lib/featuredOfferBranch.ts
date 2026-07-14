@@ -47,6 +47,14 @@ export async function buildFeaturedOfferBranchScope(
     }
   }
 
+  if (existing) {
+    return {
+      ...data,
+      branch_ids: existing.branch_ids ?? data.branch_ids ?? [],
+      disabled_branch_ids: existing.disabled_branch_ids ?? data.disabled_branch_ids ?? [],
+    }
+  }
+
   const branches = await fetchBranches({ activeOnly: false })
   const target = branchScopeId.trim()
   const otherBranchIds = branches
