@@ -37,7 +37,7 @@
       ]
     },
     {
-      "source": "/(.*\\.(mp4|webm|mov|webp|jpe?g|png|gif|svg|ico|woff2?))",
+      "source": "/:path*\\.(mp4|webm|mov|webp|jpg|jpeg|png|gif|svg|ico|woff|woff2)",
       "headers": [
         {
           "key": "Cross-Origin-Resource-Policy",
