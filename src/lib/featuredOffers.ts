@@ -10,6 +10,7 @@ import {
   isOfferDisabledForBranch,
   isOfferGloballyDisabled,
 } from './offers'
+import { getCarDisplayName } from './carBranchLabels'
 import { getCarBasePrice } from './pricing'
 import { formatPrice } from './utils'
 
@@ -123,8 +124,10 @@ export function carToFeaturedOffer(
 
   return {
     id: `car-offer-${rentalType}-${car.id}`,
-    title: carOffer.title.trim() || car.name,
-    description: carOffer.description.trim() || `${car.name} — ${RENTAL_TYPE_LABELS[rentalType]}`,
+    title: carOffer.title.trim() || getCarDisplayName(car, branchId),
+    description:
+      carOffer.description.trim() ||
+      `${getCarDisplayName(car, branchId)} — ${RENTAL_TYPE_LABELS[rentalType]}`,
     rental_type: rentalType,
     image_url: car.image_url,
     badge_text: getOfferBadge(car, rentalType, branchId) ?? '',

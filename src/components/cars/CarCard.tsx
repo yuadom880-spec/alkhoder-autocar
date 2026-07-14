@@ -7,6 +7,7 @@ import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../../lib/carStatus'
 import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
+import { getCarDisplayName } from '../../lib/carBranchLabels'
 import { getCategoryLabel, getClassLabel, translateCarSpec } from '../../lib/i18n/labels'
 import { Badge } from '../ui/Badge'
 import { CarPrice, OfferBadge } from './CarPrice'
@@ -40,6 +41,7 @@ export function CarCard({
 
   const canBook = availability?.available ?? isCarAvailableForBranch(car, branchId)
   const overlayLabel = getCustomerUnavailableLabel(availability?.reason)
+  const displayName = getCarDisplayName(car, branchId)
 
   return (
     <motion.article
@@ -49,7 +51,7 @@ export function CarCard({
       className="group overflow-hidden rounded-2xl bg-white shadow-md card-hover"
     >
       <Link to={detailUrl}>
-        <CarImage src={car.image_url} alt={car.name} variant="card">
+        <CarImage src={car.image_url} alt={displayName} variant="card">
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
             <OfferBadge car={car} rentalType={rentalType} branchId={branchId} />
             <Badge>{getCategoryLabel(car.category, locale)}</Badge>
@@ -76,7 +78,7 @@ export function CarCard({
           <div className="mb-3 flex items-start justify-between gap-2">
             <div>
               <h3 className="font-bold text-brand-dark group-hover:text-brand-green transition-colors">
-                {car.name}
+                {displayName}
               </h3>
               <p className="text-xs text-slate-500">
                 {car.brand} · {car.year}

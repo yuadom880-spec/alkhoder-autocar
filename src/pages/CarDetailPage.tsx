@@ -20,6 +20,7 @@ import { carMatchesBranch } from '../lib/branchFilter'
 import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
 import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
 import { getCarOffer, isOfferActive } from '../lib/offers'
+import { getCarDisplayName } from '../lib/carBranchLabels'
 import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
@@ -102,6 +103,8 @@ export function CarDetailPage() {
     [car, blocks, start, end, branchId, hasBranch],
   )
 
+  const displayName = car ? getCarDisplayName(car, hasBranch ? branchId : null) : ''
+
   if (loading) return <LoadingSpinner />
 
   if (!car) {
@@ -167,7 +170,7 @@ export function CarDetailPage() {
             <div>
               <CarImage
                 src={images[activeImage]}
-                alt={car.name}
+                alt={displayName}
                 variant="detail"
                 className="mb-3"
                 loading="eager"
@@ -212,7 +215,7 @@ export function CarDetailPage() {
                 )}
               </div>
 
-              <h1 className="text-2xl font-bold text-brand-dark sm:text-3xl mb-2">{car.name}</h1>
+              <h1 className="text-2xl font-bold text-brand-dark sm:text-3xl mb-2">{displayName}</h1>
               <p className="text-slate-500 mb-4">
                 {car.brand} {car.model} · {car.year}
               </p>
@@ -340,7 +343,7 @@ export function CarDetailPage() {
         <div className="fixed bottom-0 inset-x-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur-md p-4 safe-bottom lg:hidden">
           <div className="flex items-center justify-between gap-4 mb-3">
             <div className="min-w-0">
-              <p className="text-xs text-slate-500 truncate">{car.name}</p>
+              <p className="text-xs text-slate-500 truncate">{displayName}</p>
               <p className={`font-bold ${hasPromoPrice || isOfferActive(car, rentalType, hasBranch ? branchId : null) ? 'text-red-600' : 'text-brand-green'}`}>
                 {formatPrice(displayPrice)}{priceUnit}
               </p>

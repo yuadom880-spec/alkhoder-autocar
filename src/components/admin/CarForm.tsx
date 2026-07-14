@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { isCarExclusiveToBranch } from '../../lib/branchFilter'
 import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
+import { getBranchFormName } from '../../lib/carBranchLabels'
 import { getBranchFormPrices } from '../../lib/carBranchPricing'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { copy } from '../../lib/copy'
@@ -41,9 +42,10 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
       !isCarExclusiveToBranch(initial, branchScopeId),
   )
   const branchPrices = initial ? getBranchFormPrices(initial, branchScopeId) : null
+  const branchName = initial ? getBranchFormName(initial, branchScopeId) : ''
 
   const [form, setForm] = useState<CarFormData>({
-    name: initial?.name ?? '',
+    name: branchName,
     brand: initial?.brand ?? '',
     model: initial?.model ?? '',
     year: initial?.year ?? new Date().getFullYear(),
@@ -77,12 +79,12 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.brand) {
-      setError('الاسم والماركة مطلوبين')
+    if (!form.name.trim()) {
+      setError('اسم السيارة مطلوب')
       return
     }
-    if (!form.image_url) {
-      setError('ارفع صورة واحدة على الأقل للسيارة')
+    if (!branchPriceOnlyMode && (!form.brand || !form.image_url)) {
+      setError(!form.brand ? 'الماركة مطلوبة' : 'ارفع صورة واحدة على الأقل للسيارة')
       return
     }
     setLoading(true)
@@ -99,30 +101,33 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {branchPriceOnlyMode && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          هذه السيارة مشتركة بين الفروع — يمكنك تعديل أسعار فرعك فقط.
+          هذه السيارة مشتركة بين الفروع — يمكنك تعديل اسم العرض وأسعار فرعك فقط.
+          {initial && (
+            <span className="block mt-1 text-xs text-amber-700">
+              الاسم العام في النظام: {initial.name}
+            </span>
+          )}
         </p>
       )}
 
-      {branchPriceOnlyMode && initial && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="font-bold text-brand-dark">{initial.name}</p>
-          <p className="text-xs text-slate-500 mt-1">
-            {initial.brand} · {initial.year}
-          </p>
+      <div className={`grid gap-4 sm:grid-cols-2 ${branchPriceOnlyMode ? 'max-w-xl' : ''}`}>
+        <div className={branchPriceOnlyMode ? 'sm:col-span-2' : ''}>
+            <label className="label-field">
+              {branchPriceOnlyMode ? 'اسم العرض في فرعك *' : 'اسم السيارة *'}
+            </label>
+            <input
+              className="input-field"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+            />
+            {branchPriceOnlyMode && (
+              <p className="text-[11px] text-slate-500 mt-1">
+                يظهر للعملاء عند اختيار فرعك فقط — باقي الفروع يبقى الاسم العام.
+              </p>
+            )}
         </div>
-      )}
-
-      <div className={`grid gap-4 sm:grid-cols-2 ${branchPriceOnlyMode ? 'max-w-md' : ''}`}>
         {!branchPriceOnlyMode && (
           <>
-            <div>
-              <label className="label-field">اسم السيارة *</label>
-              <input
-                className="input-field"
-                value={form.name}
-                onChange={(e) => update('name', e.target.value)}
-              />
-            </div>
             <div>
               <label className="label-field">الماركة *</label>
               <input

@@ -12,6 +12,10 @@ import {
   normalizeBranchIdForStorage,
 } from './carBranchAvailability'
 import {
+  buildCarBranchNamePatch,
+  normalizeBranchNames,
+} from './carBranchLabels'
+import {
   buildCarBranchPricePatch,
   normalizeBranchPrices,
 } from './carBranchPricing'
@@ -48,12 +52,14 @@ function normalizeCar(car: Car): Car {
   const car_class = car.car_class ?? 'mid'
   const offer = sanitizeCarOffers(normalizeCarOffers(car.offer))
   const branch_prices = normalizeBranchPrices(car.branch_prices)
+  const branch_names = normalizeBranchNames(car.branch_names)
   return {
     ...car,
     offer,
     branch_ids,
     unavailable_branch_ids,
     branch_prices,
+    branch_names,
     price_per_month,
     car_class,
   }
@@ -82,6 +88,9 @@ function prepareCarPatch(form: Partial<CarFormData>): Partial<CarFormData> {
   if (form.branch_prices !== undefined) {
     patch.branch_prices = normalizeBranchPrices(form.branch_prices)
   }
+  if (form.branch_names !== undefined) {
+    patch.branch_names = normalizeBranchNames(form.branch_names)
+  }
   return patch
 }
 
@@ -90,6 +99,7 @@ function formatSupabaseMutationError(error: { code?: string; message?: string })
   if (
     message.includes('unavailable_branch_ids') ||
     message.includes('branch_prices') ||
+    message.includes('branch_names') ||
     message.includes('disabled_branch_ids') ||
     message.includes('branch_ids') ||
     message.includes('schema cache') ||
@@ -371,6 +381,17 @@ export async function setCarBranchPrices(
   const car = await fetchCarById(carId)
   if (!car) throw new Error('السيارة غير موجودة')
   return updateCar(carId, buildCarBranchPricePatch(car, branchId, prices))
+}
+
+/** اسم عرض السيارة لفرع واحد فقط — لا يغيّر الاسم في باقي الفروع */
+export async function setCarBranchName(
+  carId: string,
+  branchId: string,
+  name: string,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+  return updateCar(carId, buildCarBranchNamePatch(car, branchId, name))
 }
 
 /** إزالة سيارة من فرع واحد — موظف الفرع لا يحذف عالمياً */

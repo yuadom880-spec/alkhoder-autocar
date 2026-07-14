@@ -12,6 +12,7 @@ import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { PricesIncludeVatNote } from '../components/ui/PricesIncludeVatNote'
 import { getCarAvailability } from '../lib/availability'
+import { getCarDisplayName } from '../lib/carBranchLabels'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
 import { sortFleet, type FleetSortOption } from '../lib/fleetSort'
@@ -80,8 +81,10 @@ export function CarsPage() {
       const matchCategory = category === 'all' || car.category === category
       const matchClass = carClass === 'all' || car.car_class === carClass
       const q = search.trim().toLowerCase()
+      const displayName = getCarDisplayName(car, hasBranch ? selectedBranch : null)
       const matchSearch =
         !q ||
+        displayName.toLowerCase().includes(q) ||
         car.name.toLowerCase().includes(q) ||
         car.brand.toLowerCase().includes(q) ||
         car.model.toLowerCase().includes(q)

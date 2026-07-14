@@ -670,6 +670,24 @@ ALTER TABLE cars
   ALTER COLUMN branch_prices SET NOT NULL;
 
 -- ┌──────────────────────────────────────────────────────────────────────────┐
+-- │ القسم 13ب: أسماء السيارات حسب الفرع (وضع فرعي في الإدارة)               │
+-- │ branch_names: { "branch_uuid": "اسم العرض في الفرع" }                   │
+-- └──────────────────────────────────────────────────────────────────────────┘
+
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS branch_names JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+UPDATE cars
+SET branch_names = '{}'::jsonb
+WHERE branch_names IS NULL
+   OR jsonb_typeof(branch_names) <> 'object';
+
+ALTER TABLE cars
+  ALTER COLUMN branch_names SET DEFAULT '{}'::jsonb;
+
+ALTER TABLE cars
+  ALTER COLUMN branch_names SET NOT NULL;
+
+-- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │ القسم 14: حذف حساب العميل (Google Play — من داخل التطبيق)               │
 -- │ يفصل الحجوزات (user_id → NULL) ثم يحذف auth.users + profiles (cascade)  │
 -- └──────────────────────────────────────────────────────────────────────────┘

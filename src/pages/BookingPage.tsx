@@ -12,7 +12,7 @@ import { buildBookingQuery, carMatchesBranch, findBranch, getBranchesForCar } fr
 import { canBookCar } from '../lib/availability'
 import { copy } from '../lib/copy'
 import { isFeaturedOfferActive } from '../lib/featuredOffers'
-import { getCarDisplayPrice, parseRentalType } from '../lib/pricing'
+import { getCarDisplayName, getCarDisplayPrice, parseRentalType } from '../lib/pricing'
 import { getEffectivePrice } from '../lib/offers'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
@@ -252,7 +252,7 @@ export function BookingPage() {
                   })
                   const notify = await notifyBookingPending(
                     { ...booking, car },
-                    car.name,
+                    getCarDisplayName(car, selectedBranch?.id ?? null),
                   )
                   setNotifyState({
                     customerEmail: notify.customerEmailSent,

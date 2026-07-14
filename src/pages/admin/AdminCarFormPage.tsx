@@ -9,6 +9,7 @@ import {
   createCar,
   fetchCarById,
   setCarBranchAvailability,
+  setCarBranchName,
   setCarBranchPrices,
   updateCar,
 } from '../../lib/supabase'
@@ -85,6 +86,8 @@ export function AdminCarFormPage() {
                       branch_ids: [branchScopeId],
                       unavailable_branch_ids: car.unavailable_branch_ids ?? [],
                     })
+                  } else {
+                    await setCarBranchName(id, branchScopeId, data.name)
                   }
                 } else {
                   await updateCar(id, {
