@@ -69,6 +69,9 @@ const AdminBranchesPage = lazy(() =>
 const AdminBranchFormPage = lazy(() =>
   import('./pages/admin/AdminBranchFormPage').then((m) => ({ default: m.AdminBranchFormPage })),
 )
+const AdminGeneralOnly = lazy(() =>
+  import('./components/admin/AdminGeneralOnly').then((m) => ({ default: m.AdminGeneralOnly })),
+)
 
 function PageFallback() {
   return <LoadingSpinner className="min-h-[50vh]" />
@@ -107,9 +110,30 @@ export default function App() {
             <Route path="offers" element={<AdminOffersPage />} />
             <Route path="offers/new" element={<AdminOfferFormPage />} />
             <Route path="offers/:id/edit" element={<AdminOfferFormPage />} />
-            <Route path="branches" element={<AdminBranchesPage />} />
-            <Route path="branches/new" element={<AdminBranchFormPage />} />
-            <Route path="branches/:id/edit" element={<AdminBranchFormPage />} />
+            <Route
+              path="branches"
+              element={
+                <AdminGeneralOnly>
+                  <AdminBranchesPage />
+                </AdminGeneralOnly>
+              }
+            />
+            <Route
+              path="branches/new"
+              element={
+                <AdminGeneralOnly>
+                  <AdminBranchFormPage />
+                </AdminGeneralOnly>
+              }
+            />
+            <Route
+              path="branches/:id/edit"
+              element={
+                <AdminGeneralOnly>
+                  <AdminBranchFormPage />
+                </AdminGeneralOnly>
+              }
+            />
           </Route>
         </Routes>
       </Suspense>

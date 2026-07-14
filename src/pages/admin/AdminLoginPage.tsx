@@ -5,6 +5,10 @@ import { Lock, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
 import { setAdminSession, validateGeneralAdminCredentials } from '../../lib/admin'
+import {
+  resolveBranchIdForAccount,
+  validateBranchAdminCredentials,
+} from '../../lib/branchAdmin'
 import { ensureSupabaseAdminAuth, isSupabaseConfigured } from '../../lib/supabase'
 import { CopyrightNotice } from '../../components/layout/CopyrightNotice'
 import { PageSeo } from '../../components/seo/PageSeo'
@@ -25,12 +29,27 @@ export function AdminLoginPage() {
     setError('')
 
     try {
-      if (!validateGeneralAdminCredentials(username, password)) {
-        setError('رقم الجوال أو كلمة المرور غير صحيحة')
-        return
-      }
+      if (validateGeneralAdminCredentials(username, password)) {
+        setAdminSession(username, 'general')
+      } else {
+        const account = validateBranchAdminCredentials(username, password)
+        if (!account) {
+          setError('رقم الجوال أو كلمة المرور غير صحيحة')
+          return
+        }
 
-      setAdminSession(username, 'general')
+        if (isSupabaseConfigured) {
+          await ensureSupabaseAdminAuth()
+        }
+
+        const branchId = await resolveBranchIdForAccount(account)
+        if (!branchId) {
+          setError('تعذّر ربط الحساب بفرعك — تواصل مع الإدارة العامة')
+          return
+        }
+
+        setAdminSession(username, 'branch', branchId)
+      }
 
       if (isSupabaseConfigured) {
         await ensureSupabaseAdminAuth()
@@ -57,7 +76,7 @@ export function AdminLoginPage() {
             className="mx-auto mb-4 h-20 w-auto rounded-xl object-contain"
           />
           <h1 className="text-xl font-bold text-brand-dark">{SITE_NAME}</h1>
-          <p className="text-sm text-slate-500 mt-1">لوحة الإدارة العامة — كل الفروع</p>
+          <p className="text-sm text-slate-500 mt-1">لوحة الإدارة — الإدارة العامة أو موظف فرع</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,7 +121,7 @@ export function AdminLoginPage() {
 
           <Button type="submit" className="w-full" size="lg" isLoading={submitting}>
             <Lock className="h-4 w-4" />
-            دخول لوحة الإدارة العامة
+            دخول لوحة الإدارة
           </Button>
         </form>
 

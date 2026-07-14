@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Navigate, useNavigate, useParams } from 'react-router'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { CarAvailabilityPanel } from '../../components/admin/CarAvailabilityPanel'
 import { CarForm } from '../../components/admin/CarForm'
@@ -12,6 +12,7 @@ import {
   setCarBranchPrices,
   updateCar,
 } from '../../lib/supabase'
+import { carMatchesBranch } from '../../lib/branchFilter'
 import type { Car } from '../../lib/types'
 
 export function AdminCarFormPage() {
@@ -39,6 +40,10 @@ export function AdminCarFormPage() {
         <p className="text-slate-500">السيارة غير موجودة</p>
       </div>
     )
+  }
+
+  if (isEdit && car && isBranchAdmin && branchScopeId && !carMatchesBranch(car, branchScopeId)) {
+    return <Navigate to="/admin/cars" replace />
   }
 
   return (

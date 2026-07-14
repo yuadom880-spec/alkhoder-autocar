@@ -25,6 +25,7 @@ import {
   updateBookingStatus,
 } from '../../lib/supabase'
 import type { Booking, BookingStatus, BranchRecord, Car, FeaturedOffer } from '../../lib/types'
+import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
 import { formatDate, formatPrice, toPhoneLink } from '../../lib/utils'
 
 export function AdminDashboardPage() {
@@ -112,7 +113,13 @@ export function AdminDashboardPage() {
 
   const branchStats = [
     { label: 'سيارات الفرع', value: visibleCars.length, icon: CarIcon, color: 'text-brand-green', link: '/admin/cars' },
-    { label: 'متاحة للحجز', value: visibleCars.filter((c) => c.is_available).length, icon: TrendingUp, color: 'text-blue-600', link: '/admin/cars' },
+    {
+      label: 'متاحة للحجز',
+      value: visibleCars.filter((c) => isCarAvailableForBranch(c, filterBranchId)).length,
+      icon: TrendingUp,
+      color: 'text-blue-600',
+      link: '/admin/cars',
+    },
     { label: 'حجوزات الفرع', value: visibleBookings.length, icon: Calendar, color: 'text-brand-gold', link: '/admin/bookings' },
     { label: 'بانتظار المراجعة', value: pending.length, icon: Clock, color: 'text-amber-600', link: '/admin/bookings' },
   ]

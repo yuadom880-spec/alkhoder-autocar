@@ -48,6 +48,11 @@ export function AdminTopBar({ title = 'لوحة الإدارة العامة' }: 
               كل الفروع
             </span>
           )}
+          {isBranchAdmin && activeBranch && (
+            <span className="hidden md:inline-flex rounded-full border border-amber-300/50 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-800">
+              {activeBranch.name}
+            </span>
+          )}
 
           <Link
             to="/"

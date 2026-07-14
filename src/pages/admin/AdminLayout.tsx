@@ -6,11 +6,13 @@ import { AdminSupabaseBanner } from '../../components/admin/AdminSupabaseBanner'
 import { CopyrightNotice } from '../../components/layout/CopyrightNotice'
 import { PageSeo } from '../../components/seo/PageSeo'
 import { AdminBranchProvider } from '../../context/AdminBranchContext'
+import { AdminBranchSessionGuard } from '../../components/admin/AdminBranchSessionGuard'
 
 export function AdminLayout() {
   return (
     <AdminProtected>
       <AdminBranchProvider>
+        <AdminBranchSessionGuard>
         <PageSeo />
         <div className="flex min-h-screen bg-slate-50">
           <AdminSidebar />
@@ -23,6 +25,7 @@ export function AdminLayout() {
           </div>
           <AdminMobileNav />
         </div>
+        </AdminBranchSessionGuard>
       </AdminBranchProvider>
     </AdminProtected>
   )

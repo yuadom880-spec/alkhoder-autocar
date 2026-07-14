@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Navigate, useNavigate, useParams } from 'react-router'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { FeaturedOfferForm } from '../../components/admin/FeaturedOfferForm'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { useAdminBranch } from '../../context/AdminBranchContext'
-import { buildFeaturedOfferBranchScope } from '../../lib/featuredOfferBranch'
+import { buildFeaturedOfferBranchScope, offerMatchesBranch } from '../../lib/featuredOfferBranch'
 import {
   createFeaturedOffer,
   fetchFeaturedOfferById,
@@ -37,6 +37,16 @@ export function AdminOfferFormPage() {
         <p className="text-slate-500">العرض غير موجود</p>
       </div>
     )
+  }
+
+  if (
+    isEdit &&
+    offer &&
+    isBranchAdmin &&
+    branchScopeId &&
+    !offerMatchesBranch(offer, branchScopeId)
+  ) {
+    return <Navigate to="/admin/offers" replace />
   }
 
   return (

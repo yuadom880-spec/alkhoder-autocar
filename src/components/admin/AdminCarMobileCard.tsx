@@ -18,6 +18,7 @@ interface AdminCarMobileCardProps {
   branches: BranchRecord[]
   filterBranchId: string | null
   branchScopeId: string | null
+  isBranchAdmin?: boolean
   activeBlocks: BookingBlock[]
   toggling: boolean
   deleting: boolean
@@ -30,6 +31,7 @@ export function AdminCarMobileCard({
   branches,
   filterBranchId,
   branchScopeId,
+  isBranchAdmin = false,
   activeBlocks,
   toggling,
   deleting,
@@ -118,7 +120,7 @@ export function AdminCarMobileCard({
           onClick={onDelete}
         >
           <Trash2 className="h-4 w-4" />
-          حذف
+          {isBranchAdmin ? 'إزالة' : 'حذف'}
         </Button>
       </div>
     </article>

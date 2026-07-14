@@ -7,7 +7,10 @@ import { DEMO_FEATURED_OFFERS } from './featuredOffersData'
 import { formatError } from './errors'
 import { isDataImageUrl, isPersistedImageUrl } from './imageUrl'
 import { getSupabaseEnv } from './env'
-import { buildCarBranchAvailabilityPatch } from './carBranchAvailability'
+import {
+  buildCarBranchAvailabilityPatch,
+  normalizeBranchIdForStorage,
+} from './carBranchAvailability'
 import {
   buildCarBranchPricePatch,
   normalizeBranchPrices,
@@ -30,7 +33,6 @@ import type {
   RentalPeriodType,
 } from './types'
 import { resolveDisplayedFeaturedOffers } from './featuredOffers'
-import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { normalizeCarOffers, sanitizeCarOffers, setOfferBranchDisabled } from './offers'
 import { parseAutoCarOfferId } from './featuredOffers'
 import { calcBookingTotal, defaultMonthlyPrice } from './pricing'
@@ -134,7 +136,7 @@ const DEMO_OFFERS_VERSION_KEY = 'alkhoder_demo_offers_version'
 const DEMO_OFFERS_VERSION = '2'
 const DEMO_BRANCHES_KEY = 'alkhoder_demo_branches'
 const DEMO_BRANCHES_VERSION_KEY = 'alkhoder_demo_branches_version'
-const DEMO_BRANCHES_VERSION = '1'
+const DEMO_BRANCHES_VERSION = '2'
 
 function requireSupabase(): SupabaseClient {
   if (!supabase) {
@@ -369,6 +371,30 @@ export async function setCarBranchPrices(
   const car = await fetchCarById(carId)
   if (!car) throw new Error('السيارة غير موجودة')
   return updateCar(carId, buildCarBranchPricePatch(car, branchId, prices))
+}
+
+/** إزالة سيارة من فرع واحد — موظف الفرع لا يحذف عالمياً */
+export async function removeCarFromBranchScope(
+  carId: string,
+  branchId: string,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+
+  const ids = car.branch_ids ?? []
+  const normalized = normalizeBranchIdForStorage(branchId)
+
+  if (ids.length === 0) {
+    return setCarBranchAvailability(carId, branchId, false)
+  }
+
+  const inBranch = ids.some((id) => normalizeBranchIdForStorage(id) === normalized)
+  if (!inBranch || ids.length === 1) {
+    return setCarBranchAvailability(carId, branchId, false)
+  }
+
+  const newIds = ids.filter((id) => normalizeBranchIdForStorage(id) !== normalized)
+  return updateCar(carId, { branch_ids: newIds })
 }
 
 export async function deleteCar(id: string): Promise<void> {

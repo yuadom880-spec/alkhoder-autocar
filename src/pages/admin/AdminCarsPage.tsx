@@ -11,7 +11,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { filterBlocksByBranch, getCarBlocks } from '../../lib/availability'
-import { formatCarBranchLabels } from '../../lib/branchFilter'
+import { carMatchesBranch, formatCarBranchLabels } from '../../lib/branchFilter'
 import { isCarEnabledForAdminScope } from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
 import {
@@ -19,6 +19,7 @@ import {
   fetchBookingBlocks,
   fetchBranches,
   fetchCars,
+  removeCarFromBranchScope,
   setCarBranchAvailability,
   updateCar,
 } from '../../lib/supabase'
@@ -71,12 +72,24 @@ export function AdminCarsPage() {
     [cars, listBranchId],
   )
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`هل تريد حذف "${name}"؟`)) return
-    setDeleting(id)
+  const handleDelete = async (car: Car) => {
+    const confirmMsg = isBranchAdmin
+      ? `هل تريد إزالة "${car.name}" من فرعك؟`
+      : `هل تريد حذف "${car.name}"؟`
+    if (!confirm(confirmMsg)) return
+    setDeleting(car.id)
     try {
-      await deleteCar(id)
-      setCars((prev) => prev.filter((c) => c.id !== id))
+      if (isBranchAdmin && branchScopeId) {
+        const updated = await removeCarFromBranchScope(car.id, branchScopeId)
+        if (carMatchesBranch(updated, branchScopeId)) {
+          setCars((prev) => prev.map((c) => (c.id === car.id ? updated : c)))
+        } else {
+          setCars((prev) => prev.filter((c) => c.id !== car.id))
+        }
+      } else {
+        await deleteCar(car.id)
+        setCars((prev) => prev.filter((c) => c.id !== car.id))
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'فشل الحذف')
     } finally {
@@ -183,11 +196,12 @@ export function AdminCarsPage() {
                   branches={branches}
                   filterBranchId={filterBranchId}
                   branchScopeId={branchScopeId}
+                  isBranchAdmin={isBranchAdmin}
                   activeBlocks={activeBlocks}
                   toggling={toggling === car.id}
                   deleting={deleting === car.id}
                   onToggleAvailable={() => handleToggleAvailable(car)}
-                  onDelete={() => handleDelete(car.id, car.name)}
+                  onDelete={() => handleDelete(car)}
                 />
               )
             })}
@@ -315,7 +329,7 @@ export function AdminCarsPage() {
                               variant="ghost"
                               className="text-red-600 hover:bg-red-50"
                               isLoading={deleting === car.id}
-                              onClick={() => handleDelete(car.id, car.name)}
+                              onClick={() => handleDelete(car)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
