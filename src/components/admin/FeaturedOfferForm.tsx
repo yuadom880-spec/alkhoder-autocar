@@ -16,7 +16,7 @@ interface FeaturedOfferFormProps {
 }
 
 export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOfferFormProps) {
-  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin, branchId } = useAdminBranch()
   const [cars, setCars] = useState<Car[]>([])
   const [form, setForm] = useState<FeaturedOfferFormData>({
     title: initial?.title ?? '',
@@ -33,8 +33,7 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
     valid_until: initial?.valid_until ?? '',
     sort_order: initial?.sort_order ?? 0,
     branch_ids:
-      initial?.branch_ids ??
-      (isBranchMode && activeBranchId ? [activeBranchId] : []),
+      initial?.branch_ids ?? (isBranchAdmin && branchId ? [branchId] : []),
   })
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -107,7 +106,7 @@ export function FeaturedOfferForm({ initial, onSubmit, onCancel }: FeaturedOffer
           <span className="font-bold text-brand-dark">بيانات العرض المميز</span>
         </div>
         <div className="p-5 space-y-4">
-          {isBranchMode && (
+          {isBranchAdmin && (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
               {copy.admin.offerBranchHint}
             </p>

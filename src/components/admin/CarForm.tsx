@@ -24,17 +24,16 @@ interface CarFormProps {
   onCancel: () => void
 }
 
-function defaultBranchIds(initial: Car | undefined, branchModeId: string | null): string[] {
+function defaultBranchIds(initial: Car | undefined, branchId: string | null): string[] {
   if (initial) return initial.branch_ids ?? []
-  if (branchModeId) return [branchModeId]
+  if (branchId) return [branchId]
   return []
 }
 
 export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
-  const { isBranchMode, activeBranchId } = useAdminBranch()
-  const branchPrices = initial
-    ? getBranchFormPrices(initial, isBranchMode ? activeBranchId : null)
-    : null
+  const { isBranchAdmin, branchId } = useAdminBranch()
+  const branchScopeId = isBranchAdmin ? branchId : null
+  const branchPrices = initial ? getBranchFormPrices(initial, branchScopeId) : null
 
   const [form, setForm] = useState<CarFormData>({
     name: initial?.name ?? '',
@@ -52,7 +51,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     is_available: initial?.is_available ?? true,
     is_featured: true,
     offer: initial?.offer ?? { daily: null, monthly: null },
-    branch_ids: defaultBranchIds(initial, isBranchMode ? activeBranchId : null),
+    branch_ids: defaultBranchIds(initial, branchScopeId),
     unavailable_branch_ids: initial?.unavailable_branch_ids ?? [],
   })
   const [loading, setLoading] = useState(false)
@@ -155,7 +154,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </div>
         <div>
           <label className="label-field">
-            {isBranchMode ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
+            {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
           </label>
           <input
             type="number"
@@ -163,13 +162,13 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             value={form.price_per_day}
             onChange={(e) => update('price_per_day', Number(e.target.value))}
           />
-          {isBranchMode && (
+          {isBranchAdmin && (
             <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
           )}
         </div>
         <div>
           <label className="label-field">
-            {isBranchMode ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
+            {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
           </label>
           <input
             type="number"
@@ -264,7 +263,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </div>
       </div>
 
-      {!isBranchMode && (
+      {!isBranchAdmin && (
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input

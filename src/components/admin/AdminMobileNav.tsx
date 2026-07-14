@@ -17,10 +17,10 @@ const links = [
 
 export function AdminMobileNav() {
   const { pathname } = useLocation()
-  const { filterBranchId, isBranchMode } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin } = useAdminBranch()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const navLinks = isBranchMode
+  const navLinks = isBranchAdmin
     ? links.filter((l) => l.path !== '/admin/branches')
     : links
 

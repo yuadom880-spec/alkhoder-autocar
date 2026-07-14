@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router'
+import { Link } from 'react-router'
 import { Edit, Plus, Trash2 } from 'lucide-react'
-import { useAdminBranch } from '../../context/AdminBranchContext'
 import { BranchImage } from '../../components/branches/BranchImage'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
@@ -11,7 +10,6 @@ import { deleteBranch, fetchBranches } from '../../lib/supabase'
 import type { BranchRecord } from '../../lib/types'
 
 export function AdminBranchesPage() {
-  const { isBranchMode, activeBranchId } = useAdminBranch()
   const [branches, setBranches] = useState<BranchRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -37,10 +35,6 @@ export function AdminBranchesPage() {
     } finally {
       setDeleting(null)
     }
-  }
-
-  if (isBranchMode && activeBranchId) {
-    return <Navigate to={`/admin/branches/${activeBranchId}/edit`} replace />
   }
 
   return (

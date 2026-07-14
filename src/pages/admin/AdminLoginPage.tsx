@@ -4,7 +4,7 @@ import { Navigate } from 'react-router'
 import { Lock, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from '../../components/ui/Button'
-import { setAdminSession, validateAdminCredentials } from '../../lib/admin'
+import { setAdminSession, validateGeneralAdminCredentials } from '../../lib/admin'
 import { ensureSupabaseAdminAuth, isSupabaseConfigured } from '../../lib/supabase'
 import { CopyrightNotice } from '../../components/layout/CopyrightNotice'
 import { PageSeo } from '../../components/seo/PageSeo'
@@ -25,12 +25,12 @@ export function AdminLoginPage() {
     setError('')
 
     try {
-      if (!validateAdminCredentials(username, password)) {
-        setError('اسم المستخدم أو كلمة المرور غير صحيحة')
+      if (!validateGeneralAdminCredentials(username, password)) {
+        setError('رقم الجوال أو كلمة المرور غير صحيحة')
         return
       }
 
-      setAdminSession(username)
+      setAdminSession(username, 'general')
 
       if (isSupabaseConfigured) {
         await ensureSupabaseAdminAuth()
@@ -57,24 +57,24 @@ export function AdminLoginPage() {
             className="mx-auto mb-4 h-20 w-auto rounded-xl object-contain"
           />
           <h1 className="text-xl font-bold text-brand-dark">{SITE_NAME}</h1>
-          <p className="text-sm text-slate-500 mt-1">لوحة الإدارة — Admin Dashboard</p>
+          <p className="text-sm text-slate-500 mt-1">لوحة الإدارة العامة — كل الفروع</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="label-field" htmlFor="username">
-              اسم المستخدم
+              رقم الجوال
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 id="username"
-                type="text"
+                type="tel"
                 dir="ltr"
                 className="input-field pl-10 text-left"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="username"
+                placeholder="05xxxxxxxx"
                 required
                 autoComplete="username"
               />
@@ -102,7 +102,7 @@ export function AdminLoginPage() {
 
           <Button type="submit" className="w-full" size="lg" isLoading={submitting}>
             <Lock className="h-4 w-4" />
-            دخول لوحة الإدارة
+            دخول لوحة الإدارة العامة
           </Button>
         </form>
 

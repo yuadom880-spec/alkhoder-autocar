@@ -20,10 +20,10 @@ const links = [
 export function AdminSidebar() {
   const { pathname } = useLocation()
   const { logout } = useAuth()
-  const { filterBranchId, isBranchMode } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin } = useAdminBranch()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const navLinks = isBranchMode
+  const navLinks = isBranchAdmin
     ? links.filter((l) => l.path !== '/admin/branches')
     : links
 
@@ -47,7 +47,7 @@ export function AdminSidebar() {
       <div className="border-b border-slate-100 p-5">
         <img src={LOGO_URL} alt={SITE_NAME} className="h-12 w-auto rounded-lg object-contain mb-2" />
         <p className="font-bold text-brand-dark text-sm">{SITE_NAME}</p>
-        <p className="text-xs text-slate-400">لوحة الإدارة — Admin</p>
+        <p className="text-xs text-slate-400">لوحة الإدارة العامة — كل الفروع</p>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">

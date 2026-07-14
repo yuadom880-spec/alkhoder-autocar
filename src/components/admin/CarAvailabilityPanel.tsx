@@ -23,8 +23,8 @@ interface CarAvailabilityPanelProps {
 }
 
 export function CarAvailabilityPanel({ car, onToggleAvailable }: CarAvailabilityPanelProps) {
-  const { isBranchMode, activeBranchId, filterBranchId } = useAdminBranch()
-  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+  const { isBranchAdmin, filterBranchId } = useAdminBranch()
+  const branchScopeId = isBranchAdmin ? filterBranchId : null
   const enabledHere = isCarEnabledForAdminScope(car, branchScopeId)
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)

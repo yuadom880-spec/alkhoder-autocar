@@ -26,7 +26,7 @@ const filters: { value: FilterStatus; label: string }[] = [
 ]
 
 export function AdminBookingsPage() {
-  const { filterBranchId, isBranchMode, activeBranch } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin, activeBranch } = useAdminBranch()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
@@ -116,7 +116,7 @@ export function AdminBookingsPage() {
             <h1 className="text-xl font-bold text-brand-dark sm:text-2xl">طلبات الحجز</h1>
             <p className="text-sm text-slate-500">
               {branchScopedBookings.length} حجز
-              {isBranchMode && activeBranch && (
+              {isBranchAdmin && activeBranch && (
                 <span className="mr-1 text-brand-green"> — {activeBranch.name}</span>
               )}
               {pendingCount > 0 && (
@@ -145,7 +145,7 @@ export function AdminBookingsPage() {
             />
           </div>
 
-          {!isBranchMode && (
+          {!isBranchAdmin && (
             <div className="flex flex-wrap items-center gap-3">
               <label htmlFor="branch-booking-filter" className="text-xs text-slate-500 shrink-0">
                 {copy.admin.filterByBranch}:

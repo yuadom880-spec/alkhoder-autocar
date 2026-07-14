@@ -14,7 +14,7 @@ import { Button } from '../ui/Button'
 interface AdminOfferMobileCardProps {
   offer: FeaturedOffer
   enabledHere: boolean
-  isBranchMode: boolean
+  isBranchAdmin: boolean
   updating: boolean
   deleting: boolean
   onToggleActive: () => void
@@ -25,7 +25,7 @@ interface AdminOfferMobileCardProps {
 export function AdminOfferMobileCard({
   offer,
   enabledHere,
-  isBranchMode,
+  isBranchAdmin,
   updating,
   deleting,
   onToggleActive,
@@ -50,10 +50,10 @@ export function AdminOfferMobileCard({
             </Badge>
             <Badge variant={enabledHere ? 'success' : 'danger'}>
               {enabledHere
-                ? isBranchMode
+                ? isBranchAdmin
                   ? 'ظاهر في فرعك'
                   : 'مفعّل'
-                : isBranchMode
+                : isBranchAdmin
                   ? 'موقوف في فرعك'
                   : 'موقوف'}
             </Badge>

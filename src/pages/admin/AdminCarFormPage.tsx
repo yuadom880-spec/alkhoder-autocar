@@ -17,8 +17,8 @@ import type { Car } from '../../lib/types'
 export function AdminCarFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { isBranchMode, activeBranchId, filterBranchId } = useAdminBranch()
-  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+  const { isBranchAdmin, filterBranchId } = useAdminBranch()
+  const branchScopeId = isBranchAdmin ? filterBranchId : null
   const isEdit = Boolean(id)
   const [car, setCar] = useState<Car | null>(null)
   const [loading, setLoading] = useState(isEdit)

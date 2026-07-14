@@ -33,8 +33,8 @@ import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offer
 import { formatPrice } from '../../lib/utils'
 
 export function AdminCarsPage() {
-  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
-  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+  const { filterBranchId, isBranchAdmin } = useAdminBranch()
+  const branchScopeId = isBranchAdmin ? filterBranchId : null
   const [cars, setCars] = useState<Car[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [branches, setBranches] = useState<BranchRecord[]>([])
@@ -82,8 +82,8 @@ export function AdminCarsPage() {
   }
 
   const handleToggleAvailable = async (car: Car) => {
-    if (isBranchMode && !branchScopeId) {
-      alert('اختر فرعاً من شريط الأعلى أولاً')
+    if (isBranchAdmin && !branchScopeId) {
+      alert('تعذّر تحديد الفرع')
       return
     }
     if (!confirmAdminCarAvailabilityToggle(car, branchScopeId)) return
@@ -115,7 +115,7 @@ export function AdminCarsPage() {
         <AdminPageHeader
           title="إدارة السيارات"
           subtitle={
-            isBranchMode ? (
+            isBranchAdmin ? (
               <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                 {copy.admin.carBranchAvailabilityHint}
               </p>
@@ -136,7 +136,7 @@ export function AdminCarsPage() {
         ) : visibleCars.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
             <p className="text-slate-500 mb-4">
-              {isBranchMode ? 'لا توجد سيارات في فرعك' : 'لا توجد سيارات'}
+              {isBranchAdmin ? 'لا توجد سيارات في فرعك' : 'لا توجد سيارات'}
             </p>
             <Link to="/admin/cars/new">
               <Button>إضافة أول سيارة</Button>

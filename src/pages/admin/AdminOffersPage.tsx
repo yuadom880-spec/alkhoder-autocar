@@ -26,7 +26,7 @@ import type { FeaturedOffer } from '../../lib/types'
 import { formatDate } from '../../lib/utils'
 
 export function AdminOffersPage() {
-  const { filterBranchId, isBranchMode, activeBranchId } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin } = useAdminBranch()
   const [offers, setOffers] = useState<FeaturedOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -47,24 +47,24 @@ export function AdminOffersPage() {
     [offers, filterBranchId],
   )
 
-  const branchScopeId = isBranchMode ? (activeBranchId ?? filterBranchId) : null
+  const branchScopeId = isBranchAdmin ? filterBranchId : null
 
   const isOfferEnabledHere = (offer: FeaturedOffer) =>
-    isBranchMode && branchScopeId
+    isBranchAdmin && branchScopeId
       ? !isFeaturedOfferBranchDisabled(offer, branchScopeId)
       : offer.is_active
 
   const setOfferVisibilityForBranch = async (offer: FeaturedOffer, visible: boolean) => {
-    if (!branchScopeId) throw new Error('اختر فرعاً من شريط الأعلى أولاً')
+    if (!branchScopeId) throw new Error('تعذّر تحديد الفرع')
     await setFeaturedOfferVisibilityForBranch(offer, branchScopeId, visible)
   }
 
   const handleDelete = async (offer: FeaturedOffer) => {
-    const branchNote = isBranchMode && branchScopeId ? ` من فرعك فقط` : ''
+    const branchNote = isBranchAdmin && branchScopeId ? ` من فرعك فقط` : ''
     if (!confirm(`هل تريد إيقاف عرض "${offer.title}"${branchNote}؟`)) return
     setDeleting(offer.id)
     try {
-      if (isBranchMode && branchScopeId) {
+      if (isBranchAdmin && branchScopeId) {
         await setOfferVisibilityForBranch(offer, false)
       } else {
         await deleteFeaturedOffer(offer.id)
@@ -82,9 +82,9 @@ export function AdminOffersPage() {
     try {
       const enable = !isOfferEnabledHere(offer)
 
-      if (isBranchMode) {
+      if (isBranchAdmin) {
         if (!branchScopeId) {
-          alert('اختر فرعاً من شريط الأعلى أولاً')
+          alert('تعذّر تحديد الفرع')
           return
         }
         await setOfferVisibilityForBranch(offer, enable)
@@ -125,9 +125,9 @@ export function AdminOffersPage() {
           subtitle={
             <>
               <p>إدارة عروض الإيجار اليومي والشهري</p>
-              {isBranchMode && (
+              {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                  وضع فرعي: إيقاف العرض يخصّ فرعك فقط
+                  إيقاف العرض يخصّ فرعك فقط
                 </p>
               )}
             </>
@@ -147,7 +147,7 @@ export function AdminOffersPage() {
         ) : visibleOffers.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
             <p className="text-slate-500 mb-4">
-              {isBranchMode ? 'لا توجد عروض لسيارات فرعك' : 'لا توجد عروض'}
+              {isBranchAdmin ? 'لا توجد عروض لسيارات فرعك' : 'لا توجد عروض'}
             </p>
             <Link to="/admin/offers/new">
               <Button>إضافة أول عرض</Button>
@@ -161,7 +161,7 @@ export function AdminOffersPage() {
                 key={offer.id}
                 offer={offer}
                 enabledHere={isOfferEnabledHere(offer)}
-                isBranchMode={isBranchMode}
+                isBranchAdmin={isBranchAdmin}
                 updating={updating === offer.id}
                 deleting={deleting === offer.id}
                 onToggleActive={() => toggleActive(offer)}
@@ -220,10 +220,10 @@ export function AdminOffersPage() {
                           <div className="flex flex-wrap gap-1">
                             <Badge variant={enabledHere ? 'success' : 'danger'}>
                               {enabledHere
-                                ? isBranchMode
+                                ? isBranchAdmin
                                   ? 'ظاهر في فرعك'
                                   : 'مفعّل'
-                                : isBranchMode
+                                : isBranchAdmin
                                   ? 'موقوف في فرعك'
                                   : 'موقوف'}
                             </Badge>
@@ -241,7 +241,7 @@ export function AdminOffersPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              title={isBranchMode ? 'إظهار/إخفاء في فرعك' : 'تفعيل/إيقاف'}
+                              title={isBranchAdmin ? 'إظهار/إخفاء في فرعك' : 'تفعيل/إيقاف'}
                               isLoading={updating === offer.id}
                               onClick={() => toggleActive(offer)}
                             >
@@ -271,7 +271,7 @@ export function AdminOffersPage() {
                               size="sm"
                               variant="ghost"
                               className="text-red-600 hover:bg-red-50"
-                              title={isBranchMode ? 'إخفاء من فرعك' : 'إيقاف العرض'}
+                              title={isBranchAdmin ? 'إخفاء من فرعك' : 'إيقاف العرض'}
                               isLoading={deleting === offer.id}
                               onClick={() => handleDelete(offer)}
                             >
