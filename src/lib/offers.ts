@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { getBranchOffersOverride } from './carBranchOffers'
 import { getCarBasePrice } from './carBranchPricing'
 import type { Car, CarOffer, CarOffers, OfferDiscountType, RentalPeriodType } from './types'
 import { formatPrice } from './utils'
@@ -63,6 +64,26 @@ export function normalizeCarOffers(offer: CarOffers | CarOffer | null | undefine
 export function getCarOffer(car: Car, rentalType: RentalPeriodType): CarOffer | null {
   const offers = normalizeCarOffers(car.offer)
   return rentalType === 'monthly' ? offers.monthly : offers.daily
+}
+
+/** عرض السيارة مع احترام عروض الفرع المخصصة */
+export function getResolvedCarOffer(
+  car: Car,
+  rentalType: RentalPeriodType,
+  branchId?: string | null,
+): CarOffer | null {
+  if (branchId) {
+    const branchOffers = getBranchOffersOverride(car, branchId)
+    if (branchOffers) {
+      const specific = rentalType === 'monthly' ? branchOffers.monthly : branchOffers.daily
+      if (specific !== null && specific !== undefined) {
+        if (!specific.active && isOfferGloballyDisabled(specific)) return null
+        if (specific.active) return normalizeOffer(specific)
+        return null
+      }
+    }
+  }
+  return getCarOffer(car, rentalType)
 }
 
 export function isOfferDisabledForBranch(
@@ -130,7 +151,7 @@ export function isOfferActive(
   rentalType: RentalPeriodType = 'daily',
   branchId?: string | null,
 ): boolean {
-  const offer = getCarOffer(car, rentalType)
+  const offer = getResolvedCarOffer(car, rentalType, branchId)
   if (!isOfferValid(offer, branchId)) return false
   const basePrice = getCarBasePrice(car, rentalType, branchId)
   return applyOffer(basePrice, offer, branchId) < basePrice
@@ -147,7 +168,7 @@ export function getEffectivePrice(
   rentalType: RentalPeriodType = 'daily',
   branchId?: string | null,
 ): number {
-  const offer = getCarOffer(car, rentalType)
+  const offer = getResolvedCarOffer(car, rentalType, branchId)
   const basePrice = getCarBasePrice(car, rentalType, branchId)
   if (!isOfferValid(offer, branchId)) return basePrice
   return applyOffer(basePrice, offer, branchId)
@@ -159,7 +180,7 @@ export function getOfferBadge(
   branchId?: string | null,
 ): string | null {
   if (!isOfferActive(car, rentalType, branchId)) return null
-  const offer = getCarOffer(car, rentalType)
+  const offer = getResolvedCarOffer(car, rentalType, branchId)
   if (!offer) return null
   if (offer.badge_text.trim()) return offer.badge_text.trim()
 

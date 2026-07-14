@@ -10,6 +10,7 @@ import {
   fetchCarById,
   setCarBranchAvailability,
   setCarBranchName,
+  setCarBranchOffers,
   setCarBranchPrices,
   updateCar,
 } from '../../lib/supabase'
@@ -88,6 +89,7 @@ export function AdminCarFormPage() {
                     })
                   } else {
                     await setCarBranchName(id, branchScopeId, data.name)
+                    await setCarBranchOffers(id, branchScopeId, data.offer)
                   }
                 } else {
                   await updateCar(id, {

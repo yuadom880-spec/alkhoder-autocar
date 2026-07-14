@@ -6,7 +6,7 @@ import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
 import { getBranchDisplay } from '../../lib/i18n/branches'
 import { getFeaturedOfferPriceLabel, isFeaturedOfferActive } from '../../lib/featuredOffers'
-import { getCarOffer, getEffectivePrice, isOfferActive } from '../../lib/offers'
+import { getEffectivePrice, getResolvedCarOffer, isOfferActive } from '../../lib/offers'
 import {
   calcBookingTotal,
   calcMonthlyBookingBreakdown,
@@ -49,7 +49,7 @@ export function BookingSummary({
   const offerBranchId = branch?.id ?? null
   const displayName = getCarDisplayName(car, offerBranchId)
   const hasCarOffer = isOfferActive(car, effectiveRentalType, offerBranchId)
-  const activeCarOffer = getCarOffer(car, effectiveRentalType)
+  const activeCarOffer = getResolvedCarOffer(car, effectiveRentalType, offerBranchId)
   const unitPrice =
     priceOverride ?? getCarDisplayPrice(car, effectiveRentalType, offerBranchId)
   const dailyPrice =

@@ -2,10 +2,10 @@ import type { Car, FeaturedOffer, RentalPeriodType } from './types'
 import { copy } from './copy'
 import { isCarAvailableForBranch } from './carBranchAvailability'
 import {
-  getCarOffer,
   getEffectivePrice,
   getOfferBadge,
   getOfferSavings,
+  getResolvedCarOffer,
   isOfferActive,
   isOfferDisabledForBranch,
   isOfferGloballyDisabled,
@@ -60,7 +60,7 @@ export function isFeaturedOfferBranchDisabled(
   if (!branchId) return false
   if (isOfferDisabledForBranch(offer, branchId)) return true
   if (offer.car_id && offer.car) {
-    const carOffer = getCarOffer(offer.car, offer.rental_type)
+    const carOffer = getResolvedCarOffer(offer.car, offer.rental_type, branchId)
     if (carOffer && isOfferDisabledForBranch(carOffer, branchId)) return true
   }
   return false
@@ -77,7 +77,7 @@ function isFeaturedOfferVisibleForCar(
   // عرض يدوي بسعر مستقل — لا يحتاج خصماً على السيارة
   if (!isAutoCarFeaturedOffer(offer)) return true
 
-  const carOffer = getCarOffer(offer.car, offer.rental_type)
+  const carOffer = getResolvedCarOffer(offer.car, offer.rental_type, branchId)
   if (!carOffer || isOfferGloballyDisabled(carOffer)) return false
   if (branchId && isOfferDisabledForBranch(carOffer, branchId)) return false
   return isOfferActive(offer.car, offer.rental_type, branchId)
@@ -116,7 +116,7 @@ export function carToFeaturedOffer(
   const savings = getOfferSavings(car, rentalType, branchId)
   if (savings <= FEATURED_OFFER_MIN_SAVINGS) return null
 
-  const carOffer = getCarOffer(car, rentalType)
+  const carOffer = getResolvedCarOffer(car, rentalType, branchId)
   if (!carOffer) return null
 
   const basePrice = getCarBasePrice(car, rentalType, branchId)

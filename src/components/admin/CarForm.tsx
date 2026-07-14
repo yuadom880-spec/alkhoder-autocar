@@ -4,6 +4,7 @@ import { useAdminBranch } from '../../context/AdminBranchContext'
 import { isCarExclusiveToBranch } from '../../lib/branchFilter'
 import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
 import { getBranchFormName } from '../../lib/carBranchLabels'
+import { getBranchFormOffers } from '../../lib/carBranchOffers'
 import { getBranchFormPrices } from '../../lib/carBranchPricing'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { copy } from '../../lib/copy'
@@ -59,7 +60,9 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     description: initial?.description ?? '',
     is_available: initial?.is_available ?? true,
     is_featured: true,
-    offer: initial?.offer ?? { daily: null, monthly: null },
+    offer: initial
+      ? getBranchFormOffers(initial, branchScopeId)
+      : { daily: null, monthly: null },
     branch_ids: defaultBranchIds(initial, branchScopeId),
     unavailable_branch_ids: initial?.unavailable_branch_ids ?? [],
   })
@@ -101,7 +104,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {branchPriceOnlyMode && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          هذه السيارة مشتركة بين الفروع — يمكنك تعديل اسم العرض وأسعار فرعك فقط.
+          هذه السيارة مشتركة بين الفروع — يمكنك تعديل اسم العرض وأسعار وعروض فرعك فقط.
           {initial && (
             <span className="block mt-1 text-xs text-amber-700">
               الاسم العام في النظام: {initial.name}
@@ -209,6 +212,21 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           />
         </div>
       </div>
+
+      {branchPriceOnlyMode && (
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-brand-dark">عروض فرعك (يومي / شهري)</p>
+          <p className="text-xs text-slate-500">
+            العروض هنا تظهر لعملاء فرعك فقط ولا تؤثر على باقي الفروع.
+          </p>
+          <CarOffersForm
+            dailyBasePrice={form.price_per_day}
+            monthlyBasePrice={form.price_per_month}
+            offers={form.offer}
+            onChange={(offer) => update('offer', offer)}
+          />
+        </div>
+      )}
 
       {!branchPriceOnlyMode && (
         <>

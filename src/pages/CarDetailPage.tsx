@@ -19,7 +19,7 @@ import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
 import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
-import { getCarOffer, isOfferActive } from '../lib/offers'
+import { getResolvedCarOffer, isOfferActive } from '../lib/offers'
 import { getCarDisplayName } from '../lib/carBranchLabels'
 import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
@@ -243,8 +243,8 @@ export function CarDetailPage() {
                 {promoOffer?.title && (
                   <p className="text-sm font-bold text-red-600 mb-2">{promoOffer.title}</p>
                 )}
-                {!promoOffer && getCarOffer(car, rentalType)?.title && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
-                  <p className="text-sm font-bold text-red-600 mb-2">{getCarOffer(car, rentalType)?.title}</p>
+                {!promoOffer && getResolvedCarOffer(car, rentalType, hasBranch ? branchId : null)?.title && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
+                  <p className="text-sm font-bold text-red-600 mb-2">{getResolvedCarOffer(car, rentalType, hasBranch ? branchId : null)?.title}</p>
                 )}
                 {hasPromoPrice && promoOffer ? (
                   <div>
@@ -273,8 +273,8 @@ export function CarDetailPage() {
                 {promoOffer?.description && (
                   <p className="text-xs text-slate-500 mt-2">{promoOffer.description}</p>
                 )}
-                {!promoOffer && getCarOffer(car, rentalType)?.description && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
-                  <p className="text-xs text-slate-500 mt-2">{getCarOffer(car, rentalType)?.description}</p>
+                {!promoOffer && getResolvedCarOffer(car, rentalType, hasBranch ? branchId : null)?.description && isOfferActive(car, rentalType, hasBranch ? branchId : null) && (
+                  <p className="text-xs text-slate-500 mt-2">{getResolvedCarOffer(car, rentalType, hasBranch ? branchId : null)?.description}</p>
                 )}
               </div>
 

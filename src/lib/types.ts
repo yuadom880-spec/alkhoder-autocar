@@ -56,6 +56,8 @@ export type CarBranchPrices = Record<string, BranchCarPrice>
 
 export type CarBranchNames = Record<string, string>
 
+export type CarBranchOffers = Record<string, CarOffers>
+
 export interface Car {
   id: string
   name: string
@@ -81,6 +83,8 @@ export interface Car {
   branch_prices?: CarBranchPrices
   /** أسماء عرض خاصة بفروع محددة — الفروع الأخرى تستخدم الاسم العام */
   branch_names?: CarBranchNames
+  /** عروض يومي/شهري خاصة بفروع محددة */
+  branch_offers?: CarBranchOffers
   created_at: string
   updated_at: string
 }
@@ -105,6 +109,7 @@ export interface CarFormData {
   unavailable_branch_ids?: string[]
   branch_prices?: CarBranchPrices
   branch_names?: CarBranchNames
+  branch_offers?: CarBranchOffers
 }
 
 export type UserRole = 'customer' | 'admin'
