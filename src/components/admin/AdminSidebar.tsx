@@ -9,23 +9,28 @@ import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { fetchBookings } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
 
-const links = [
-  { path: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard, exact: true },
+const generalLinks = [
+  { path: '/admin', label: 'الإدارة العامة', icon: LayoutDashboard, exact: true },
   { path: '/admin/cars', label: 'إدارة السيارات', icon: Car },
   { path: '/admin/offers', label: 'العروض المميزة', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
   { path: '/admin/bookings', label: 'طلبات الحجز', icon: Calendar, showBadge: true },
 ]
 
+const branchLinks = [
+  { path: '/admin', label: 'لوحة الفرع', icon: LayoutDashboard, exact: true },
+  { path: '/admin/cars', label: 'سيارات الفرع', icon: Car },
+  { path: '/admin/offers', label: 'عروض الفرع', icon: Tag },
+  { path: '/admin/bookings', label: 'حجوزات الفرع', icon: Calendar, showBadge: true },
+]
+
 export function AdminSidebar() {
   const { pathname } = useLocation()
   const { logout } = useAuth()
-  const { filterBranchId, isBranchAdmin } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin, isGeneralAdmin } = useAdminBranch()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const navLinks = isBranchAdmin
-    ? links.filter((l) => l.path !== '/admin/branches')
-    : links
+  const navLinks = isBranchAdmin ? branchLinks : generalLinks
 
   const refreshPending = useCallback(() => {
     fetchBookings()
@@ -47,7 +52,9 @@ export function AdminSidebar() {
       <div className="border-b border-slate-100 p-5">
         <img src={LOGO_URL} alt={SITE_NAME} className="h-12 w-auto rounded-lg object-contain mb-2" />
         <p className="font-bold text-brand-dark text-sm">{SITE_NAME}</p>
-        <p className="text-xs text-slate-400">لوحة الإدارة العامة — كل الفروع</p>
+        <p className="text-xs text-slate-400">
+          {isGeneralAdmin ? 'لوحة الإدارة العامة — كل الفروع' : 'لوحة إدارة الفرع'}
+        </p>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">

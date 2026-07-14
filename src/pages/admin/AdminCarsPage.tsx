@@ -33,8 +33,9 @@ import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offer
 import { formatPrice } from '../../lib/utils'
 
 export function AdminCarsPage() {
-  const { filterBranchId, isBranchAdmin } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin, isGeneralAdmin } = useAdminBranch()
   const branchScopeId = isBranchAdmin ? filterBranchId : null
+  const [branchFilter, setBranchFilter] = useState('')
   const [cars, setCars] = useState<Car[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [branches, setBranches] = useState<BranchRecord[]>([])
@@ -58,14 +59,16 @@ export function AdminCarsPage() {
 
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
 
+  const listBranchId = isGeneralAdmin ? branchFilter || null : filterBranchId
+
   const scopedBlocks = useMemo(
-    () => filterBlocksByBranch(blocks, filterBranchId),
-    [blocks, filterBranchId],
+    () => filterBlocksByBranch(blocks, listBranchId),
+    [blocks, listBranchId],
   )
 
   const visibleCars = useMemo(
-    () => filterCarsByBranch(cars, filterBranchId),
-    [cars, filterBranchId],
+    () => filterCarsByBranch(cars, listBranchId),
+    [cars, listBranchId],
   )
 
   const handleDelete = async (id: string, name: string) => {
@@ -106,7 +109,7 @@ export function AdminCarsPage() {
   }
 
   const getActiveBlocks = (carId: string) =>
-    getCarBlocks(carId, scopedBlocks, undefined, filterBranchId).filter((b) => b.end_date >= today)
+    getCarBlocks(carId, scopedBlocks, undefined, listBranchId).filter((b) => b.end_date >= today)
 
   return (
     <>
@@ -119,6 +122,10 @@ export function AdminCarsPage() {
               <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                 {copy.admin.carBranchAvailabilityHint}
               </p>
+            ) : isGeneralAdmin ? (
+              <p className="text-xs text-brand-green mt-2 bg-brand-green/5 border border-brand-green/20 rounded-lg px-3 py-2">
+                إدارة الأسطول لكل الفروع — التعديلات هنا تظهر لجميع العملاء
+              </p>
             ) : undefined
           }
           action={
@@ -130,6 +137,28 @@ export function AdminCarsPage() {
             </Link>
           }
         />
+
+        {isGeneralAdmin && branches.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <label htmlFor="cars-branch-filter" className="text-xs text-slate-500 shrink-0">
+              {copy.admin.filterByBranch}:
+            </label>
+            <select
+              id="cars-branch-filter"
+              className="input-field py-2 text-sm max-w-xs"
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+            >
+              <option value="">{copy.admin.allBranchesFilter}</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} — {b.city}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-slate-400">{visibleCars.length} سيارة</span>
+          </div>
+        )}
 
         {loading ? (
           <LoadingSpinner />

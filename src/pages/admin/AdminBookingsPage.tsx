@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
-import { RefreshCw, Search } from 'lucide-react'
+import { Download, RefreshCw, Search } from 'lucide-react'
+import { exportBookingsCsv } from '../../lib/adminAnalytics'
 import { BookingAdminCard } from '../../components/admin/BookingAdminCard'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
@@ -26,7 +27,7 @@ const filters: { value: FilterStatus; label: string }[] = [
 ]
 
 export function AdminBookingsPage() {
-  const { filterBranchId, isBranchAdmin, activeBranch } = useAdminBranch()
+  const { filterBranchId, isBranchAdmin, isGeneralAdmin, activeBranch } = useAdminBranch()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
@@ -126,10 +127,22 @@ export function AdminBookingsPage() {
               )}
             </p>
           </div>
-          <Button size="sm" variant="outline" onClick={load}>
-            <RefreshCw className="h-4 w-4" />
-            تحديث
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {isGeneralAdmin && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => exportBookingsCsv(branchScopedBookings)}
+              >
+                <Download className="h-4 w-4" />
+                تصدير CSV
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={load}>
+              <RefreshCw className="h-4 w-4" />
+              تحديث
+            </Button>
+          </div>
         </div>
 
         {/* Search + Filters */}

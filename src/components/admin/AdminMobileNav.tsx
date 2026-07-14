@@ -7,11 +7,18 @@ import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { fetchBookings } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
 
-const links = [
-  { path: '/admin', label: 'الرئيسية', icon: LayoutDashboard, exact: true },
+const generalLinks = [
+  { path: '/admin', label: 'العامة', icon: LayoutDashboard, exact: true },
   { path: '/admin/cars', label: 'السيارات', icon: Car },
   { path: '/admin/offers', label: 'العروض', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
+  { path: '/admin/bookings', label: 'الحجوزات', icon: Calendar, showBadge: true },
+]
+
+const branchLinks = [
+  { path: '/admin', label: 'الرئيسية', icon: LayoutDashboard, exact: true },
+  { path: '/admin/cars', label: 'السيارات', icon: Car },
+  { path: '/admin/offers', label: 'العروض', icon: Tag },
   { path: '/admin/bookings', label: 'الحجوزات', icon: Calendar, showBadge: true },
 ]
 
@@ -20,9 +27,7 @@ export function AdminMobileNav() {
   const { filterBranchId, isBranchAdmin } = useAdminBranch()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const navLinks = isBranchAdmin
-    ? links.filter((l) => l.path !== '/admin/branches')
-    : links
+  const navLinks = isBranchAdmin ? branchLinks : generalLinks
 
   const refreshPending = useCallback(() => {
     fetchBookings()
