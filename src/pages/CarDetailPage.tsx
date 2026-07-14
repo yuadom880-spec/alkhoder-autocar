@@ -20,7 +20,7 @@ import { carMatchesBranch } from '../lib/branchFilter'
 import { fetchBookingBlocks, fetchCarById, fetchFeaturedOfferById } from '../lib/supabase'
 import type { BookingBlock, Car, FeaturedOffer } from '../lib/types'
 import { getResolvedCarOffer, isOfferActive } from '../lib/offers'
-import { getCarDisplayName } from '../lib/carBranchLabels'
+import { resolveCarForBranch } from '../lib/carBranchProfile'
 import { getCarBasePrice, getCarDisplayPrice, getPriceUnitLabel } from '../lib/pricing'
 import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
@@ -103,8 +103,6 @@ export function CarDetailPage() {
     [car, blocks, start, end, branchId, hasBranch],
   )
 
-  const displayName = car ? getCarDisplayName(car, hasBranch ? branchId : null) : ''
-
   if (loading) return <LoadingSpinner />
 
   if (!car) {
@@ -118,7 +116,9 @@ export function CarDetailPage() {
     )
   }
 
-  const images = car.images.length > 0 ? car.images : [car.image_url]
+  const displayCar = resolveCarForBranch(car, hasBranch ? branchId : null)
+  const displayName = displayCar.name
+  const images = displayCar.images.length > 0 ? displayCar.images : [displayCar.image_url]
   const hasSelectedDates = Boolean(start && end)
   const branchEnabled = isCarAvailableForBranch(car, hasBranch ? branchId : null)
   const canBook =
@@ -208,8 +208,8 @@ export function CarDetailPage() {
             <div>
               <div className="mb-4 flex flex-wrap gap-2">
                 <OfferBadge car={car} rentalType={rentalType} branchId={hasBranch ? branchId : null} />
-                <Badge>{getCategoryLabel(car.category, locale)}</Badge>
-                <Badge variant="info">{getClassLabel(car.car_class, locale)}</Badge>
+                <Badge>{getCategoryLabel(displayCar.category, locale)}</Badge>
+                <Badge variant="info">{getClassLabel(displayCar.car_class, locale)}</Badge>
                 {hasBranch && availability && (
                   <CarAvailabilityBadge availability={availability} showDatesHint={hasSelectedDates} />
                 )}
@@ -217,7 +217,7 @@ export function CarDetailPage() {
 
               <h1 className="text-2xl font-bold text-brand-dark sm:text-3xl mb-2">{displayName}</h1>
               <p className="text-slate-500 mb-4">
-                {car.brand} {car.model} · {car.year}
+                {displayCar.brand} {displayCar.model} · {displayCar.year}
               </p>
 
               {start && end && (
@@ -278,7 +278,7 @@ export function CarDetailPage() {
                 )}
               </div>
 
-              <p className="text-slate-600 leading-relaxed mb-6">{car.description}</p>
+              <p className="text-slate-600 leading-relaxed mb-6">{displayCar.description}</p>
 
               <h2 className="font-bold text-brand-dark mb-3">{copy.detail.specs}</h2>
               <div className="grid grid-cols-2 gap-3 mb-8">
@@ -286,14 +286,14 @@ export function CarDetailPage() {
                   {
                     icon: Settings2,
                     label: copy.detail.transmission,
-                    value: translateCarSpec(car.specs.transmission, locale),
+                    value: translateCarSpec(displayCar.specs.transmission, locale),
                   },
-                  { icon: Fuel, label: copy.detail.fuel, value: translateCarSpec(car.specs.fuel, locale) },
-                  { icon: Users, label: copy.detail.seats, value: `${car.specs.seats} ${copy.detail.seatsUnit}` },
+                  { icon: Fuel, label: copy.detail.fuel, value: translateCarSpec(displayCar.specs.fuel, locale) },
+                  { icon: Users, label: copy.detail.seats, value: `${displayCar.specs.seats} ${copy.detail.seatsUnit}` },
                   {
                     icon: Snowflake,
                     label: copy.detail.ac,
-                    value: car.specs.ac ? copy.detail.acYes : copy.detail.acNo,
+                    value: displayCar.specs.ac ? copy.detail.acYes : copy.detail.acNo,
                   },
                 ].map((spec) => (
                   <div

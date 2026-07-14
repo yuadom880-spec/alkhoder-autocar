@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { getCarDisplayName as resolveDisplayName } from './carBranchProfile'
 import type { Car, CarBranchNames } from './types'
 
 export function normalizeBranchNames(raw: CarBranchNames | null | undefined): CarBranchNames {
@@ -13,21 +14,14 @@ export function normalizeBranchNames(raw: CarBranchNames | null | undefined): Ca
   return out
 }
 
-export function getBranchNameOverride(car: Car, branchId?: string | null): string | null {
-  if (!branchId) return null
-  const names = normalizeBranchNames(car.branch_names)
-  const key = normalizeBranchIdForStorage(branchId)
-  return names[key] ?? null
-}
-
-/** الاسم المعروض للعميل — يفضّل اسم الفرع ثم الاسم العام */
-export function getCarDisplayName(car: Car, branchId?: string | null): string {
-  const override = getBranchNameOverride(car, branchId)
-  return override?.trim() || car.name
-}
+export { resolveDisplayName as getCarDisplayName }
 
 export function hasBranchNameOverride(car: Car, branchId?: string | null): boolean {
-  return Boolean(getBranchNameOverride(car, branchId)?.trim())
+  return resolveDisplayName(car, branchId) !== car.name
+}
+
+export function getBranchFormName(car: Car, branchId: string | null): string {
+  return resolveDisplayName(car, branchId)
 }
 
 export function buildCarBranchNamePatch(
@@ -38,14 +32,7 @@ export function buildCarBranchNamePatch(
   const merged = { ...normalizeBranchNames(car.branch_names) }
   const key = normalizeBranchIdForStorage(branchId)
   const trimmed = name.trim()
-  if (trimmed && trimmed !== car.name.trim()) {
-    merged[key] = trimmed
-  } else {
-    delete merged[key]
-  }
+  if (trimmed && trimmed !== car.name.trim()) merged[key] = trimmed
+  else delete merged[key]
   return { branch_names: merged }
-}
-
-export function getBranchFormName(car: Car, branchId: string | null): string {
-  return getCarDisplayName(car, branchId)
 }

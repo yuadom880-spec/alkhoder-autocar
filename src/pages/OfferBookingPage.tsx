@@ -9,7 +9,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Button } from '../components/ui/Button'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { copy } from '../lib/copy'
-import { getCarDisplayName } from '../lib/carBranchLabels'
+import { resolveCarForBranch } from '../lib/carBranchProfile'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { fetchCars, fetchFeaturedOfferById } from '../lib/supabase'
 import type { Car, FeaturedOffer } from '../lib/types'
@@ -117,7 +117,7 @@ export function OfferBookingPage() {
               <option value="">{copy.booking.selectCarPlaceholder}</option>
               {branchCars.map((car) => (
                 <option key={car.id} value={car.id}>
-                  {getCarDisplayName(car, hasBranch ? branchId : null)}
+                  {resolveCarForBranch(car, hasBranch ? branchId : null).name}
                 </option>
               ))}
             </select>

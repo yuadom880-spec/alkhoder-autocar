@@ -1,5 +1,6 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { getBranchOffersOverride } from './carBranchOffers'
+import { getBranchProfile } from './carBranchProfile'
 import { getCarBasePrice } from './carBranchPricing'
 import type { Car, CarOffer, CarOffers, OfferDiscountType, RentalPeriodType } from './types'
 import { formatPrice } from './utils'
@@ -73,6 +74,16 @@ export function getResolvedCarOffer(
   branchId?: string | null,
 ): CarOffer | null {
   if (branchId) {
+    const profile = getBranchProfile(car, branchId)
+    if (profile?.offer !== undefined) {
+      const branchOffers = normalizeCarOffers(profile.offer)
+      const specific = rentalType === 'monthly' ? branchOffers.monthly : branchOffers.daily
+      if (specific !== null && specific !== undefined) {
+        if (!specific.active && isOfferGloballyDisabled(specific)) return null
+        if (specific.active) return normalizeOffer(specific)
+        return null
+      }
+    }
     const branchOffers = getBranchOffersOverride(car, branchId)
     if (branchOffers) {
       const specific = rentalType === 'monthly' ? branchOffers.monthly : branchOffers.daily

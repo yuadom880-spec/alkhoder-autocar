@@ -2,10 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { isCarExclusiveToBranch } from '../../lib/branchFilter'
+import { getBranchFormCarData } from '../../lib/carBranchProfile'
 import type { Car, CarCategory, CarClass, CarFormData } from '../../lib/types'
-import { getBranchFormName } from '../../lib/carBranchLabels'
-import { getBranchFormOffers } from '../../lib/carBranchOffers'
-import { getBranchFormPrices } from '../../lib/carBranchPricing'
 import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../../lib/constants'
 import { copy } from '../../lib/copy'
 import { CarBranchSelector } from './CarBranchSelector'
@@ -33,39 +31,48 @@ function defaultBranchIds(initial: Car | undefined, branchId: string | null): st
   return []
 }
 
+function buildInitialForm(
+  initial: Car | undefined,
+  branchScopeId: string | null,
+): CarFormData {
+  const branchDefaults =
+    initial && branchScopeId ? getBranchFormCarData(initial, branchScopeId) : null
+
+  return {
+    name: branchDefaults?.name ?? initial?.name ?? '',
+    brand: branchDefaults?.brand ?? initial?.brand ?? '',
+    model: branchDefaults?.model ?? initial?.model ?? '',
+    year: branchDefaults?.year ?? initial?.year ?? new Date().getFullYear(),
+    category: branchDefaults?.category ?? initial?.category ?? 'sedan',
+    car_class: branchDefaults?.car_class ?? initial?.car_class ?? 'mid',
+    price_per_day: branchDefaults?.price_per_day ?? initial?.price_per_day ?? 100,
+    price_per_month:
+      branchDefaults?.price_per_month ??
+      initial?.price_per_month ??
+      Math.round((branchDefaults?.price_per_day ?? initial?.price_per_day ?? 100) * 25),
+    image_url: branchDefaults?.image_url ?? initial?.image_url ?? '',
+    images: branchDefaults?.images ?? initial?.images ?? [],
+    specs: branchDefaults?.specs ?? initial?.specs ?? defaultSpecs,
+    description: branchDefaults?.description ?? initial?.description ?? '',
+    is_available: initial?.is_available ?? true,
+    is_featured: true,
+    offer: branchDefaults?.offer ?? initial?.offer ?? { daily: null, monthly: null },
+    branch_ids: defaultBranchIds(initial, branchScopeId),
+    unavailable_branch_ids: initial?.unavailable_branch_ids ?? [],
+  }
+}
+
 export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
   const { isBranchAdmin, branchId } = useAdminBranch()
   const branchScopeId = isBranchAdmin ? branchId : null
-  const branchPriceOnlyMode = Boolean(
+  const branchSharedCarMode = Boolean(
     isBranchAdmin &&
       branchScopeId &&
       initial &&
       !isCarExclusiveToBranch(initial, branchScopeId),
   )
-  const branchPrices = initial ? getBranchFormPrices(initial, branchScopeId) : null
-  const branchName = initial ? getBranchFormName(initial, branchScopeId) : ''
 
-  const [form, setForm] = useState<CarFormData>({
-    name: branchName,
-    brand: initial?.brand ?? '',
-    model: initial?.model ?? '',
-    year: initial?.year ?? new Date().getFullYear(),
-    category: initial?.category ?? 'sedan',
-    car_class: initial?.car_class ?? 'mid',
-    price_per_day: branchPrices?.price_per_day ?? initial?.price_per_day ?? 100,
-    price_per_month: branchPrices?.price_per_month ?? initial?.price_per_month ?? 2500,
-    image_url: initial?.image_url ?? '',
-    images: initial?.images ?? [],
-    specs: initial?.specs ?? defaultSpecs,
-    description: initial?.description ?? '',
-    is_available: initial?.is_available ?? true,
-    is_featured: true,
-    offer: initial
-      ? getBranchFormOffers(initial, branchScopeId)
-      : { daily: null, monthly: null },
-    branch_ids: defaultBranchIds(initial, branchScopeId),
-    unavailable_branch_ids: initial?.unavailable_branch_ids ?? [],
-  })
+  const [form, setForm] = useState<CarFormData>(() => buildInitialForm(initial, branchScopeId))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
@@ -82,12 +89,12 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!form.name.trim()) {
-      setError('اسم السيارة مطلوب')
+    if (!form.name.trim() || !form.brand.trim()) {
+      setError('الاسم والماركة مطلوبين')
       return
     }
-    if (!branchPriceOnlyMode && (!form.brand || !form.image_url)) {
-      setError(!form.brand ? 'الماركة مطلوبة' : 'ارفع صورة واحدة على الأقل للسيارة')
+    if (!form.image_url) {
+      setError('ارفع صورة واحدة على الأقل للسيارة')
       return
     }
     setLoading(true)
@@ -102,90 +109,75 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {branchPriceOnlyMode && (
+      {branchSharedCarMode && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          هذه السيارة مشتركة بين الفروع — يمكنك تعديل اسم العرض وأسعار وعروض فرعك فقط.
-          {initial && (
-            <span className="block mt-1 text-xs text-amber-700">
-              الاسم العام في النظام: {initial.name}
-            </span>
-          )}
+          هذه السيارة مشتركة بين الفروع — كل التعديلات هنا (الاسم، الصور، الوصف، الأسعار، العروض)
+          تظهر لعملاء فرعك فقط ولا تغيّر بيانات باقي الفروع.
         </p>
       )}
 
-      <div className={`grid gap-4 sm:grid-cols-2 ${branchPriceOnlyMode ? 'max-w-xl' : ''}`}>
-        <div className={branchPriceOnlyMode ? 'sm:col-span-2' : ''}>
-            <label className="label-field">
-              {branchPriceOnlyMode ? 'اسم العرض في فرعك *' : 'اسم السيارة *'}
-            </label>
-            <input
-              className="input-field"
-              value={form.name}
-              onChange={(e) => update('name', e.target.value)}
-            />
-            {branchPriceOnlyMode && (
-              <p className="text-[11px] text-slate-500 mt-1">
-                يظهر للعملاء عند اختيار فرعك فقط — باقي الفروع يبقى الاسم العام.
-              </p>
-            )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="label-field">اسم السيارة *</label>
+          <input
+            className="input-field"
+            value={form.name}
+            onChange={(e) => update('name', e.target.value)}
+          />
         </div>
-        {!branchPriceOnlyMode && (
-          <>
-            <div>
-              <label className="label-field">الماركة *</label>
-              <input
-                className="input-field"
-                value={form.brand}
-                onChange={(e) => update('brand', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label-field">الموديل</label>
-              <input
-                className="input-field"
-                value={form.model}
-                onChange={(e) => update('model', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label-field">السنة</label>
-              <input
-                type="number"
-                className="input-field"
-                value={form.year}
-                onChange={(e) => update('year', Number(e.target.value))}
-              />
-            </div>
-            <div>
-              <label className="label-field">التصنيف</label>
-              <select
-                className="input-field"
-                value={form.category}
-                onChange={(e) => update('category', e.target.value as CarCategory)}
-              >
-                {CAR_CATEGORIES.map((k) => (
-                  <option key={k} value={k}>
-                    {CATEGORY_LABELS[k]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="label-field">الفئة</label>
-              <select
-                className="input-field"
-                value={form.car_class}
-                onChange={(e) => update('car_class', e.target.value as CarClass)}
-              >
-                {CAR_CLASSES.map((k) => (
-                  <option key={k} value={k}>
-                    {CLASS_LABELS[k]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        )}
+        <div>
+          <label className="label-field">الماركة *</label>
+          <input
+            className="input-field"
+            value={form.brand}
+            onChange={(e) => update('brand', e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="label-field">الموديل</label>
+          <input
+            className="input-field"
+            value={form.model}
+            onChange={(e) => update('model', e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="label-field">السنة</label>
+          <input
+            type="number"
+            className="input-field"
+            value={form.year}
+            onChange={(e) => update('year', Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <label className="label-field">التصنيف</label>
+          <select
+            className="input-field"
+            value={form.category}
+            onChange={(e) => update('category', e.target.value as CarCategory)}
+          >
+            {CAR_CATEGORIES.map((k) => (
+              <option key={k} value={k}>
+                {CATEGORY_LABELS[k]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="label-field">الفئة</label>
+          <select
+            className="input-field"
+            value={form.car_class}
+            onChange={(e) => update('car_class', e.target.value as CarClass)}
+          >
+            {CAR_CLASSES.map((k) => (
+              <option key={k} value={k}>
+                {CLASS_LABELS[k]}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="label-field">
             {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
@@ -213,114 +205,91 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </div>
       </div>
 
-      {branchPriceOnlyMode && (
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-brand-dark">عروض فرعك (يومي / شهري)</p>
-          <p className="text-xs text-slate-500">
-            العروض هنا تظهر لعملاء فرعك فقط ولا تؤثر على باقي الفروع.
-          </p>
-          <CarOffersForm
-            dailyBasePrice={form.price_per_day}
-            monthlyBasePrice={form.price_per_month}
-            offers={form.offer}
-            onChange={(offer) => update('offer', offer)}
+      <CarImageUploader
+        imageUrl={form.image_url}
+        images={form.images}
+        onChange={handleImagesChange}
+        onError={setError}
+      />
+
+      {!isBranchAdmin && (
+        <CarBranchSelector
+          value={form.branch_ids}
+          onChange={(branch_ids) => update('branch_ids', branch_ids)}
+        />
+      )}
+
+      <CarOffersForm
+        dailyBasePrice={form.price_per_day}
+        monthlyBasePrice={form.price_per_month}
+        offers={form.offer}
+        onChange={(offer) => update('offer', offer)}
+      />
+
+      <button
+        type="button"
+        onClick={() => setShowUrlInput(!showUrlInput)}
+        className="text-xs text-slate-400 hover:text-brand-green transition-colors"
+      >
+        {showUrlInput ? 'إخفاء رابط الصورة' : 'أو ألصق رابط صورة (اختياري)'}
+      </button>
+
+      {showUrlInput && (
+        <div>
+          <input
+            className="input-field"
+            dir="ltr"
+            value={form.image_url.startsWith('data:') ? '' : form.image_url}
+            onChange={(e) => {
+              const url = e.target.value
+              if (url) handleImagesChange(url, form.images.filter((i) => i !== url))
+            }}
+            placeholder="https://..."
           />
         </div>
       )}
 
-      {!branchPriceOnlyMode && (
-        <>
-          <CarImageUploader
-            imageUrl={form.image_url}
-            images={form.images}
-            onChange={handleImagesChange}
-            onError={setError}
+      <div>
+        <label className="label-field">الوصف</label>
+        <textarea
+          rows={3}
+          className="input-field resize-none"
+          value={form.description}
+          onChange={(e) => update('description', e.target.value)}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div>
+          <label className="label-field">ناقل الحركة</label>
+          <input
+            className="input-field"
+            value={form.specs.transmission}
+            onChange={(e) =>
+              update('specs', { ...form.specs, transmission: e.target.value })
+            }
           />
-
-          {!isBranchAdmin && (
-            <CarBranchSelector
-              value={form.branch_ids}
-              onChange={(branch_ids) => update('branch_ids', branch_ids)}
-            />
-          )}
-
-          {(!isBranchAdmin ||
-            !initial ||
-            (branchScopeId && isCarExclusiveToBranch(initial, branchScopeId))) && (
-            <CarOffersForm
-              dailyBasePrice={form.price_per_day}
-              monthlyBasePrice={form.price_per_month}
-              offers={form.offer}
-              onChange={(offer) => update('offer', offer)}
-            />
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowUrlInput(!showUrlInput)}
-            className="text-xs text-slate-400 hover:text-brand-green transition-colors"
-          >
-            {showUrlInput ? 'إخفاء رابط الصورة' : 'أو ألصق رابط صورة (اختياري)'}
-          </button>
-
-          {showUrlInput && (
-            <div>
-              <input
-                className="input-field"
-                dir="ltr"
-                value={form.image_url.startsWith('data:') ? '' : form.image_url}
-                onChange={(e) => {
-                  const url = e.target.value
-                  if (url) handleImagesChange(url, form.images.filter((i) => i !== url))
-                }}
-                placeholder="https://..."
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="label-field">الوصف</label>
-            <textarea
-              rows={3}
-              className="input-field resize-none"
-              value={form.description}
-              onChange={(e) => update('description', e.target.value)}
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <label className="label-field">ناقل الحركة</label>
-              <input
-                className="input-field"
-                value={form.specs.transmission}
-                onChange={(e) =>
-                  update('specs', { ...form.specs, transmission: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label className="label-field">الوقود</label>
-              <input
-                className="input-field"
-                value={form.specs.fuel}
-                onChange={(e) => update('specs', { ...form.specs, fuel: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="label-field">المقاعد</label>
-              <input
-                type="number"
-                className="input-field"
-                value={form.specs.seats}
-                onChange={(e) =>
-                  update('specs', { ...form.specs, seats: Number(e.target.value) })
-                }
-              />
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+        <div>
+          <label className="label-field">الوقود</label>
+          <input
+            className="input-field"
+            value={form.specs.fuel}
+            onChange={(e) => update('specs', { ...form.specs, fuel: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="label-field">المقاعد</label>
+          <input
+            type="number"
+            className="input-field"
+            value={form.specs.seats}
+            onChange={(e) =>
+              update('specs', { ...form.specs, seats: Number(e.target.value) })
+            }
+          />
+        </div>
+      </div>
 
       {!isBranchAdmin && (
         <div className="flex flex-wrap gap-4">

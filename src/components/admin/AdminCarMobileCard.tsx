@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { Calendar, Edit, Power, Trash2 } from 'lucide-react'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
-import { getCarDisplayName } from '../../lib/carBranchLabels'
+import { resolveCarForBranch } from '../../lib/carBranchProfile'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import {
@@ -49,7 +49,7 @@ export function AdminCarMobileCard({
         <img src={car.image_url} alt="" className="h-20 w-28 shrink-0 rounded-xl object-cover" />
         <div className="min-w-0 flex-1">
           <p className="font-bold text-brand-dark leading-snug">
-            {getCarDisplayName(car, branchScopeId)}
+            {resolveCarForBranch(car, branchScopeId).name}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
             {car.brand} · {car.year}

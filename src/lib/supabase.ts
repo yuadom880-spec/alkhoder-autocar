@@ -20,6 +20,10 @@ import {
   normalizeBranchOffers,
 } from './carBranchOffers'
 import {
+  buildCarBranchProfilePatch,
+  normalizeBranchProfiles,
+} from './carBranchProfile'
+import {
   buildCarBranchPricePatch,
   normalizeBranchPrices,
 } from './carBranchPricing'
@@ -58,6 +62,7 @@ function normalizeCar(car: Car): Car {
   const branch_prices = normalizeBranchPrices(car.branch_prices)
   const branch_names = normalizeBranchNames(car.branch_names)
   const branch_offers = normalizeBranchOffers(car.branch_offers)
+  const branch_profiles = normalizeBranchProfiles(car.branch_profiles)
   return {
     ...car,
     offer,
@@ -66,6 +71,7 @@ function normalizeCar(car: Car): Car {
     branch_prices,
     branch_names,
     branch_offers,
+    branch_profiles,
     price_per_month,
     car_class,
   }
@@ -100,6 +106,9 @@ function prepareCarPatch(form: Partial<CarFormData>): Partial<CarFormData> {
   if (form.branch_offers !== undefined) {
     patch.branch_offers = normalizeBranchOffers(form.branch_offers)
   }
+  if (form.branch_profiles !== undefined) {
+    patch.branch_profiles = normalizeBranchProfiles(form.branch_profiles)
+  }
   return patch
 }
 
@@ -110,6 +119,7 @@ function formatSupabaseMutationError(error: { code?: string; message?: string })
     message.includes('branch_prices') ||
     message.includes('branch_names') ||
     message.includes('branch_offers') ||
+    message.includes('branch_profiles') ||
     message.includes('disabled_branch_ids') ||
     message.includes('branch_ids') ||
     message.includes('schema cache') ||
@@ -413,6 +423,17 @@ export async function setCarBranchOffers(
   const car = await fetchCarById(carId)
   if (!car) throw new Error('السيارة غير موجودة')
   return updateCar(carId, buildCarBranchOffersPatch(car, branchId, offers))
+}
+
+/** ملف السيارة الكامل لفرع واحد — اسم، صور، وصف، أسعار، عروض… */
+export async function setCarBranchProfile(
+  carId: string,
+  branchId: string,
+  data: CarFormData,
+): Promise<Car> {
+  const car = await fetchCarById(carId)
+  if (!car) throw new Error('السيارة غير موجودة')
+  return updateCar(carId, buildCarBranchProfilePatch(car, branchId, data))
 }
 
 /** إزالة سيارة من فرع واحد — موظف الفرع لا يحذف عالمياً */

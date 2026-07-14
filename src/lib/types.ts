@@ -58,6 +58,25 @@ export type CarBranchNames = Record<string, string>
 
 export type CarBranchOffers = Record<string, CarOffers>
 
+/** بيانات عرض السيارة لفرع واحد — تظهر لعملاء ذلك الفرع فقط */
+export interface BranchCarProfile {
+  name?: string
+  brand?: string
+  model?: string
+  year?: number
+  category?: CarCategory
+  car_class?: CarClass
+  price_per_day?: number
+  price_per_month?: number
+  image_url?: string
+  images?: string[]
+  specs?: CarSpecs
+  description?: string
+  offer?: CarOffers | null
+}
+
+export type CarBranchProfiles = Record<string, BranchCarProfile>
+
 export interface Car {
   id: string
   name: string
@@ -85,6 +104,8 @@ export interface Car {
   branch_names?: CarBranchNames
   /** عروض يومي/شهري خاصة بفروع محددة */
   branch_offers?: CarBranchOffers
+  /** ملف السيارة الكامل لكل فرع (اسم، صور، وصف، أسعار، عروض…) */
+  branch_profiles?: CarBranchProfiles
   created_at: string
   updated_at: string
 }
@@ -110,6 +131,7 @@ export interface CarFormData {
   branch_prices?: CarBranchPrices
   branch_names?: CarBranchNames
   branch_offers?: CarBranchOffers
+  branch_profiles?: CarBranchProfiles
 }
 
 export type UserRole = 'customer' | 'admin'

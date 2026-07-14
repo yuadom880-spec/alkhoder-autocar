@@ -11,8 +11,8 @@ import {
   calcBookingTotal,
   calcMonthlyBookingBreakdown,
   getCarBasePrice,
-  getCarDisplayName,
   getCarDisplayPrice,
+  resolveCarForBranch,
   getPriceUnitLabel,
 } from '../../lib/pricing'
 import { calcDays, formatDate, formatPrice } from '../../lib/utils'
@@ -47,7 +47,7 @@ export function BookingSummary({
   const effectiveRentalType = hasPromo && promoOffer ? promoOffer.rental_type : rentalType
   const isMonthly = effectiveRentalType === 'monthly'
   const offerBranchId = branch?.id ?? null
-  const displayName = getCarDisplayName(car, offerBranchId)
+  const displayCar = resolveCarForBranch(car, offerBranchId)
   const hasCarOffer = isOfferActive(car, effectiveRentalType, offerBranchId)
   const activeCarOffer = getResolvedCarOffer(car, effectiveRentalType, offerBranchId)
   const unitPrice =
@@ -73,11 +73,11 @@ export function BookingSummary({
   return (
     <div className="rounded-2xl bg-white p-4 shadow-md sm:p-5 lg:sticky lg:top-24">
       <div className="flex gap-4 mb-5 pb-5 border-b border-slate-100">
-        <CarImage src={car.image_url} alt={displayName} variant="summary" />
+        <CarImage src={displayCar.image_url} alt={displayCar.name} variant="summary" />
         <div>
-          <p className="font-bold text-brand-dark">{displayName}</p>
+          <p className="font-bold text-brand-dark">{displayCar.name}</p>
           <p className="text-xs text-slate-500">
-            {car.brand} · {car.year}
+            {displayCar.brand} · {displayCar.year}
           </p>
           {showDiscount ? (
             <div className="mt-1">

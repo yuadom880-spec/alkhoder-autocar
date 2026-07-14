@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { getBranchProfile } from './carBranchProfile'
 import { normalizeCarOffers, sanitizeCarOffers } from './offers'
 import type { Car, CarBranchOffers, CarOffers } from './types'
 
@@ -16,6 +17,10 @@ export function normalizeBranchOffers(raw: CarBranchOffers | null | undefined): 
 
 export function getBranchOffersOverride(car: Car, branchId?: string | null): CarOffers | null {
   if (!branchId) return null
+  const profile = getBranchProfile(car, branchId)
+  if (profile?.offer !== undefined) {
+    return profile.offer ? normalizeCarOffers(profile.offer) : { daily: null, monthly: null }
+  }
   const offers = normalizeBranchOffers(car.branch_offers)
   const key = normalizeBranchIdForStorage(branchId)
   return offers[key] ?? null
@@ -23,6 +28,10 @@ export function getBranchOffersOverride(car: Car, branchId?: string | null): Car
 
 export function getBranchFormOffers(car: Car, branchId: string | null): CarOffers {
   if (!branchId) return normalizeCarOffers(car.offer)
+  const profile = getBranchProfile(car, branchId)
+  if (profile?.offer !== undefined) {
+    return profile.offer ? normalizeCarOffers(profile.offer) : { daily: null, monthly: null }
+  }
   const override = getBranchOffersOverride(car, branchId)
   if (override) return override
   return { daily: null, monthly: null }

@@ -1,12 +1,12 @@
 import { copy } from './copy'
 import type { Car, RentalPeriodType } from './types'
-import { getCarDisplayName } from './carBranchLabels'
+import { getCarDisplayName, resolveCarForBranch } from './carBranchProfile'
 import {
   defaultMonthlyPrice,
   getCarBasePrice as resolveCarBasePrice,
 } from './carBranchPricing'
 
-export { getCarDisplayName }
+export { getCarDisplayName, resolveCarForBranch }
 import { getEffectivePrice } from './offers'
 import { calcDays } from './utils'
 

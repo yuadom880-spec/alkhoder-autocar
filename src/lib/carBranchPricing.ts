@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { getBranchProfile, resolveCarForBranch } from './carBranchProfile'
 import type { BranchCarPrice, Car, CarBranchPrices, RentalPeriodType } from './types'
 
 export function defaultMonthlyPrice(dailyPrice: number): number {
@@ -26,6 +27,14 @@ export function getBranchPriceOverride(
   branchId?: string | null,
 ): BranchCarPrice | null {
   if (!branchId) return null
+  const profile = getBranchProfile(car, branchId)
+  if (profile?.price_per_day != null) {
+    return {
+      price_per_day: profile.price_per_day,
+      price_per_month:
+        profile.price_per_month ?? defaultMonthlyPrice(profile.price_per_day),
+    }
+  }
   const prices = normalizeBranchPrices(car.branch_prices)
   const key = normalizeBranchIdForStorage(branchId)
   return prices[key] ?? null
@@ -68,8 +77,13 @@ export function buildCarBranchPricePatch(
 }
 
 export function getBranchFormPrices(car: Car, branchId: string | null): BranchCarPrice {
-  const override = branchId ? getBranchPriceOverride(car, branchId) : null
-  if (override) return override
+  if (branchId) {
+    const resolved = resolveCarForBranch(car, branchId)
+    return {
+      price_per_day: resolved.price_per_day,
+      price_per_month: resolved.price_per_month,
+    }
+  }
   return {
     price_per_day: car.price_per_day,
     price_per_month: car.price_per_month ?? defaultMonthlyPrice(car.price_per_day),

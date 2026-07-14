@@ -9,9 +9,7 @@ import {
   createCar,
   fetchCarById,
   setCarBranchAvailability,
-  setCarBranchName,
-  setCarBranchOffers,
-  setCarBranchPrices,
+  setCarBranchProfile,
   updateCar,
 } from '../../lib/supabase'
 import { carMatchesBranch, isCarExclusiveToBranch } from '../../lib/branchFilter'
@@ -76,20 +74,14 @@ export function AdminCarFormPage() {
             onSubmit={async (data) => {
               if (isEdit && id && car) {
                 if (branchScopeId) {
-                  await setCarBranchPrices(id, branchScopeId, {
-                    price_per_day: data.price_per_day,
-                    price_per_month: data.price_per_month,
-                  })
                   if (isCarExclusiveToBranch(car, branchScopeId)) {
-                    const { price_per_day: _d, price_per_month: _m, ...globalPatch } = data
                     await updateCar(id, {
-                      ...globalPatch,
+                      ...data,
                       branch_ids: [branchScopeId],
                       unavailable_branch_ids: car.unavailable_branch_ids ?? [],
                     })
                   } else {
-                    await setCarBranchName(id, branchScopeId, data.name)
-                    await setCarBranchOffers(id, branchScopeId, data.offer)
+                    await setCarBranchProfile(id, branchScopeId, data)
                   }
                 } else {
                   await updateCar(id, {

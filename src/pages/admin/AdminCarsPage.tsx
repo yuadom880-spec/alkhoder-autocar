@@ -11,7 +11,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
 import { filterBlocksByBranch, getCarBlocks } from '../../lib/availability'
-import { getCarDisplayName } from '../../lib/carBranchLabels'
+import { resolveCarForBranch } from '../../lib/carBranchProfile'
 import { carMatchesBranch, formatCarBranchLabels } from '../../lib/branchFilter'
 import { isCarEnabledForAdminScope } from '../../lib/carStatus'
 import { copy } from '../../lib/copy'
@@ -244,7 +244,7 @@ export function AdminCarsPage() {
                             />
                             <div>
                               <p className="font-medium">
-                                {getCarDisplayName(car, listBranchId)}
+                                {resolveCarForBranch(car, listBranchId).name}
                               </p>
                               <p className="text-xs text-slate-400">
                                 {car.brand} · {car.year}

@@ -7,7 +7,7 @@ import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
 import { getCustomerUnavailableLabel } from '../../lib/carStatus'
 import { useLocale } from '../../context/LocaleContext'
 import { copy } from '../../lib/copy'
-import { getCarDisplayName } from '../../lib/carBranchLabels'
+import { resolveCarForBranch } from '../../lib/carBranchProfile'
 import { getCategoryLabel, getClassLabel, translateCarSpec } from '../../lib/i18n/labels'
 import { Badge } from '../ui/Badge'
 import { CarPrice, OfferBadge } from './CarPrice'
@@ -39,9 +39,9 @@ export function CarCard({
   const detailUrl = `/cars/${car.id}${query}`
   const bookUrl = `/book/${car.id}${query}`
 
+  const displayCar = resolveCarForBranch(car, branchId)
   const canBook = availability?.available ?? isCarAvailableForBranch(car, branchId)
   const overlayLabel = getCustomerUnavailableLabel(availability?.reason)
-  const displayName = getCarDisplayName(car, branchId)
 
   return (
     <motion.article
@@ -51,11 +51,11 @@ export function CarCard({
       className="group overflow-hidden rounded-2xl bg-white shadow-md card-hover"
     >
       <Link to={detailUrl}>
-        <CarImage src={car.image_url} alt={displayName} variant="card">
+        <CarImage src={displayCar.image_url} alt={displayCar.name} variant="card">
           <div className="absolute top-3 right-3 flex flex-wrap gap-2 justify-end z-10">
             <OfferBadge car={car} rentalType={rentalType} branchId={branchId} />
-            <Badge>{getCategoryLabel(car.category, locale)}</Badge>
-            <Badge variant="info">{getClassLabel(car.car_class, locale)}</Badge>
+            <Badge>{getCategoryLabel(displayCar.category, locale)}</Badge>
+            <Badge variant="info">{getClassLabel(displayCar.car_class, locale)}</Badge>
             {availability && (
               <CarAvailabilityBadge
                 availability={availability}
@@ -78,10 +78,10 @@ export function CarCard({
           <div className="mb-3 flex items-start justify-between gap-2">
             <div>
               <h3 className="font-bold text-brand-dark group-hover:text-brand-green transition-colors">
-                {displayName}
+                {displayCar.name}
               </h3>
               <p className="text-xs text-slate-500">
-                {car.brand} · {car.year}
+                {displayCar.brand} · {displayCar.year}
               </p>
             </div>
             <CarPrice car={car} size="sm" rentalType={rentalType} branchId={branchId} />
@@ -91,15 +91,15 @@ export function CarCard({
         <div className="mb-4 flex flex-wrap gap-3 text-xs text-slate-500">
           <span className="flex items-center gap-1">
             <Settings2 className="h-3.5 w-3.5" />
-            {translateCarSpec(car.specs.transmission, locale)}
+            {translateCarSpec(displayCar.specs.transmission, locale)}
           </span>
           <span className="flex items-center gap-1">
             <Fuel className="h-3.5 w-3.5" />
-            {translateCarSpec(car.specs.fuel, locale)}
+            {translateCarSpec(displayCar.specs.fuel, locale)}
           </span>
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            {car.specs.seats} {copy.detail.seatsUnit}
+            {displayCar.specs.seats} {copy.detail.seatsUnit}
           </span>
         </div>
 
