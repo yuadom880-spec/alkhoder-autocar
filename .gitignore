@@ -29,3 +29,6 @@ scripts/*-temp*.html
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+.env*
