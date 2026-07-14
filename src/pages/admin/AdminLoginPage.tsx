@@ -44,7 +44,7 @@ export function AdminLoginPage() {
 
         const branchId = await resolveBranchIdForAccount(account)
         if (!branchId) {
-          setError('تعذّر ربط الحساب بفرعك — تواصل مع الإدارة العامة')
+          setError(`تعذّر ربط حساب «${account.label}» — تواصل مع الإدارة العامة`)
           return
         }
 

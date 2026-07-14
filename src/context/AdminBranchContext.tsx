@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { getAdminBranchId, getAdminRole, type AdminRole } from '../lib/admin'
+import { branchRecordMatchesId } from '../lib/branchFilter'
 import { fetchBranches } from '../lib/supabase'
 import type { BranchRecord } from '../lib/types'
 
@@ -34,14 +35,17 @@ export function AdminBranchProvider({ children }: { children: ReactNode }) {
   const filterBranchId = branchId
 
   useEffect(() => {
-    fetchBranches({ activeOnly: false })
+    fetchBranches({ activeOnly: role !== 'general' })
       .then(setBranches)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [])
+  }, [role])
 
   const activeBranch = useMemo(
-    () => branches.find((b) => b.id === branchId) ?? null,
+    () =>
+      branchId
+        ? (branches.find((b) => branchRecordMatchesId(b, branchId)) ?? null)
+        : null,
     [branches, branchId],
   )
 

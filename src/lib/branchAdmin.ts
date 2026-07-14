@@ -9,13 +9,14 @@ export interface BranchAdminAccount {
   label: string
   /** للتطوير المحلي — معرّف ثابت من DEMO_BRANCHES */
   demoBranchId: string
-  /** كلمات للمطابقة مع اسم/عنوان/مدينة الفرع في Supabase */
+  /** معرّف الفرع الفعلي في Supabase (الإنتاج) */
+  supabaseBranchId: string
+  /** كلمات للمطابقة الاحتياطية مع اسم/عنوان/مدينة الفرع */
   nameHints: string[]
 }
 
 /**
- * بيانات دخول موظفي الفروع.
- * كل موظف يدخل برقم جواله ورقم سري خاص بفرعه فقط.
+ * بيانات دخول موظفي الفروع — 12 فرع + الإدارة العامة منفصلة في admin.ts
  */
 export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
   {
@@ -23,6 +24,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357889',
     label: 'الفرع الرئيسي — طريق المطار',
     demoBranchId: 'branch-1',
+    supabaseBranchId: '730ab6d5-425c-4156-a87a-5b7938791f59',
     nameHints: ['الرئيسي', 'طريق المطار', 'المطار'],
   },
   {
@@ -30,6 +32,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357996',
     label: 'فرع المدينة طريق المطار 2',
     demoBranchId: 'branch-2',
+    supabaseBranchId: '41b84920-8cff-4ca6-bbdd-a0039c6f7912',
     nameHints: ['المطار 2', 'مطار 2', 'طريق المطار 2'],
   },
   {
@@ -37,6 +40,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357559',
     label: 'فرع المدينة سلطانة',
     demoBranchId: 'branch-3',
+    supabaseBranchId: 'f8290af8-64f8-4cf1-94c4-696c48ec32ea',
     nameHints: ['سلطانة', 'سلطانه'],
   },
   {
@@ -44,6 +48,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357338',
     label: 'فرع المدينة العالية',
     demoBranchId: 'branch-4',
+    supabaseBranchId: 'a131325e-52de-4f81-9081-f66a7a752c12',
     nameHints: ['العالية'],
   },
   {
@@ -51,6 +56,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357446',
     label: 'فرع المدينة العزيزية',
     demoBranchId: 'branch-5',
+    supabaseBranchId: '114457ce-7f02-4920-98fe-55080dc748cb',
     nameHints: ['العزيزية', 'العزيزيه'],
   },
   {
@@ -58,6 +64,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357994',
     label: 'فرع المدينة الحزام',
     demoBranchId: 'branch-9',
+    supabaseBranchId: '19cd32a5-ed45-494d-817c-8817e9396fc7',
     nameHints: ['الحزام'],
   },
   {
@@ -65,6 +72,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357225',
     label: 'فرع ضباء',
     demoBranchId: 'branch-7',
+    supabaseBranchId: '375449d5-befa-4cdb-93db-14cce3b28dd5',
     nameHints: ['ضباء', 'ضبا'],
   },
   {
@@ -72,6 +80,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357337',
     label: 'فرع تبوك',
     demoBranchId: 'branch-8',
+    supabaseBranchId: 'b7959a76-8199-480f-91da-2c446db7a0a5',
     nameHints: ['تبوك'],
   },
   {
@@ -79,6 +88,7 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357229',
     label: 'فرع ينبع',
     demoBranchId: 'branch-6',
+    supabaseBranchId: '483ba7f0-1795-48a1-ab62-7dd85d791f04',
     nameHints: ['ينبع'],
   },
   {
@@ -86,20 +96,23 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0357661',
     label: 'فرع مكة طريث الليث',
     demoBranchId: 'branch-10',
-    nameHints: ['طريث الليث', 'طريث', 'الليث'],
+    supabaseBranchId: '3af72c7e-b69b-486c-a213-31685fe71747',
+    nameHints: ['طريق الليث', 'طريث', 'الليث', 'مكة'],
   },
   {
     phone: '0568672067',
     password: '0537116',
     label: 'فرع مكة طريق التنعيم',
     demoBranchId: 'branch-11',
-    nameHints: ['طريق التنعيم', 'التنعيم', 'تنعيم'],
+    supabaseBranchId: '9cb07de6-0bd6-4681-9b7d-ed585bf602bd',
+    nameHints: ['طريق التنعيم', 'التنعيم', 'تنعيم', 'مكة'],
   },
   {
     phone: '0537010809',
     password: '0537220',
     label: 'فرع الطائف',
     demoBranchId: 'branch-12',
+    supabaseBranchId: 'a044a3e3-77d1-411c-aa29-09e445983092',
     nameHints: ['الطائف', 'طائف'],
   },
   {
@@ -107,13 +120,17 @@ export const BRANCH_ADMIN_ACCOUNTS: BranchAdminAccount[] = [
     password: '0537330',
     label: 'فرع أملج',
     demoBranchId: 'branch-13',
+    supabaseBranchId: '177de678-1fc8-46e6-b201-a90227468815',
     nameHints: ['أملج', 'املج'],
   },
 ]
 
-function normalizeBranchPhone(value: string | null | undefined): string {
+/** يزيل أحرف الاتجاه الخفية وأي شيء غير رقمي من رقم الجوال */
+export function normalizeBranchPhone(value: string | null | undefined): string {
   if (!value) return ''
-  return value.replace(/\D/g, '')
+  return value
+    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+    .replace(/\D/g, '')
 }
 
 function branchMatchesHints(branch: BranchRecord, hints: string[]): boolean {
@@ -138,18 +155,18 @@ export function validateBranchAdminCredentials(
 export async function resolveBranchIdForAccount(
   account: BranchAdminAccount,
 ): Promise<string | null> {
+  if (isSupabaseConfigured) {
+    return account.supabaseBranchId
+  }
+
   const branches = await fetchBranches({ activeOnly: true })
 
   const phoneNorm = normalizeAdminPhone(account.phone)
-  const byPhone = branches.find(
-    (b) => normalizeBranchPhone(b.phone) === phoneNorm,
-  )
+  const byPhone = branches.find((b) => normalizeBranchPhone(b.phone) === phoneNorm)
   if (byPhone) return byPhone.id
 
   const byDemoId = branches.find((b) => b.id === account.demoBranchId)
-  if (byDemoId && branchMatchesHints(byDemoId, account.nameHints)) {
-    return byDemoId.id
-  }
+  if (byDemoId) return byDemoId.id
 
   const hintMatches = branches.filter((b) => branchMatchesHints(b, account.nameHints))
   if (hintMatches.length === 1) return hintMatches[0].id
@@ -162,8 +179,6 @@ export async function resolveBranchIdForAccount(
     })
     return sorted[0].id
   }
-
-  if (!isSupabaseConfigured && byDemoId) return byDemoId.id
 
   return null
 }
