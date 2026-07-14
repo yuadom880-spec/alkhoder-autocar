@@ -229,6 +229,7 @@ export function AdminCarsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {visibleCars.map((car) => {
+                    const displayCar = resolveCarForBranch(car, listBranchId)
                     const activeBlocks = getActiveBlocks(car.id)
                     const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')
                     const hasPending = activeBlocks.some((b) => b.status === 'pending')
@@ -238,14 +239,12 @@ export function AdminCarsPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <img
-                              src={car.image_url}
+                              src={displayCar.image_url}
                               alt=""
                               className="h-10 w-16 rounded-lg object-cover"
                             />
                             <div>
-                              <p className="font-medium">
-                                {resolveCarForBranch(car, listBranchId).name}
-                              </p>
+                              <p className="font-medium">{displayCar.name}</p>
                               <p className="text-xs text-slate-400">
                                 {car.brand} · {car.year}
                               </p>

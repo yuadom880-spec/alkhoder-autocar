@@ -40,17 +40,20 @@ export function AdminCarMobileCard({
   onToggleAvailable,
   onDelete,
 }: AdminCarMobileCardProps) {
+  const displayCar = resolveCarForBranch(car, branchScopeId)
   const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')
   const hasPending = activeBlocks.some((b) => b.status === 'pending')
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex gap-3">
-        <img src={car.image_url} alt="" className="h-20 w-28 shrink-0 rounded-xl object-cover" />
+        <img
+          src={displayCar.image_url}
+          alt=""
+          className="h-20 w-28 shrink-0 rounded-xl object-cover"
+        />
         <div className="min-w-0 flex-1">
-          <p className="font-bold text-brand-dark leading-snug">
-            {resolveCarForBranch(car, branchScopeId).name}
-          </p>
+          <p className="font-bold text-brand-dark leading-snug">{displayCar.name}</p>
           <p className="text-xs text-slate-500 mt-0.5">
             {car.brand} · {car.year}
           </p>
