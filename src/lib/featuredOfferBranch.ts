@@ -20,20 +20,16 @@ export function offerMatchesBranch(
   offer: FeaturedOffer,
   branchId: string | null | undefined,
 ): boolean {
+  if (!branchId) return true
+
   const enabled = offer.branch_ids ?? []
   const disabled = offer.disabled_branch_ids ?? []
 
-  if (branchId) {
-    if (enabled.length > 0) return branchListIncludes(enabled, branchId)
-    if (disabled.length > 0) return !branchListIncludes(disabled, branchId)
-    if (offer.car?.branch_ids?.length) {
-      return branchListIncludes(offer.car.branch_ids, branchId)
-    }
-    return true
+  if (enabled.length > 0) return branchListIncludes(enabled, branchId)
+  if (disabled.length > 0) return !branchListIncludes(disabled, branchId)
+  if (offer.car?.branch_ids?.length) {
+    return branchListIncludes(offer.car.branch_ids, branchId)
   }
-
-  if (enabled.length > 0 || disabled.length > 0) return false
-  if (offer.car?.branch_ids?.length) return false
   return true
 }
 
