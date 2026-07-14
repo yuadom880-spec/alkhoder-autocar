@@ -42,7 +42,6 @@ export function setAdminSession(
     sessionStorage.removeItem(ADMIN_BRANCH_ID_KEY)
   }
   sessionStorage.removeItem('alkhoder_admin_branch_mode')
-  sessionStorage.removeItem('alkhoder_admin_branch_id')
 }
 
 export function clearAdminSession() {
@@ -51,7 +50,6 @@ export function clearAdminSession() {
   sessionStorage.removeItem(ADMIN_ROLE_KEY)
   sessionStorage.removeItem(ADMIN_BRANCH_ID_KEY)
   sessionStorage.removeItem('alkhoder_admin_branch_mode')
-  sessionStorage.removeItem('alkhoder_admin_branch_id')
 }
 
 export function isAdminSession(): boolean {
