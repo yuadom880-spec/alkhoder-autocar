@@ -136,6 +136,7 @@ export const copyAr = {
     filterAll: 'الكل',
     searchPlaceholder: 'ابحث عن سيارة...',
     fleetViewAll: 'كل السيارات',
+    fleetSwipeHint: 'اسحب لعرض المزيد من السيارات',
     offersOnly: 'العروض فقط 🔥',
     sortDefault: 'الافتراضي',
     details: 'التفاصيل',

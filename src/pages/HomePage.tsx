@@ -3,7 +3,7 @@ import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
-import { CarCard } from '../components/cars/CarCard'
+import { FleetCarCarousel } from '../components/cars/FleetCarCarousel'
 import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
@@ -265,19 +265,11 @@ export function HomePage() {
               {offersOnly ? copy.offers.noOffers : copy.cars.noCarsInBranch}
             </p>
           ) : (
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-3 lg:gap-6">
-              {fleetCars.map(({ car, availability }, i) => (
-                <CarCard
-                  key={car.id}
-                  car={car}
-                  index={i}
-                  compact
-                  rentalType={rentalType}
-                  branchId={hasBranch ? branchId || undefined : undefined}
-                  availability={availability}
-                />
-              ))}
-            </div>
+            <FleetCarCarousel
+              items={fleetCars}
+              rentalType={rentalType}
+              branchId={hasBranch ? branchId || undefined : undefined}
+            />
           )}
 
         </div>
