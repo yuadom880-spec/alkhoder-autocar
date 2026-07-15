@@ -89,7 +89,7 @@ export function FleetCarCarousel({
                       {translateCarSpec(displayCar.specs.fuel, locale)}
                     </span>
                   </div>
-                  <CarPrice car={car} size="xs" rentalType={rentalType} branchId={branchId} />
+                  <CarPrice car={car} size="sm" rentalType={rentalType} branchId={branchId} />
                 </div>
                 {canBook ? (
                   <Link to={bookUrl}>

@@ -174,6 +174,18 @@ export function hasAnyOffer(car: Car, branchId?: string | null): boolean {
   )
 }
 
+/** حد أدنى لخصم العروض الشهرية المميزة (ر.س) */
+export const MONTHLY_FEATURED_MIN_SAVINGS = 199
+
+export function hasMonthlyFeaturedOffer(
+  car: Car,
+  branchId?: string | null,
+  minSavings: number = MONTHLY_FEATURED_MIN_SAVINGS,
+): boolean {
+  if (!isOfferActive(car, 'monthly', branchId)) return false
+  return getOfferSavings(car, 'monthly', branchId) >= minSavings
+}
+
 export function getEffectivePrice(
   car: Car,
   rentalType: RentalPeriodType = 'daily',

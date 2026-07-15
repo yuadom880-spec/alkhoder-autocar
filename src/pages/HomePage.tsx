@@ -4,12 +4,11 @@ import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { CarCard } from '../components/cars/CarCard'
-import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
-import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
+import { MonthlyFeaturedOffersSection } from '../components/offers/MonthlyFeaturedOffersSection'
 import { FleetShowcaseSection } from '../components/home/FleetShowcaseSection'
 import { BrandWelcomeVideoSection } from '../components/home/NewTigo7ProSection'
 import { CustomerReviewsSection } from '../components/home/CustomerReviewsSection'
@@ -41,7 +40,7 @@ import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
-import { hasAnyOffer } from '../lib/offers'
+
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
 
 import type { BookingBlock } from '../lib/types'
@@ -54,7 +53,6 @@ export function HomePage() {
   const [cars, setCars] = useState<CarType[]>([])
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
-  const [offersOnly, setOffersOnly] = useState(false)
   const { rentalType, setRentalType } = useRentalPeriod()
   const { branchId, hasBranch } = useCustomerBranch()
 
@@ -84,15 +82,10 @@ export function HomePage() {
 
   useTableRealtime('cars', loadFleet)
   useTableRealtime('bookings', reloadBlocks)
-  useTableRealtime('featured_offers', loadFleet)
 
   const fleetCars = useMemo(() => {
     return cars
       .filter((car) => carMatchesBranch(car, hasBranch ? branchId : null))
-      .filter(
-        (car) =>
-          !offersOnly || hasAnyOffer(car, hasBranch ? branchId : null),
-      )
       .map((car) => ({
         car,
         availability: getCarAvailability(
@@ -103,7 +96,7 @@ export function HomePage() {
           hasBranch ? branchId : null,
         ),
       }))
-  }, [cars, blocks, branchId, hasBranch, offersOnly])
+  }, [cars, blocks, branchId, hasBranch])
 
   return (
     <>
@@ -233,26 +226,27 @@ export function HomePage() {
       <HomeBranchPicker />
 
       <div id="home-offers">
-        <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
+        <MonthlyFeaturedOffersSection
+          compact
+          limit={6}
+          branchId={hasBranch ? branchId : null}
+          cars={cars}
+          blocks={blocks}
+          loading={loading}
+        />
       </div>
 
-      <section id="home-fleet" className="bg-white py-10 sm:py-16 lg:py-20">
+      <section id="home-fleet" className="bg-white py-12 sm:py-16 lg:py-24">
         <div className="container-main">
-          <div className="mb-6 sm:mb-10">
+          <div className="mb-8 sm:mb-10 lg:mb-12">
             <h2 className="section-title">{copy.home.featured}</h2>
             <p className="section-subtitle">{copy.home.featuredSub}</p>
             <PricesIncludeVatNote />
           </div>
 
-          <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4">
-            <div>
-              <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
-              <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 mb-2">{copy.cars.offersOnly}</p>
-              <FleetOffersToggle offersOnly={offersOnly} onChange={setOffersOnly} />
-            </div>
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 lg:max-w-xl">
+            <p className="text-xs text-slate-500 mb-2">{copy.cars.rentalType}</p>
+            <RentalPeriodToggle value={rentalType} onChange={setRentalType} />
           </div>
 
           {hasBranch && (
@@ -263,10 +257,10 @@ export function HomePage() {
             <LoadingSpinner />
           ) : fleetCars.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-sm text-slate-500">
-              {offersOnly ? copy.offers.noOffers : copy.cars.noCarsInBranch}
+              {copy.cars.noCarsInBranch}
             </p>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-8">
               {fleetCars.map(({ car, availability }, i) => (
                 <CarCard
                   key={car.id}

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
-import { FeaturedOffersSection } from '../components/offers/FeaturedOffersSection'
+import { MonthlyFeaturedOffersSection } from '../components/offers/MonthlyFeaturedOffersSection'
 import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { LazyVideo } from '../components/ui/LazyVideo'
 import { SAVINGS_OFFER_IMAGE_FALLBACK, SUMMER_VIDEO } from '../lib/constants'
@@ -46,7 +46,7 @@ export function OffersPage() {
       <HomeBranchPicker browseTargetId="offers-list" />
 
       <div id="offers-list">
-      <FeaturedOffersSection
+      <MonthlyFeaturedOffersSection
         compact={false}
         showHeader={false}
         branchId={branchId || null}

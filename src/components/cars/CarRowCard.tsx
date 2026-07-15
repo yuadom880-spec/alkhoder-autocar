@@ -81,7 +81,7 @@ export function CarRowCard({
                 {displayCar.brand} · {displayCar.year}
               </p>
             </Link>
-            <CarPrice car={car} size="xs" rentalType={rentalType} branchId={branchId} />
+            <CarPrice car={car} size="sm" rentalType={rentalType} branchId={branchId} />
           </div>
 
           <div className="mt-2 flex flex-wrap gap-1.5">
