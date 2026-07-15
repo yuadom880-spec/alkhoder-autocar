@@ -82,15 +82,18 @@ export function AdminOffersPage() {
     [blocks, listBranchId],
   )
 
-  const visibleCars = useMemo(
+  const branchScopedCars = useMemo(
     () => filterCarsByBranch(cars, listBranchId),
     [cars, listBranchId],
   )
 
-  const featuredCount = useMemo(
-    () => visibleCars.filter((c) => hasMonthlyFeaturedOffer(c, listBranchId)).length,
-    [visibleCars, listBranchId],
+  /** فقط العروض المميزة (خصم 199+ ر.س) — كما تظهر في الموقع */
+  const featuredCars = useMemo(
+    () => branchScopedCars.filter((c) => hasMonthlyFeaturedOffer(c, listBranchId)),
+    [branchScopedCars, listBranchId],
   )
+
+  const featuredCount = featuredCars.length
 
   const handleDelete = async (car: Car) => {
     if (!confirmAdminCarDelete(car, branchScopeId, isBranchAdmin)) return
@@ -146,25 +149,12 @@ export function AdminOffersPage() {
   const getActiveBlocks = (carId: string) =>
     getCarBlocks(carId, scopedBlocks, undefined, listBranchId).filter((b) => b.end_date >= today)
 
-  const monthlyStatusBadge = (car: Car) => {
-    if (hasMonthlyFeaturedOffer(car, listBranchId)) {
-      return (
-        <Badge variant="success">
-          <Sparkles className="h-3 w-3 inline ml-1" />
-          مميز — {formatPrice(getOfferSavings(car, 'monthly', listBranchId))}
-        </Badge>
-      )
-    }
-    if (isOfferActive(car, 'monthly', listBranchId)) {
-      const savings = getOfferSavings(car, 'monthly', listBranchId)
-      return (
-        <Badge variant="warning">
-          عرض شهري — يحتاج +{formatPrice(MONTHLY_FEATURED_MIN_SAVINGS - savings)}
-        </Badge>
-      )
-    }
-    return <Badge variant="default">بدون عرض شهري</Badge>
-  }
+  const monthlyStatusBadge = (car: Car) => (
+    <Badge variant="success">
+      <Sparkles className="h-3 w-3 inline ml-1" />
+      مميز — {formatPrice(getOfferSavings(car, 'monthly', listBranchId))}
+    </Badge>
+  )
 
   return (
     <>
@@ -175,9 +165,9 @@ export function AdminOffersPage() {
           subtitle={
             <>
               <p>
-                إدارة العروض الشهرية لسيارات الفرع — أضف عرضاً شهرياً لسيارة موجودة، عدّل
-                العرض، أو أوقف التوفر. لإضافة سيارة جديدة استخدم أسطول السيارات. العروض بخصم{' '}
-                {MONTHLY_FEATURED_MIN_SAVINGS} ر.س+ تظهر في الموقع ({featuredCount} حالياً).
+                القائمة تعرض فقط السيارات ذات عرض شهري بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو
+                أكثر — نفس ما يظهر للعملاء في الموقع ({featuredCount} حالياً). لإضافة عرض شهري
+                لسيارة من الأسطول استخدم الزر أعلاه. لإضافة سيارة جديدة استخدم أسطول السيارات.
               </p>
               {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -214,15 +204,17 @@ export function AdminOffersPage() {
                 </option>
               ))}
             </select>
-            <span className="text-xs text-slate-400">{visibleCars.length} سيارة</span>
+            <span className="text-xs text-slate-400">
+              {featuredCount} {copy.admin.monthlyFeaturedCountLabel}
+            </span>
           </div>
         )}
 
         {loading ? (
           <LoadingSpinner />
-        ) : visibleCars.length === 0 ? (
+        ) : featuredCars.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500 mb-4">لا توجد سيارات في هذا النطاق</p>
+            <p className="text-slate-500 mb-4">{copy.admin.noMonthlyFeaturedOffers}</p>
             <Link to="/admin/offers/monthly/new">
               <Button>{copy.admin.addMonthlyOffer}</Button>
             </Link>
@@ -230,7 +222,7 @@ export function AdminOffersPage() {
         ) : (
           <>
             <div className="space-y-3 md:hidden">
-              {visibleCars.map((car) => (
+              {featuredCars.map((car) => (
                 <AdminCarMobileCard
                   key={car.id}
                   car={car}
@@ -263,7 +255,7 @@ export function AdminOffersPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {visibleCars.map((car) => {
+                    {featuredCars.map((car) => {
                       const displayCar = resolveCarForBranch(car, listBranchId)
                       const activeBlocks = getActiveBlocks(car.id)
                       const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')

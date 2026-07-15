@@ -11,7 +11,7 @@ import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { isCarExclusiveToBranch } from '../../lib/branchFilter'
 import { getBranchFormCarData } from '../../lib/carBranchProfile'
 import { copy } from '../../lib/copy'
-import { normalizeCarOffers } from '../../lib/offers'
+import { hasMonthlyFeaturedOffer, normalizeCarOffers } from '../../lib/offers'
 import {
   fetchCars,
   setCarBranchProfile,
@@ -44,6 +44,12 @@ export function AdminMonthlyOfferFormPage() {
   const visibleCars = useMemo(
     () => filterCarsByBranch(cars, branchScopeId),
     [cars, branchScopeId],
+  )
+
+  /** سيارات الأسطول التي لم تُضف بعد لقسم العروض المميزة */
+  const eligibleCars = useMemo(
+    () => visibleCars.filter((c) => !hasMonthlyFeaturedOffer(c, branchScopeId)),
+    [visibleCars, branchScopeId],
   )
 
   const selectedCar = useMemo(
@@ -152,6 +158,13 @@ export function AdminMonthlyOfferFormPage() {
               <Button>{copy.admin.addCarInFleet}</Button>
             </Link>
           </div>
+        ) : eligibleCars.length === 0 ? (
+          <div className="max-w-2xl rounded-2xl bg-white p-8 text-center shadow-sm">
+            <p className="text-slate-500 mb-4">{copy.admin.allCarsAlreadyFeatured}</p>
+            <Link to={OFFERS_LIST}>
+              <Button variant="outline">{copy.admin.backToMonthlyOffers}</Button>
+            </Link>
+          </div>
         ) : (
           <div className="max-w-2xl rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -169,7 +182,7 @@ export function AdminMonthlyOfferFormPage() {
                   }}
                 >
                   <option value="">{copy.admin.selectCarForOfferPlaceholder}</option>
-                  {visibleCars.map((car) => (
+                  {eligibleCars.map((car) => (
                     <option key={car.id} value={car.id}>
                       {car.name} — {car.brand} · {car.year}
                     </option>
