@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router'
 
-/** العروض تُدار الآن من تعديل السيارة — أسعار وعروض يومية/شهرية لكل فرع */
+/** مسارات العروض القديمة — توجيه لقسم العروض الشهرية */
 export function AdminOfferFormPage() {
-  return <Navigate to="/admin/offers" replace />
+  return <Navigate to="/admin/offers/cars/new" replace />
 }

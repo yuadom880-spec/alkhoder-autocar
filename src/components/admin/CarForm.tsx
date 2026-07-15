@@ -8,7 +8,10 @@ import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../.
 import { copy } from '../../lib/copy'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
+import { CarOfferForm } from './CarOfferForm'
 import { CarOffersForm } from './CarOffersForm'
+import { CalendarRange } from 'lucide-react'
+import { normalizeCarOffers } from '../../lib/offers'
 import { Button } from '../ui/Button'
 
 const defaultSpecs = {
@@ -21,6 +24,8 @@ const defaultSpecs = {
 
 interface CarFormProps {
   initial?: Car
+  /** وضع تعديل العرض الشهري فقط — من قسم العروض الشهرية */
+  monthlyFocus?: boolean
   onSubmit: (data: CarFormData) => Promise<void>
   onCancel: () => void
 }
@@ -62,7 +67,7 @@ function buildInitialForm(
   }
 }
 
-export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
+export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: CarFormProps) {
   const { isBranchAdmin, branchId } = useAdminBranch()
   const branchScopeId = isBranchAdmin ? branchId : null
   const branchSharedCarMode = Boolean(
@@ -116,91 +121,119 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="label-field">اسم السيارة *</label>
-          <input
-            className="input-field"
-            value={form.name}
-            onChange={(e) => update('name', e.target.value)}
-          />
+      {monthlyFocus && initial ? (
+        <div className="rounded-xl border border-brand-gold/25 bg-amber-50/40 px-4 py-3">
+          <p className="font-bold text-brand-dark">{form.name}</p>
+          <p className="text-sm text-slate-500">
+            {form.brand} · {form.model} · {form.year}
+          </p>
         </div>
-        <div>
-          <label className="label-field">الماركة *</label>
-          <input
-            className="input-field"
-            value={form.brand}
-            onChange={(e) => update('brand', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label-field">الموديل</label>
-          <input
-            className="input-field"
-            value={form.model}
-            onChange={(e) => update('model', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="label-field">السنة</label>
-          <input
-            type="number"
-            className="input-field"
-            value={form.year}
-            onChange={(e) => update('year', Number(e.target.value))}
-          />
-        </div>
-        <div>
-          <label className="label-field">التصنيف</label>
-          <select
-            className="input-field"
-            value={form.category}
-            onChange={(e) => update('category', e.target.value as CarCategory)}
-          >
-            {CAR_CATEGORIES.map((k) => (
-              <option key={k} value={k}>
-                {CATEGORY_LABELS[k]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="label-field">الفئة</label>
-          <select
-            className="input-field"
-            value={form.car_class}
-            onChange={(e) => update('car_class', e.target.value as CarClass)}
-          >
-            {CAR_CLASSES.map((k) => (
-              <option key={k} value={k}>
-                {CLASS_LABELS[k]}
-              </option>
-            ))}
-          </select>
-        </div>
-      <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
-        <p className="text-sm font-bold text-brand-dark">الأسعار</p>
-        <p className="text-xs text-slate-500 mt-1">
-          {isBranchAdmin
-            ? 'السعر اليومي والشهري لفرعك — يظهر في قسم أسطول السيارات'
-            : 'السعر اليومي والشهري الافتراضي لكل الفروع'}
-        </p>
-      </div>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label-field">اسم السيارة *</label>
+              <input
+                className="input-field"
+                value={form.name}
+                onChange={(e) => update('name', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label-field">الماركة *</label>
+              <input
+                className="input-field"
+                value={form.brand}
+                onChange={(e) => update('brand', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label-field">الموديل</label>
+              <input
+                className="input-field"
+                value={form.model}
+                onChange={(e) => update('model', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label-field">السنة</label>
+              <input
+                type="number"
+                className="input-field"
+                value={form.year}
+                onChange={(e) => update('year', Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <label className="label-field">التصنيف</label>
+              <select
+                className="input-field"
+                value={form.category}
+                onChange={(e) => update('category', e.target.value as CarCategory)}
+              >
+                {CAR_CATEGORIES.map((k) => (
+                  <option key={k} value={k}>
+                    {CATEGORY_LABELS[k]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label-field">الفئة</label>
+              <select
+                className="input-field"
+                value={form.car_class}
+                onChange={(e) => update('car_class', e.target.value as CarClass)}
+              >
+                {CAR_CLASSES.map((k) => (
+                  <option key={k} value={k}>
+                    {CLASS_LABELS[k]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-        <div>
-          <label className="label-field">
-            {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
-          </label>
-          <input
-            type="number"
-            className="input-field"
-            value={form.price_per_day}
-            onChange={(e) => update('price_per_day', Number(e.target.value))}
-          />
-          {isBranchAdmin && (
-            <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
-          )}
-        </div>
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+            <p className="text-sm font-bold text-brand-dark">الأسعار</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {isBranchAdmin
+                ? 'السعر اليومي والشهري لفرعك — يظهر في قسم أسطول السيارات'
+                : 'السعر اليومي والشهري الافتراضي لكل الفروع'}
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label-field">
+                {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={form.price_per_day}
+                onChange={(e) => update('price_per_day', Number(e.target.value))}
+              />
+              {isBranchAdmin && (
+                <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
+              )}
+            </div>
+            <div>
+              <label className="label-field">
+                {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
+              </label>
+              <input
+                type="number"
+                className="input-field"
+                value={form.price_per_month}
+                onChange={(e) => update('price_per_month', Number(e.target.value))}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {monthlyFocus && (
         <div>
           <label className="label-field">
             {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
@@ -211,8 +244,11 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             value={form.price_per_month}
             onChange={(e) => update('price_per_month', Number(e.target.value))}
           />
+          {isBranchAdmin && (
+            <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
+          )}
         </div>
-      </div>
+      )}
 
       <CarImageUploader
         imageUrl={form.image_url}
@@ -221,26 +257,44 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         onError={setError}
       />
 
-      {!isBranchAdmin && (
+      {!monthlyFocus && !isBranchAdmin && (
         <CarBranchSelector
           value={form.branch_ids}
           onChange={(branch_ids) => update('branch_ids', branch_ids)}
         />
       )}
 
-      <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
-        <p className="text-sm font-bold text-brand-dark">العروض — يومي وشهري</p>
-        <p className="text-xs text-slate-600 mt-1">
-          {copy.admin.carOffersSectionHint}
-        </p>
-      </div>
-
-      <CarOffersForm
-        dailyBasePrice={form.price_per_day}
-        monthlyBasePrice={form.price_per_month}
-        offers={form.offer}
-        onChange={(offer) => update('offer', offer)}
-      />
+      {monthlyFocus ? (
+        <>
+          <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
+            <p className="text-sm font-bold text-brand-dark">العرض الشهري</p>
+            <p className="text-xs text-slate-600 mt-1">{copy.admin.carOffersSectionHint}</p>
+          </div>
+          <CarOfferForm
+            rentalType="monthly"
+            basePrice={form.price_per_month}
+            offer={normalizeCarOffers(form.offer).monthly}
+            onChange={(monthly) =>
+              update('offer', { ...normalizeCarOffers(form.offer), monthly })
+            }
+            icon={CalendarRange}
+            heading="عرض شهري"
+          />
+        </>
+      ) : (
+        <>
+          <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
+            <p className="text-sm font-bold text-brand-dark">العروض — يومي وشهري</p>
+            <p className="text-xs text-slate-600 mt-1">{copy.admin.carOffersSectionHint}</p>
+          </div>
+          <CarOffersForm
+            dailyBasePrice={form.price_per_day}
+            monthlyBasePrice={form.price_per_month}
+            offers={form.offer}
+            onChange={(offer) => update('offer', offer)}
+          />
+        </>
+      )}
 
       <button
         type="button"
@@ -265,6 +319,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
         </div>
       )}
 
+      {!monthlyFocus && (
       <div>
         <label className="label-field">الوصف</label>
         <textarea
@@ -274,7 +329,9 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           onChange={(e) => update('description', e.target.value)}
         />
       </div>
+      )}
 
+      {!monthlyFocus && (
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <label className="label-field">ناقل الحركة</label>
@@ -306,8 +363,9 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           />
         </div>
       </div>
+      )}
 
-      {!isBranchAdmin && (
+      {!monthlyFocus && !isBranchAdmin && (
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
@@ -327,7 +385,7 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
         <Button type="submit" isLoading={loading} className="w-full sm:w-auto min-h-[48px]">
-          {initial ? 'حفظ التعديلات' : 'إضافة السيارة'}
+          {monthlyFocus ? 'حفظ العرض الشهري' : initial ? 'حفظ التعديلات' : 'إضافة السيارة'}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel} className="w-full sm:w-auto min-h-[48px]">
           إلغاء

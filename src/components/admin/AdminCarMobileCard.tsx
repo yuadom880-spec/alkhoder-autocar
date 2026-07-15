@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { Calendar, Edit, Power, Trash2 } from 'lucide-react'
 import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
@@ -24,6 +25,9 @@ interface AdminCarMobileCardProps {
   activeBlocks: BookingBlock[]
   toggling: boolean
   deleting: boolean
+  editHref?: string
+  editLabel?: string
+  extraBadges?: ReactNode
   onToggleAvailable: () => void
   onDelete: () => void
 }
@@ -37,9 +41,13 @@ export function AdminCarMobileCard({
   activeBlocks,
   toggling,
   deleting,
+  editHref,
+  editLabel = 'تعديل',
+  extraBadges,
   onToggleAvailable,
   onDelete,
 }: AdminCarMobileCardProps) {
+  const editPath = editHref ?? `/admin/cars/${car.id}/edit`
   const displayCar = resolveCarForBranch(car, branchScopeId)
   const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')
   const hasPending = activeBlocks.some((b) => b.status === 'pending')
@@ -94,6 +102,7 @@ export function AdminCarMobileCard({
         {isOfferActive(car, 'monthly', filterBranchId) && (
           <Badge variant="danger">{getOfferBadge(car, 'monthly', filterBranchId)}</Badge>
         )}
+        {extraBadges}
         {activeBlocks.length > 0 && (
           <Badge variant="info">
             <Calendar className="h-3 w-3 inline ml-1" />
@@ -113,10 +122,10 @@ export function AdminCarMobileCard({
           <Power className="h-4 w-4" />
           {getAdminCarToggleLabel(car, branchScopeId)}
         </Button>
-        <Link to={`/admin/cars/${car.id}/edit`} className="col-span-1">
+        <Link to={editPath} className="col-span-1">
           <Button size="sm" variant="outline" className="w-full min-h-[44px]">
             <Edit className="h-4 w-4" />
-            تعديل
+            {editLabel}
           </Button>
         </Link>
         <Button
