@@ -1,292 +1,246 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
-import { filterOffersForAdminByBranch } from '../../lib/adminBranchFilters'
+import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
-import { Edit, Plus, Power, Star, Trash2 } from 'lucide-react'
-import { AdminOfferMobileCard } from '../../components/admin/AdminOfferMobileCard'
+import { Edit, Sparkles } from 'lucide-react'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { Button } from '../../components/ui/Button'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { Badge } from '../../components/ui/Badge'
+import { resolveCarForBranch } from '../../lib/carBranchProfile'
 import {
-  getFeaturedOfferPriceLabel,
-  isAutoCarFeaturedOffer,
-  isFeaturedOfferActive,
-  isFeaturedOfferBranchDisabled,
-  RENTAL_TYPE_LABELS,
-} from '../../lib/featuredOffers'
-import {
-  deleteFeaturedOffer,
-  fetchDisplayedFeaturedOffers,
-  setFeaturedOfferVisibilityForBranch,
-  updateFeaturedOffer,
-} from '../../lib/supabase'
-import type { FeaturedOffer } from '../../lib/types'
-import { formatDate } from '../../lib/utils'
+  getEffectivePrice,
+  getOfferBadge,
+  getOfferSavings,
+  hasMonthlyFeaturedOffer,
+  isOfferActive,
+  MONTHLY_FEATURED_MIN_SAVINGS,
+} from '../../lib/offers'
+import { getCarBasePrice } from '../../lib/pricing'
+import { fetchBranches, fetchCars } from '../../lib/supabase'
+import type { BranchRecord, Car } from '../../lib/types'
+import { formatPrice } from '../../lib/utils'
 
 export function AdminOffersPage() {
-  const { filterBranchId, isBranchAdmin } = useAdminBranch()
-  const [offers, setOffers] = useState<FeaturedOffer[]>([])
+  const { filterBranchId, isBranchAdmin, isGeneralAdmin } = useAdminBranch()
+  const [cars, setCars] = useState<Car[]>([])
+  const [branches, setBranches] = useState<BranchRecord[]>([])
+  const [branchFilter, setBranchFilter] = useState('')
   const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState<string | null>(null)
-  const [updating, setUpdating] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetchDisplayedFeaturedOffers({ includeCars: true })
-      .then(setOffers)
+    Promise.all([
+      fetchCars(),
+      isGeneralAdmin ? fetchBranches({ activeOnly: false }) : Promise.resolve([]),
+    ])
+      .then(([carsData, branchesData]) => {
+        setCars(carsData)
+        setBranches(branchesData)
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }
 
-  useEffect(load, [])
+  useEffect(load, [isGeneralAdmin])
 
-  const visibleOffers = useMemo(
-    () => filterOffersForAdminByBranch(offers, filterBranchId),
-    [offers, filterBranchId],
+  const listBranchId = isGeneralAdmin ? branchFilter || null : filterBranchId
+
+  const visibleCars = useMemo(
+    () => filterCarsByBranch(cars, listBranchId),
+    [cars, listBranchId],
   )
 
-  const branchScopeId = isBranchAdmin ? filterBranchId : null
+  const featuredCars = useMemo(
+    () =>
+      visibleCars
+        .filter((car) => hasMonthlyFeaturedOffer(car, listBranchId))
+        .sort(
+          (a, b) =>
+            getOfferSavings(b, 'monthly', listBranchId) -
+            getOfferSavings(a, 'monthly', listBranchId),
+        ),
+    [visibleCars, listBranchId],
+  )
 
-  const isOfferEnabledHere = (offer: FeaturedOffer) =>
-    isBranchAdmin && branchScopeId
-      ? !isFeaturedOfferBranchDisabled(offer, branchScopeId)
-      : offer.is_active
+  const nearMissCars = useMemo(
+    () =>
+      visibleCars.filter((car) => {
+        if (hasMonthlyFeaturedOffer(car, listBranchId)) return false
+        return isOfferActive(car, 'monthly', listBranchId)
+      }),
+    [visibleCars, listBranchId],
+  )
 
-  const setOfferVisibilityForBranch = async (offer: FeaturedOffer, visible: boolean) => {
-    if (!branchScopeId) throw new Error('تعذّر تحديد الفرع')
-    await setFeaturedOfferVisibilityForBranch(offer, branchScopeId, visible)
-  }
+  const renderCarRow = (car: Car, featured: boolean) => {
+    const display = resolveCarForBranch(car, listBranchId)
+    const savings = getOfferSavings(car, 'monthly', listBranchId)
+    const base = getCarBasePrice(car, 'monthly', listBranchId)
+    const effective = getEffectivePrice(car, 'monthly', listBranchId)
+    const badge = getOfferBadge(car, 'monthly', listBranchId)
 
-  const handleDelete = async (offer: FeaturedOffer) => {
-    const branchNote = isBranchAdmin && branchScopeId ? ` من فرعك فقط` : ''
-    if (!confirm(`هل تريد إيقاف عرض "${offer.title}"${branchNote}؟`)) return
-    setDeleting(offer.id)
-    try {
-      if (isBranchAdmin && branchScopeId) {
-        await setOfferVisibilityForBranch(offer, false)
-      } else {
-        await deleteFeaturedOffer(offer.id)
-      }
-      load()
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'فشل الحذف')
-    } finally {
-      setDeleting(null)
-    }
-  }
-
-  const toggleActive = async (offer: FeaturedOffer) => {
-    setUpdating(offer.id)
-    try {
-      const enable = !isOfferEnabledHere(offer)
-
-      if (isBranchAdmin) {
-        if (!branchScopeId) {
-          alert('تعذّر تحديد الفرع')
-          return
-        }
-        await setOfferVisibilityForBranch(offer, enable)
-        load()
-        return
-      }
-
-      const updated = await updateFeaturedOffer(offer.id, { is_active: enable })
-      setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)))
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'فشل التحديث')
-    } finally {
-      setUpdating(null)
-    }
-  }
-
-  const toggleField = async (offer: FeaturedOffer, field: 'is_featured') => {
-    if (isBranchAdmin || isAutoCarFeaturedOffer(offer)) return
-    setUpdating(offer.id)
-    try {
-      const updated = await updateFeaturedOffer(offer.id, {
-        [field]: !offer[field],
-      })
-      setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)))
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'فشل التحديث')
-    } finally {
-      setUpdating(null)
-    }
+    return (
+      <tr key={car.id} className="hover:bg-slate-50">
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-3">
+            <img src={display.image_url} alt="" className="h-12 w-20 rounded-lg object-cover" />
+            <div>
+              <p className="font-medium">{display.name}</p>
+              <p className="text-xs text-slate-400">
+                {car.brand} · {car.year}
+              </p>
+            </div>
+          </div>
+        </td>
+        <td className="px-4 py-3">
+          <p className="text-xs text-slate-400 line-through">{formatPrice(base)}</p>
+          <p className="font-bold text-red-600">{formatPrice(effective)}</p>
+        </td>
+        <td className="px-4 py-3">
+          <Badge variant={featured ? 'success' : 'warning'}>
+            وفّر {formatPrice(savings)}
+          </Badge>
+          {!featured && (
+            <p className="text-[11px] text-amber-700 mt-1">
+              يحتاج {formatPrice(MONTHLY_FEATURED_MIN_SAVINGS - savings)} إضافية
+            </p>
+          )}
+        </td>
+        <td className="px-4 py-3">
+          {badge ? <Badge variant="danger">{badge}</Badge> : '—'}
+        </td>
+        <td className="px-4 py-3">
+          <Link to={`/admin/cars/${car.id}/edit`}>
+            <Button size="sm" variant="outline">
+              <Edit className="h-4 w-4" />
+              تعديل العرض والأسعار
+            </Button>
+          </Link>
+        </td>
+      </tr>
+    )
   }
 
   return (
     <>
-      <AdminTopBar title="العروض المميزة" />
+      <AdminTopBar title="العروض الشهرية المميزة" />
       <div className="p-3 sm:p-6 lg:p-8">
         <AdminPageHeader
-          title="العروض المميزة"
+          title="العروض الشهرية المميزة"
           subtitle={
             <>
-              <p>إدارة عروض الإيجار اليومي والشهري</p>
+              <p>
+                السيارات التي تظهر في قسم «العروض الشهرية المميزة» على الموقع — عرض شهري
+                مفعّل بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو أكثر
+              </p>
               {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                  إيقاف العرض يخصّ فرعك فقط
+                  عدّل الأسعار والعروض من صفحة تعديل السيارة — التغييرات تظهر لعملاء فرعك فقط
                 </p>
               )}
             </>
           }
           action={
-            <Link to="/admin/offers/new">
-              <Button size="md" className="w-full sm:w-auto">
-                <Plus className="h-4 w-4" />
-                إضافة عرض
+            <Link to="/admin/cars">
+              <Button size="md" variant="outline" className="w-full sm:w-auto">
+                أسطول السيارات
               </Button>
             </Link>
           }
         />
 
+        {isGeneralAdmin && branches.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <label htmlFor="offers-branch-filter" className="text-xs text-slate-500 shrink-0">
+              معاينة فرع:
+            </label>
+            <select
+              id="offers-branch-filter"
+              className="input-field py-2 text-sm max-w-xs"
+              value={branchFilter}
+              onChange={(e) => setBranchFilter(e.target.value)}
+            >
+              <option value="">كل الفروع</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} — {b.city}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {loading ? (
           <LoadingSpinner />
-        ) : visibleOffers.length === 0 ? (
-          <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500 mb-4">
-              {isBranchAdmin ? 'لا توجد عروض لسيارات فرعك' : 'لا توجد عروض'}
-            </p>
-            <Link to="/admin/offers/new">
-              <Button>إضافة أول عرض</Button>
-            </Link>
-          </div>
         ) : (
-          <>
-          <div className="space-y-3 md:hidden">
-            {visibleOffers.map((offer) => (
-              <AdminOfferMobileCard
-                key={offer.id}
-                offer={offer}
-                enabledHere={isOfferEnabledHere(offer)}
-                isBranchAdmin={isBranchAdmin}
-                updating={updating === offer.id}
-                deleting={deleting === offer.id}
-                onToggleActive={() => toggleActive(offer)}
-                onToggleFeatured={() => toggleField(offer, 'is_featured')}
-                onDelete={() => handleDelete(offer)}
-              />
-            ))}
-          </div>
+          <div className="space-y-8">
+            <section className="rounded-2xl border border-brand-gold/20 bg-gradient-to-b from-amber-50/80 to-white p-4 sm:p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-5 w-5 text-brand-gold" />
+                <h2 className="font-bold text-brand-dark">
+                  ظاهرة في الموقع ({featuredCars.length})
+                </h2>
+              </div>
 
-          <div className="hidden md:block overflow-hidden rounded-2xl bg-white shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500">
-                  <tr>
-                    <th className="px-4 py-3 text-right font-medium">العرض</th>
-                    <th className="px-4 py-3 text-right font-medium">النوع</th>
-                    <th className="px-4 py-3 text-right font-medium">السعر</th>
-                    <th className="px-4 py-3 text-right font-medium">الحالة</th>
-                    <th className="px-4 py-3 text-right font-medium">إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {visibleOffers.map((offer) => {
-                    const enabledHere = isOfferEnabledHere(offer)
-                    return (
-                      <tr key={offer.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={offer.image_url}
-                              alt=""
-                              className="h-12 w-20 rounded-lg object-cover"
-                            />
-                            <div>
-                              <p className="font-medium">{offer.title}</p>
-                              {offer.car?.name && (
-                                <p className="text-xs text-slate-400">{offer.car.name}</p>
-                              )}
-                              {offer.valid_until && (
-                                <p className="text-xs text-slate-400">
-                                  حتى {formatDate(offer.valid_until)}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge variant={offer.rental_type === 'monthly' ? 'info' : 'warning'}>
-                            {RENTAL_TYPE_LABELS[offer.rental_type]}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3 font-medium">
-                          {offer.price > 0 ? getFeaturedOfferPriceLabel(offer) : '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            <Badge variant={enabledHere ? 'success' : 'danger'}>
-                              {enabledHere
-                                ? isBranchAdmin
-                                  ? 'ظاهر في فرعك'
-                                  : 'مفعّل'
-                                : isBranchAdmin
-                                  ? 'غير مفعّل في فرعك حالياً'
-                                  : 'موقوف'}
-                            </Badge>
-                            {offer.is_featured && <Badge variant="warning">مميز</Badge>}
-                            {!isFeaturedOfferActive(offer) && offer.is_active && (
-                              <Badge variant="default">منتهي</Badge>
-                            )}
-                            {offer.badge_text && (
-                              <Badge variant="danger">{offer.badge_text}</Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              title={isBranchAdmin ? 'إظهار/إخفاء في فرعك' : 'تفعيل/إيقاف'}
-                              isLoading={updating === offer.id}
-                              onClick={() => toggleActive(offer)}
-                            >
-                              <Power className="h-4 w-4" />
-                            </Button>
-                            {!isBranchAdmin && !isAutoCarFeaturedOffer(offer) && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                title="تمييز"
-                                isLoading={updating === offer.id}
-                                onClick={() => toggleField(offer, 'is_featured')}
-                              >
-                                <Star
-                                  className={`h-4 w-4 ${offer.is_featured ? 'fill-brand-gold text-brand-gold' : ''}`}
-                                />
-                              </Button>
-                            )}
-                            {!isAutoCarFeaturedOffer(offer) && (
-                              <Link to={`/admin/offers/${offer.id}/edit`}>
-                                <Button size="sm" variant="ghost">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </Link>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:bg-red-50"
-                              title={isBranchAdmin ? 'إخفاء من فرعك' : 'إيقاف العرض'}
-                              isLoading={deleting === offer.id}
-                              onClick={() => handleDelete(offer)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
+              {featuredCars.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-200 bg-white py-12 text-center">
+                  <p className="text-slate-500 mb-2">لا توجد عروض شهرية مميزة حالياً</p>
+                  <p className="text-xs text-slate-400 mb-4">
+                    فعّل عرضاً شهرياً بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو أكثر من تعديل السيارة
+                  </p>
+                  <Link to="/admin/cars">
+                    <Button>إدارة أسطول السيارات</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-100 bg-white">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 text-slate-500">
+                      <tr>
+                        <th className="px-4 py-3 text-right font-medium">السيارة</th>
+                        <th className="px-4 py-3 text-right font-medium">السعر الشهري</th>
+                        <th className="px-4 py-3 text-right font-medium">التوفير</th>
+                        <th className="px-4 py-3 text-right font-medium">الشارة</th>
+                        <th className="px-4 py-3 text-right font-medium">إجراء</th>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {featuredCars.map((car) => renderCarRow(car, true))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            {nearMissCars.length > 0 && (
+              <section className="rounded-2xl bg-white border border-slate-100 p-4 sm:p-5 shadow-sm">
+                <h2 className="font-bold text-brand-dark mb-2">
+                  عروض شهرية أخرى ({nearMissCars.length})
+                </h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  لها عرض شهري لكن الخصم أقل من {MONTHLY_FEATURED_MIN_SAVINGS} ر.س — لن تظهر في
+                  قسم العروض الشهرية المميزة
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 text-slate-500">
+                      <tr>
+                        <th className="px-4 py-3 text-right font-medium">السيارة</th>
+                        <th className="px-4 py-3 text-right font-medium">السعر الشهري</th>
+                        <th className="px-4 py-3 text-right font-medium">التوفير</th>
+                        <th className="px-4 py-3 text-right font-medium">الشارة</th>
+                        <th className="px-4 py-3 text-right font-medium">إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {nearMissCars.map((car) => renderCarRow(car, false))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
           </div>
-          </>
         )}
       </div>
     </>

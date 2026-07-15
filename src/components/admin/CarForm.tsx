@@ -178,6 +178,15 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
             ))}
           </select>
         </div>
+      <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+        <p className="text-sm font-bold text-brand-dark">الأسعار</p>
+        <p className="text-xs text-slate-500 mt-1">
+          {isBranchAdmin
+            ? 'السعر اليومي والشهري لفرعك — يظهر في قسم أسطول السيارات'
+            : 'السعر اليومي والشهري الافتراضي لكل الفروع'}
+        </p>
+      </div>
+
         <div>
           <label className="label-field">
             {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
@@ -218,6 +227,13 @@ export function CarForm({ initial, onSubmit, onCancel }: CarFormProps) {
           onChange={(branch_ids) => update('branch_ids', branch_ids)}
         />
       )}
+
+      <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
+        <p className="text-sm font-bold text-brand-dark">العروض — يومي وشهري</p>
+        <p className="text-xs text-slate-600 mt-1">
+          {copy.admin.carOffersSectionHint}
+        </p>
+      </div>
 
       <CarOffersForm
         dailyBasePrice={form.price_per_day}

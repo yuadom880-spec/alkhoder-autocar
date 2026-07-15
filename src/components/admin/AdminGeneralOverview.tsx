@@ -54,9 +54,9 @@ export function AdminGeneralOverview({ stats, branchRows }: AdminGeneralOverview
       link: '/admin/cars',
     },
     {
-      label: 'العروض المفعّلة',
+      label: 'عروض شهرية مميزة',
       value: stats.offersActive,
-      hint: `من ${stats.offersTotal} عرض`,
+      hint: 'خصم 199 ر.س أو أكثر — تظهر في الموقع',
       icon: Tag,
       color: 'text-brand-gold',
       bg: 'bg-amber-50',
@@ -94,7 +94,7 @@ export function AdminGeneralOverview({ stats, branchRows }: AdminGeneralOverview
   const quickActions = [
     { to: '/admin/cars/new', label: 'إضافة سيارة', icon: Car },
     { to: '/admin/branches/new', label: 'إضافة فرع', icon: Building2 },
-    { to: '/admin/offers/new', label: 'عرض مميز', icon: Sparkles },
+    { to: '/admin/offers', label: 'العروض الشهرية', icon: Sparkles },
     { to: '/admin/bookings', label: 'مراجعة الحجوزات', icon: Calendar },
   ]
 

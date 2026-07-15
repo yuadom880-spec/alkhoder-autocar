@@ -25,11 +25,11 @@ import {
   fetchBookings,
   fetchBranches,
   fetchCars,
-  fetchDisplayedFeaturedOffers,
   updateBookingStatus,
 } from '../../lib/supabase'
-import type { Booking, BookingStatus, BranchRecord, Car, FeaturedOffer } from '../../lib/types'
+import type { Booking, BookingStatus, BranchRecord, Car } from '../../lib/types'
 import { isCarAvailableForBranch } from '../../lib/carBranchAvailability'
+import { hasMonthlyFeaturedOffer } from '../../lib/offers'
 import { formatDate, formatPrice, toPhoneLink } from '../../lib/utils'
 
 export function AdminDashboardPage() {
@@ -37,7 +37,6 @@ export function AdminDashboardPage() {
   const [cars, setCars] = useState<Car[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
   const [branches, setBranches] = useState<BranchRecord[]>([])
-  const [offers, setOffers] = useState<FeaturedOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
@@ -48,10 +47,7 @@ export function AdminDashboardPage() {
       fetchBookings().then(setBookings),
     ]
     if (isGeneralAdmin) {
-      tasks.push(
-        fetchBranches({ activeOnly: false }).then(setBranches),
-        fetchDisplayedFeaturedOffers({ includeCars: true }).then(setOffers),
-      )
+      tasks.push(fetchBranches({ activeOnly: false }).then(setBranches))
     }
     Promise.all(tasks)
       .catch(console.error)
@@ -76,9 +72,9 @@ export function AdminDashboardPage() {
   const generalStats = useMemo(
     () =>
       isGeneralAdmin
-        ? computeAdminDashboardStats(branches, cars, bookings, offers)
+        ? computeAdminDashboardStats(branches, cars, bookings)
         : null,
-    [isGeneralAdmin, branches, cars, bookings, offers],
+    [isGeneralAdmin, branches, cars, bookings],
   )
 
   const branchPerformance = useMemo(
@@ -120,6 +116,13 @@ export function AdminDashboardPage() {
   const branchStats = [
     { label: 'سيارات الفرع', value: visibleCars.length, icon: CarIcon, color: 'text-brand-green', link: '/admin/cars' },
     {
+      label: 'عروض شهرية مميزة',
+      value: visibleCars.filter((c) => hasMonthlyFeaturedOffer(c, filterBranchId)).length,
+      icon: TrendingUp,
+      color: 'text-brand-gold',
+      link: '/admin/offers',
+    },
+    {
       label: 'متاحة للحجز',
       value: visibleCars.filter((c) => isCarAvailableForBranch(c, filterBranchId)).length,
       icon: TrendingUp,
@@ -159,7 +162,7 @@ export function AdminDashboardPage() {
         {isGeneralAdmin && generalStats ? (
           <AdminGeneralOverview stats={generalStats} branchRows={branchPerformance} />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 mb-8">
             {branchStats.map((s) => (
               <Link key={s.label} to={s.link} className="rounded-2xl bg-white p-5 shadow-sm card-hover block">
                 <div className="flex items-center justify-between mb-3">

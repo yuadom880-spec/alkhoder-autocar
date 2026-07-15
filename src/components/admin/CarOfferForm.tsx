@@ -6,6 +6,7 @@ import {
   ADMIN_OFFER_DISCOUNT_TYPES,
   DEFAULT_OFFER,
   getDiscountValueLabel,
+  MONTHLY_FEATURED_MIN_SAVINGS,
   previewOfferPrice,
 } from '../../lib/offers'
 import { getPriceUnitLabel } from '../../lib/pricing'
@@ -49,6 +50,9 @@ export function CarOfferForm({
   }
 
   const preview = enabled ? previewOfferPrice(basePrice, current) : basePrice
+  const savings = enabled && preview < basePrice ? basePrice - preview : 0
+  const monthlyFeaturedEligible =
+    rentalType === 'monthly' && enabled && savings >= MONTHLY_FEATURED_MIN_SAVINGS
 
   useEffect(() => {
     if (!offer?.active || offer.discount_type !== 'custom_price') return
@@ -159,6 +163,20 @@ export function CarOfferForm({
               placeholder="مثال: العرض ساري لفترة محدودة"
             />
           </div>
+
+          {rentalType === 'monthly' && enabled && (
+            <div
+              className={`rounded-xl border p-3 text-xs ${
+                monthlyFeaturedEligible
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-amber-50 border-amber-200 text-amber-800'
+              }`}
+            >
+              {monthlyFeaturedEligible
+                ? `✓ يظهر في قسم «العروض الشهرية المميزة» على الموقع (خصم ${MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو أكثر)`
+                : `لن يظهر في العروض الشهرية المميزة — الخصم يجب أن يكون ${MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو أكثر (حالياً: ${Math.round(savings)} ر.س)`}
+            </div>
+          )}
 
           <div className="rounded-xl bg-red-50 border border-red-200 p-4">
             <p className="text-xs text-red-600 mb-2 font-medium">معاينة العرض</p>

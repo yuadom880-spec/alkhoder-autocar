@@ -1,6 +1,6 @@
 import { carMatchesBranch } from './branchFilter'
-import { isFeaturedOfferActive } from './featuredOffers'
-import type { Booking, BranchRecord, Car, FeaturedOffer } from './types'
+import { hasMonthlyFeaturedOffer } from './offers'
+import type { Booking, BranchRecord, Car } from './types'
 
 export interface AdminDashboardStats {
   branchesTotal: number
@@ -54,7 +54,6 @@ export function computeAdminDashboardStats(
   branches: BranchRecord[],
   cars: Car[],
   bookings: Booking[],
-  offers: FeaturedOffer[],
 ): AdminDashboardStats {
   const pending = bookings.filter((b) => b.status === 'pending')
   const confirmed = bookings.filter((b) => b.status === 'confirmed')
@@ -66,8 +65,8 @@ export function computeAdminDashboardStats(
     carsTotal: cars.length,
     carsAvailable: cars.filter((c) => c.is_available).length,
     carsUnavailable: cars.filter((c) => !c.is_available).length,
-    offersTotal: offers.length,
-    offersActive: offers.filter((o) => o.is_active && isFeaturedOfferActive(o)).length,
+    offersTotal: cars.filter((c) => hasMonthlyFeaturedOffer(c, null)).length,
+    offersActive: cars.filter((c) => hasMonthlyFeaturedOffer(c, null)).length,
     bookingsTotal: bookings.length,
     bookingsPending: pending.length,
     bookingsConfirmed: confirmed.length,

@@ -373,8 +373,8 @@ export const copyEn = {
     login: 'تسجيل دخول الإدارة',
     demoHint: 'الوضع التجريبي: كلمة المرور admin123',
     dashboard: 'لوحة التحكم',
-    cars: 'السيارات',
-    offers: 'العروض المميزة',
+    cars: 'Fleet',
+    offers: 'Monthly featured offers',
     bookings: 'الحجوزات',
     logout: 'تسجيل الخروج',
     viewSite: 'عرض الموقع',
@@ -410,7 +410,10 @@ export const copyEn = {
     carBranches: 'الفروع المتاحة',
     carBranchesHint: 'اتركه فارغاً = السيارة تظهر في كل الفروع. موظف الفرع يُحدَّد فرعه تلقائياً عند الإضافة',
     offerBranchHint:
-      'هذا العرض يظهر لعملاء فرعك فقط — يجب أن يختار العميل فرعك في الموقع. فعّل «عرض مميز» ليظهر في الصفحة الرئيسية أيضاً',
+      'Daily and monthly offers are edited on the car page — visible to your branch customers only',
+    carOffersSectionHint:
+      'Daily offers appear in the fleet section. Monthly offers with SAR 199+ savings also appear in Monthly Featured Offers on the site.',
+    monthlyFeaturedThreshold: '199',
     carBranchesRequired: 'حدد فرعاً واحداً على الأقل، أو اترك الكل لعرضها في كل الفروع',
     branchPanelTitle: 'لوحة إدارة الفرع',
     branchPanelHint: 'كل البيانات المعروضة خاصة بفرعك فقط',

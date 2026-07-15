@@ -11,8 +11,8 @@ import { cn } from '../../lib/utils'
 
 const generalLinks = [
   { path: '/admin', label: 'الإدارة العامة', icon: LayoutDashboard, exact: true },
-  { path: '/admin/cars', label: 'إدارة السيارات', icon: Car },
-  { path: '/admin/offers', label: 'العروض المميزة', icon: Tag },
+  { path: '/admin/cars', label: 'أسطول السيارات', icon: Car },
+  { path: '/admin/offers', label: 'العروض الشهرية المميزة', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
   { path: '/admin/bookings', label: 'طلبات الحجز', icon: Calendar, showBadge: true },
 ]
@@ -20,7 +20,7 @@ const generalLinks = [
 const branchLinks = [
   { path: '/admin', label: 'لوحة الفرع', icon: LayoutDashboard, exact: true },
   { path: '/admin/cars', label: 'سيارات الفرع', icon: Car },
-  { path: '/admin/offers', label: 'عروض الفرع', icon: Tag },
+  { path: '/admin/offers', label: 'العروض الشهرية', icon: Tag },
   { path: '/admin/bookings', label: 'حجوزات الفرع', icon: Calendar, showBadge: true },
 ]
 

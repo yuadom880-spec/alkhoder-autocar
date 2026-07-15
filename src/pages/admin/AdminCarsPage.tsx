@@ -131,18 +131,24 @@ export function AdminCarsPage() {
 
   return (
     <>
-      <AdminTopBar title="إدارة السيارات" />
+      <AdminTopBar title={isBranchAdmin ? 'سيارات الفرع' : 'أسطول السيارات'} />
       <div className="p-3 sm:p-6 lg:p-8">
         <AdminPageHeader
-          title="إدارة السيارات"
+          title={isBranchAdmin ? 'سيارات الفرع' : 'أسطول السيارات'}
           subtitle={
             isBranchAdmin ? (
-              <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                {copy.admin.carBranchAvailabilityHint}
-              </p>
+              <>
+                <p className="text-sm text-slate-600">
+                  كل السيارات المتاحة في فرعك — عدّل الأسعار اليومية والشهرية والعروض اليومية
+                  والشهرية. التعديلات تظهر لعملاء فرعك فقط.
+                </p>
+                <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  {copy.admin.carBranchAvailabilityHint}
+                </p>
+              </>
             ) : isGeneralAdmin ? (
               <p className="text-xs text-brand-green mt-2 bg-brand-green/5 border border-brand-green/20 rounded-lg px-3 py-2">
-                إدارة الأسطول لكل الفروع — التعديلات هنا تظهر لجميع العملاء
+                قسم أسطول السيارات على الموقع — كل السيارات مع إيجار يومي أو شهري
               </p>
             ) : undefined
           }

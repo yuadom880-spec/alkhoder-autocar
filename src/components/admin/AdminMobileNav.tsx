@@ -9,16 +9,16 @@ import { cn } from '../../lib/utils'
 
 const generalLinks = [
   { path: '/admin', label: 'العامة', icon: LayoutDashboard, exact: true },
-  { path: '/admin/cars', label: 'السيارات', icon: Car },
-  { path: '/admin/offers', label: 'العروض', icon: Tag },
+  { path: '/admin/cars', label: 'الأسطول', icon: Car },
+  { path: '/admin/offers', label: 'شهرية', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
   { path: '/admin/bookings', label: 'الحجوزات', icon: Calendar, showBadge: true },
 ]
 
 const branchLinks = [
   { path: '/admin', label: 'الرئيسية', icon: LayoutDashboard, exact: true },
-  { path: '/admin/cars', label: 'السيارات', icon: Car },
-  { path: '/admin/offers', label: 'العروض', icon: Tag },
+  { path: '/admin/cars', label: 'الأسطول', icon: Car },
+  { path: '/admin/offers', label: 'شهرية', icon: Tag },
   { path: '/admin/bookings', label: 'الحجوزات', icon: Calendar, showBadge: true },
 ]
 
