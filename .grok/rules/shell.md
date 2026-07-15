@@ -5,3 +5,4 @@
 - مسار Flutter: `C:\Users\Top10\flutter\bin\flutter.bat`
 - PowerShell: استخدم `;` بدل `&&`
 - لا أوامر خلفية. لا `Start-Sleep` للانتظار.
+- بعد انتهاء المهمة: أوقف سيرفرات localhost وقل "خلصت" في الرد.
