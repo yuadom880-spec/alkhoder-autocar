@@ -48,7 +48,7 @@ export function CarCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4 }}
-      className="group overflow-hidden rounded-2xl bg-white shadow-md card-hover ring-1 ring-slate-100"
+      className="group overflow-hidden rounded-2xl bg-white shadow-md card-hover"
     >
       <Link to={detailUrl}>
         <CarImage src={displayCar.image_url} alt={displayCar.name} variant="card">

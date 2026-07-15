@@ -8,13 +8,12 @@ interface CarPriceProps {
   car: Car
   rentalType?: RentalPeriodType
   branchId?: string | null
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg'
   showSavings?: boolean
   className?: string
 }
 
 const sizes = {
-  xs: { price: 'text-sm', old: 'text-[9px]', sub: 'text-[9px]' },
   sm: { price: 'text-lg', old: 'text-xs', sub: 'text-[10px]' },
   md: { price: 'text-lg', old: 'text-sm', sub: 'text-[10px]' },
   lg: { price: 'text-3xl', old: 'text-base', sub: 'text-sm' },

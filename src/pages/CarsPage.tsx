@@ -5,7 +5,7 @@ import { useCustomerBranch } from '../hooks/useCustomerBranch'
 import { Calendar } from 'lucide-react'
 
 import { HomeBranchPicker } from '../components/home/HomeBranchPicker'
-import { CarRowCard } from '../components/cars/CarRowCard'
+import { CarCard } from '../components/cars/CarCard'
 import { CarFilters } from '../components/cars/CarFilters'
 import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
@@ -206,9 +206,9 @@ export function CarsPage() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map(({ car, availability }, i) => (
-              <CarRowCard
+              <CarCard
                 key={car.id}
                 car={car}
                 index={i}

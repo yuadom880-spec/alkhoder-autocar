@@ -3,7 +3,7 @@ import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
-import { CarRowCard } from '../components/cars/CarRowCard'
+import { CarCard } from '../components/cars/CarCard'
 import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
@@ -233,7 +233,7 @@ export function HomePage() {
       <HomeBranchPicker />
 
       <div id="home-offers">
-        <FeaturedOffersSection compact branchId={branchId || null} />
+        <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
       </div>
 
       <section id="home-fleet" className="bg-white py-10 sm:py-16 lg:py-20">
@@ -266,9 +266,9 @@ export function HomePage() {
               {offersOnly ? copy.offers.noOffers : copy.cars.noCarsInBranch}
             </p>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {fleetCars.map(({ car, availability }, i) => (
-                <CarRowCard
+                <CarCard
                   key={car.id}
                   car={car}
                   index={i}
