@@ -3,7 +3,7 @@ import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
-import { FleetCarCarousel } from '../components/cars/FleetCarCarousel'
+import { CarRowCard } from '../components/cars/CarRowCard'
 import { FleetOffersToggle } from '../components/cars/FleetOffersToggle'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
@@ -84,6 +84,7 @@ export function HomePage() {
 
   useTableRealtime('cars', loadFleet)
   useTableRealtime('bookings', reloadBlocks)
+  useTableRealtime('featured_offers', loadFleet)
 
   const fleetCars = useMemo(() => {
     return cars
@@ -232,7 +233,7 @@ export function HomePage() {
       <HomeBranchPicker />
 
       <div id="home-offers">
-        <FeaturedOffersSection compact limit={6} branchId={branchId || null} />
+        <FeaturedOffersSection compact branchId={branchId || null} />
       </div>
 
       <section id="home-fleet" className="bg-white py-10 sm:py-16 lg:py-20">
@@ -265,11 +266,18 @@ export function HomePage() {
               {offersOnly ? copy.offers.noOffers : copy.cars.noCarsInBranch}
             </p>
           ) : (
-            <FleetCarCarousel
-              items={fleetCars}
-              rentalType={rentalType}
-              branchId={hasBranch ? branchId || undefined : undefined}
-            />
+            <div className="flex flex-col gap-3">
+              {fleetCars.map(({ car, availability }, i) => (
+                <CarRowCard
+                  key={car.id}
+                  car={car}
+                  index={i}
+                  rentalType={rentalType}
+                  branchId={hasBranch ? branchId || undefined : undefined}
+                  availability={availability}
+                />
+              ))}
+            </div>
           )}
 
         </div>

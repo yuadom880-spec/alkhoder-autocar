@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { FeaturedOfferCard } from './FeaturedOfferCard'
@@ -11,6 +11,7 @@ import { filterOffersByBranch } from '../../lib/adminBranchFilters'
 import { fetchDisplayedFeaturedOffers } from '../../lib/supabase'
 import type { FeaturedOffer, RentalPeriodType } from '../../lib/types'
 import { cn } from '../../lib/utils'
+import { useTableRealtime } from '../../hooks/useTableRealtime'
 
 type FilterType = 'all' | RentalPeriodType
 
@@ -33,7 +34,8 @@ export function FeaturedOffersSection({
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<FilterType>('all')
 
-  useEffect(() => {
+  const loadOffers = useCallback(() => {
+    setLoading(true)
     fetchDisplayedFeaturedOffers({
       activeOnly: true,
       featuredOnly: compact,
@@ -43,6 +45,13 @@ export function FeaturedOffersSection({
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [compact])
+
+  useEffect(() => {
+    loadOffers()
+  }, [loadOffers])
+
+  useTableRealtime('featured_offers', loadOffers)
+  useTableRealtime('cars', loadOffers)
 
   const filtered = useMemo(() => {
     let result = filterOffersByBranch(
