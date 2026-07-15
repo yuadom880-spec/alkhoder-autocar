@@ -24,8 +24,10 @@ const defaultSpecs = {
 
 interface CarFormProps {
   initial?: Car
-  /** وضع تعديل العرض الشهري فقط — من قسم العروض الشهرية */
+  /** وضع العرض الشهري — من قسم العروض الشهرية */
   monthlyFocus?: boolean
+  /** إضافة سيارة جديدة كعرض شهري (بيانات كاملة + عرض شهري) */
+  monthlyOfferCreate?: boolean
   onSubmit: (data: CarFormData) => Promise<void>
   onCancel: () => void
 }
@@ -67,7 +69,13 @@ function buildInitialForm(
   }
 }
 
-export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: CarFormProps) {
+export function CarForm({
+  initial,
+  monthlyFocus = false,
+  monthlyOfferCreate = false,
+  onSubmit,
+  onCancel,
+}: CarFormProps) {
   const { isBranchAdmin, branchId } = useAdminBranch()
   const branchScopeId = isBranchAdmin ? branchId : null
   const branchSharedCarMode = Boolean(
@@ -101,6 +109,13 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
     if (!form.image_url) {
       setError('ارفع صورة واحدة على الأقل للسيارة')
       return
+    }
+    if (monthlyOfferCreate || (monthlyFocus && !initial)) {
+      const monthly = normalizeCarOffers(form.offer).monthly
+      if (!monthly?.active) {
+        setError(copy.admin.monthlyOfferMustBeActive)
+        return
+      }
     }
     setLoading(true)
     try {
@@ -194,59 +209,74 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
-            <p className="text-sm font-bold text-brand-dark">الأسعار</p>
-            <p className="text-xs text-slate-500 mt-1">
-              {isBranchAdmin
-                ? 'السعر اليومي والشهري لفرعك — يظهر في قسم أسطول السيارات'
-                : 'السعر اليومي والشهري الافتراضي لكل الفروع'}
-            </p>
-          </div>
+          {!monthlyFocus && (
+            <>
+              <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+                <p className="text-sm font-bold text-brand-dark">الأسعار</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {isBranchAdmin
+                    ? 'السعر اليومي والشهري لفرعك — يظهر في قسم أسطول السيارات'
+                    : 'السعر اليومي والشهري الافتراضي لكل الفروع'}
+                </p>
+              </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label-field">
-                {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
-              </label>
-              <input
-                type="number"
-                className="input-field"
-                value={form.price_per_day}
-                onChange={(e) => update('price_per_day', Number(e.target.value))}
-              />
-              {isBranchAdmin && (
-                <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
-              )}
-            </div>
-            <div>
-              <label className="label-field">
-                {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
-              </label>
-              <input
-                type="number"
-                className="input-field"
-                value={form.price_per_month}
-                onChange={(e) => update('price_per_month', Number(e.target.value))}
-              />
-            </div>
-          </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label-field">
+                    {isBranchAdmin ? copy.admin.carBranchDailyPrice : 'السعر اليومي (ر.س)'}
+                  </label>
+                  <input
+                    type="number"
+                    className="input-field"
+                    value={form.price_per_day}
+                    onChange={(e) => update('price_per_day', Number(e.target.value))}
+                  />
+                  {isBranchAdmin && (
+                    <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="label-field">
+                    {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
+                  </label>
+                  <input
+                    type="number"
+                    className="input-field"
+                    value={form.price_per_month}
+                    onChange={(e) => update('price_per_month', Number(e.target.value))}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
 
       {monthlyFocus && (
-        <div>
-          <label className="label-field">
-            {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري (ر.س)'}
-          </label>
-          <input
-            type="number"
-            className="input-field"
-            value={form.price_per_month}
-            onChange={(e) => update('price_per_month', Number(e.target.value))}
-          />
-          {isBranchAdmin && (
-            <p className="text-[11px] text-slate-500 mt-1">{copy.admin.carBranchPriceHint}</p>
-          )}
+        <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 space-y-3">
+          <div>
+            <p className="text-sm font-bold text-brand-dark">
+              {monthlyOfferCreate ? copy.admin.monthlyOfferPriceSection : 'السعر الشهري'}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              {monthlyOfferCreate
+                ? copy.admin.monthlyOfferPriceHint
+                : isBranchAdmin
+                  ? copy.admin.carBranchPriceHint
+                  : 'السعر قبل تطبيق العرض — يُستخدم لحساب الخصم'}
+            </p>
+          </div>
+          <div>
+            <label className="label-field">
+              {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري قبل العرض (ر.س)'}
+            </label>
+            <input
+              type="number"
+              className="input-field"
+              value={form.price_per_month}
+              onChange={(e) => update('price_per_month', Number(e.target.value))}
+            />
+          </div>
         </div>
       )}
 
@@ -257,7 +287,7 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
         onError={setError}
       />
 
-      {!monthlyFocus && !isBranchAdmin && (
+      {(!monthlyFocus || monthlyOfferCreate) && !isBranchAdmin && (
         <CarBranchSelector
           value={form.branch_ids}
           onChange={(branch_ids) => update('branch_ids', branch_ids)}
@@ -319,7 +349,7 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
         </div>
       )}
 
-      {!monthlyFocus && (
+      {(!monthlyFocus || monthlyOfferCreate) && (
       <div>
         <label className="label-field">الوصف</label>
         <textarea
@@ -331,7 +361,7 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
       </div>
       )}
 
-      {!monthlyFocus && (
+      {(!monthlyFocus || monthlyOfferCreate) && (
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <label className="label-field">ناقل الحركة</label>
@@ -385,7 +415,13 @@ export function CarForm({ initial, monthlyFocus = false, onSubmit, onCancel }: C
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-3">
         <Button type="submit" isLoading={loading} className="w-full sm:w-auto min-h-[48px]">
-          {monthlyFocus ? 'حفظ العرض الشهري' : initial ? 'حفظ التعديلات' : 'إضافة السيارة'}
+          {monthlyOfferCreate
+            ? copy.admin.saveMonthlyOffer
+            : monthlyFocus
+              ? copy.admin.saveMonthlyOffer
+              : initial
+                ? 'حفظ التعديلات'
+                : 'إضافة السيارة'}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel} className="w-full sm:w-auto min-h-[48px]">
           إلغاء

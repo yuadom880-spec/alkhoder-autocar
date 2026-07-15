@@ -167,7 +167,7 @@ export function AdminOffersPage() {
               <p>
                 القائمة تعرض فقط السيارات ذات عرض شهري بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو
                 أكثر — نفس ما يظهر للعملاء في الموقع ({featuredCount} حالياً). لإضافة عرض شهري
-                لسيارة من الأسطول استخدم الزر أعلاه. لإضافة سيارة جديدة استخدم أسطول السيارات.
+                جديد استخدم الزر أعلاه. لإضافة سيارة بدون عرض شهري استخدم أسطول السيارات.
               </p>
               {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">

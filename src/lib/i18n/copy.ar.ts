@@ -392,7 +392,13 @@ export const copyAr = {
     stopBookingHere: 'إيقاف الإتاحة في فرعك',
     enableBookingHere: 'تفعيل الإتاحة في فرعك',
     addMonthlyOffer: 'إضافة عرض شهري',
-    addMonthlyOfferSub: 'اختر سيارة من الأسطول وحدّد السعر الشهري والعرض — لا يُضاف سيارة جديدة هنا',
+    addMonthlyOfferSub:
+      'أضف سيارة جديدة بعرض شهري — أدخل بيانات السيارة، الصور، السعر قبل العرض، وتفاصيل الخصم',
+    monthlyOfferBranchCreateHint:
+      'السيارة تُضاف لفرعك وتظهر في العروض الشهرية المميزة عند تحقيق خصم 199 ر.س أو أكثر',
+    monthlyOfferPriceSection: 'السعر الشهري قبل العرض',
+    monthlyOfferPriceHint:
+      'هذا السعر يظهر مشطوباً للعميل — حدّد الخصم في قسم العرض الشهري أدناه',
     addMonthlyOfferEmpty: 'لا توجد سيارات في هذا النطاق — أضف سيارة من أسطول السيارات أولاً',
     addCarInFleet: 'إضافة سيارة للأسطول',
     backToMonthlyOffers: 'العودة للعروض الشهرية',

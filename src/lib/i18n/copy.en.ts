@@ -392,7 +392,13 @@ export const copyEn = {
     stopBookingHere: 'Disable in your branch',
     enableBookingHere: 'Enable in your branch',
     addMonthlyOffer: 'Add monthly offer',
-    addMonthlyOfferSub: 'Pick a fleet car and set the monthly price and offer — no new car is created here',
+    addMonthlyOfferSub:
+      'Add a new car with a monthly offer — enter car details, images, price before discount, and offer settings',
+    monthlyOfferBranchCreateHint:
+      'The car is added to your branch and appears in Monthly Featured Offers when savings reach SAR 199+',
+    monthlyOfferPriceSection: 'Monthly price before offer',
+    monthlyOfferPriceHint:
+      'This price is shown struck-through to customers — set the discount in the monthly offer section below',
     addMonthlyOfferEmpty: 'No cars in this scope — add a car from the fleet first',
     addCarInFleet: 'Add car to fleet',
     backToMonthlyOffers: 'Back to monthly offers',
