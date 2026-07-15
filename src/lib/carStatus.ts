@@ -55,8 +55,10 @@ export function getAdminCarDeleteLabel(
   branchScopeId: string | null | undefined,
   isBranchAdmin: boolean,
 ): string {
-  if (!isBranchAdmin || canBranchAdminPermanentlyDeleteCar(car, branchScopeId)) return 'حذف'
-  return 'إزالة'
+  if (!isBranchAdmin || canBranchAdminPermanentlyDeleteCar(car, branchScopeId)) {
+    return copy.admin.deleteCar
+  }
+  return copy.admin.removeFromBranch
 }
 
 export function confirmAdminCarDelete(

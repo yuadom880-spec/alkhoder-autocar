@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
-import { Calendar, Edit, Plus, Power, Trash2 } from 'lucide-react'
+import { Calendar, Plus } from 'lucide-react'
+import { AdminCarActionButtons } from '../../components/admin/AdminCarActionButtons'
 import { AdminCarMobileCard } from '../../components/admin/AdminCarMobileCard'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
@@ -30,7 +31,6 @@ import {
   confirmAdminCarAvailabilityToggle,
   confirmAdminCarDelete,
   getAdminCarStatusLabel,
-  getAdminCarToggleLabel,
 } from '../../lib/carStatus'
 import { getCarBasePrice } from '../../lib/pricing'
 import { getEffectivePrice, getOfferBadge, isOfferActive } from '../../lib/offers'
@@ -320,32 +320,17 @@ export function AdminCarsPage() {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              title={getAdminCarToggleLabel(car, branchScopeId)}
-                              isLoading={toggling === car.id}
-                              onClick={() => handleToggleAvailable(car)}
-                            >
-                              <Power className="h-4 w-4" />
-                            </Button>
-                            <Link to={`/admin/cars/${car.id}/edit`}>
-                              <Button size="sm" variant="ghost">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:bg-red-50"
-                              isLoading={deleting === car.id}
-                              onClick={() => handleDelete(car)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                        <td className="px-4 py-3 align-top">
+                          <AdminCarActionButtons
+                            car={car}
+                            branchScopeId={branchScopeId}
+                            isBranchAdmin={isBranchAdmin}
+                            toggling={toggling === car.id}
+                            deleting={deleting === car.id}
+                            fleetEditPath={`/admin/cars/${car.id}/edit`}
+                            onToggleAvailable={() => handleToggleAvailable(car)}
+                            onDelete={() => handleDelete(car)}
+                          />
                         </td>
                       </tr>
                     )

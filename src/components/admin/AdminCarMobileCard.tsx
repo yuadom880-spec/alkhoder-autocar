@@ -5,6 +5,7 @@ import type { BookingBlock, BranchRecord, Car } from '../../lib/types'
 import { resolveCarForBranch } from '../../lib/carBranchProfile'
 import { formatCarBranchLabels } from '../../lib/branchFilter'
 import { getCategoryLabel, getClassLabel } from '../../lib/constants'
+import { copy } from '../../lib/copy'
 import {
   getAdminCarDeleteLabel,
   getAdminCarStatusLabel,
@@ -25,8 +26,9 @@ interface AdminCarMobileCardProps {
   activeBlocks: BookingBlock[]
   toggling: boolean
   deleting: boolean
-  editHref?: string
-  editLabel?: string
+  /** تعديل عرض شهري — من قسم العروض */
+  monthlyOfferEditPath?: string
+  fleetEditPath?: string
   extraBadges?: ReactNode
   onToggleAvailable: () => void
   onDelete: () => void
@@ -41,16 +43,18 @@ export function AdminCarMobileCard({
   activeBlocks,
   toggling,
   deleting,
-  editHref,
-  editLabel = 'تعديل',
+  monthlyOfferEditPath,
+  fleetEditPath,
   extraBadges,
   onToggleAvailable,
   onDelete,
 }: AdminCarMobileCardProps) {
-  const editPath = editHref ?? `/admin/cars/${car.id}/edit`
+  const fleetPath = fleetEditPath ?? `/admin/cars/${car.id}/edit`
   const displayCar = resolveCarForBranch(car, branchScopeId)
   const hasConfirmed = activeBlocks.some((b) => b.status === 'confirmed')
   const hasPending = activeBlocks.some((b) => b.status === 'pending')
+  const toggleLabel = getAdminCarToggleLabel(car, branchScopeId)
+  const deleteLabel = getAdminCarDeleteLabel(car, branchScopeId, isBranchAdmin)
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -111,32 +115,52 @@ export function AdminCarMobileCard({
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <p className="mt-3 text-[11px] font-bold text-slate-500">الإجراءات</p>
+      <div className={`mt-2 grid gap-2 ${monthlyOfferEditPath ? 'grid-cols-2' : 'grid-cols-1'}`}>
         <Button
           size="sm"
           variant="outline"
-          className="min-h-[44px]"
+          className="min-h-[44px] justify-start gap-2 text-xs font-semibold"
           isLoading={toggling}
           onClick={onToggleAvailable}
         >
-          <Power className="h-4 w-4" />
-          {getAdminCarToggleLabel(car, branchScopeId)}
+          <Power className="h-4 w-4 shrink-0" />
+          <span className="text-right leading-tight">{toggleLabel}</span>
         </Button>
-        <Link to={editPath} className="col-span-1">
-          <Button size="sm" variant="outline" className="w-full min-h-[44px]">
-            <Edit className="h-4 w-4" />
-            {editLabel}
+
+        {monthlyOfferEditPath ? (
+          <Link to={monthlyOfferEditPath}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full min-h-[44px] justify-start gap-2 text-xs font-semibold"
+            >
+              <Edit className="h-4 w-4 shrink-0" />
+              {copy.admin.editMonthlyOffer}
+            </Button>
+          </Link>
+        ) : null}
+
+        <Link to={fleetPath} className={monthlyOfferEditPath ? undefined : 'col-span-1'}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full min-h-[44px] justify-start gap-2 text-xs font-semibold"
+          >
+            <Edit className="h-4 w-4 shrink-0" />
+            {copy.admin.editCar}
           </Button>
         </Link>
+
         <Button
           size="sm"
           variant="outline"
-          className="min-h-[44px] text-red-600 hover:bg-red-50"
+          className="min-h-[44px] justify-start gap-2 text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
           isLoading={deleting}
           onClick={onDelete}
         >
-          <Trash2 className="h-4 w-4" />
-          {getAdminCarDeleteLabel(car, branchScopeId, isBranchAdmin)}
+          <Trash2 className="h-4 w-4 shrink-0" />
+          {deleteLabel}
         </Button>
       </div>
     </article>
