@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterCarsByBranch } from '../../lib/adminBranchFilters'
 import { Link } from 'react-router'
-import { Calendar, Edit, Plus, Power, Sparkles, Trash2 } from 'lucide-react'
+import { Calendar, Plus, Sparkles } from 'lucide-react'
+import { AdminCarActionButtons } from '../../components/admin/AdminCarActionButtons'
 import { AdminCarMobileCard } from '../../components/admin/AdminCarMobileCard'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import { AdminTopBar } from '../../components/admin/AdminTopBar'
@@ -30,7 +31,6 @@ import {
   confirmAdminCarAvailabilityToggle,
   confirmAdminCarDelete,
   getAdminCarStatusLabel,
-  getAdminCarToggleLabel,
 } from '../../lib/carStatus'
 import { getCarBasePrice } from '../../lib/pricing'
 import {
@@ -175,9 +175,9 @@ export function AdminOffersPage() {
           subtitle={
             <>
               <p>
-                إدارة العروض الشهرية لكل سيارات الفرع — نفس صلاحيات الأسطول: إضافة، تعديل
-                العرض الشهري، حذف، وإيقاف التوفر. العروض بخصم {MONTHLY_FEATURED_MIN_SAVINGS}{' '}
-                ر.س+ تظهر في الموقع ({featuredCount} حالياً).
+                إدارة العروض الشهرية لسيارات الفرع — أضف عرضاً شهرياً لسيارة موجودة، عدّل
+                العرض، أو أوقف التوفر. لإضافة سيارة جديدة استخدم أسطول السيارات. العروض بخصم{' '}
+                {MONTHLY_FEATURED_MIN_SAVINGS} ر.س+ تظهر في الموقع ({featuredCount} حالياً).
               </p>
               {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -187,10 +187,10 @@ export function AdminOffersPage() {
             </>
           }
           action={
-            <Link to="/admin/offers/cars/new">
+            <Link to="/admin/offers/monthly/new">
               <Button size="md" className="w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
-                إضافة سيارة
+                {copy.admin.addMonthlyOffer}
               </Button>
             </Link>
           }
@@ -223,8 +223,8 @@ export function AdminOffersPage() {
         ) : visibleCars.length === 0 ? (
           <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
             <p className="text-slate-500 mb-4">لا توجد سيارات في هذا النطاق</p>
-            <Link to="/admin/offers/cars/new">
-              <Button>إضافة سيارة</Button>
+            <Link to="/admin/offers/monthly/new">
+              <Button>{copy.admin.addMonthlyOffer}</Button>
             </Link>
           </div>
         ) : (
@@ -241,8 +241,7 @@ export function AdminOffersPage() {
                   activeBlocks={getActiveBlocks(car.id)}
                   toggling={toggling === car.id}
                   deleting={deleting === car.id}
-                  editHref={offerEditPath(car.id)}
-                  editLabel="العرض الشهري"
+                  monthlyOfferEditPath={offerEditPath(car.id)}
                   extraBadges={monthlyStatusBadge(car)}
                   onToggleAvailable={() => handleToggleAvailable(car)}
                   onDelete={() => handleDelete(car)}
@@ -337,38 +336,18 @@ export function AdminOffersPage() {
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                title={getAdminCarToggleLabel(car, branchScopeId)}
-                                isLoading={toggling === car.id}
-                                onClick={() => handleToggleAvailable(car)}
-                              >
-                                <Power className="h-4 w-4" />
-                              </Button>
-                              <Link to={offerEditPath(car.id)}>
-                                <Button size="sm" variant="outline" title="تعديل العرض الشهري">
-                                  <Edit className="h-4 w-4" />
-                                  عرض شهري
-                                </Button>
-                              </Link>
-                              <Link to={`/admin/cars/${car.id}/edit`}>
-                                <Button size="sm" variant="ghost" title="تعديل كامل">
-                                  أسطول
-                                </Button>
-                              </Link>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-red-600 hover:bg-red-50"
-                                isLoading={deleting === car.id}
-                                onClick={() => handleDelete(car)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                          <td className="px-4 py-3 align-top">
+                            <AdminCarActionButtons
+                              car={car}
+                              branchScopeId={branchScopeId}
+                              isBranchAdmin={isBranchAdmin}
+                              toggling={toggling === car.id}
+                              deleting={deleting === car.id}
+                              fleetEditPath={`/admin/cars/${car.id}/edit`}
+                              monthlyOfferEditPath={offerEditPath(car.id)}
+                              onToggleAvailable={() => handleToggleAvailable(car)}
+                              onDelete={() => handleDelete(car)}
+                            />
                           </td>
                         </tr>
                       )

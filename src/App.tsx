@@ -68,6 +68,11 @@ const AdminOfferCarFormPage = lazy(() =>
     default: m.AdminOfferCarFormPage,
   })),
 )
+const AdminMonthlyOfferFormPage = lazy(() =>
+  import('./pages/admin/AdminMonthlyOfferFormPage').then((m) => ({
+    default: m.AdminMonthlyOfferFormPage,
+  })),
+)
 const AdminBranchesPage = lazy(() =>
   import('./pages/admin/AdminBranchesPage').then((m) => ({ default: m.AdminBranchesPage })),
 )
@@ -112,6 +117,7 @@ export default function App() {
             <Route path="cars/new" element={<AdminCarFormPage />} />
             <Route path="cars/:id/edit" element={<AdminCarFormPage />} />
             <Route path="bookings" element={<AdminBookingsPage />} />
+            <Route path="offers/monthly/new" element={<AdminMonthlyOfferFormPage />} />
             <Route path="offers/cars/new" element={<AdminOfferCarFormPage />} />
             <Route path="offers/cars/:id/edit" element={<AdminOfferCarFormPage />} />
             <Route path="offers" element={<AdminOffersPage />} />

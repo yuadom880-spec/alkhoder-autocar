@@ -94,7 +94,7 @@ export function AdminGeneralOverview({ stats, branchRows }: AdminGeneralOverview
   const quickActions = [
     { to: '/admin/cars/new', label: 'إضافة سيارة', icon: Car },
     { to: '/admin/branches/new', label: 'إضافة فرع', icon: Building2 },
-    { to: '/admin/offers/cars/new', label: 'سيارة بعرض شهري', icon: Sparkles },
+    { to: '/admin/offers/monthly/new', label: 'إضافة عرض شهري', icon: Sparkles },
     { to: '/admin/bookings', label: 'مراجعة الحجوزات', icon: Calendar },
   ]
 
