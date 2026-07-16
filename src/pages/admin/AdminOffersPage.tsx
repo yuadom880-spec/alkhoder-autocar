@@ -37,8 +37,8 @@ import {
   getEffectivePrice,
   getOfferBadge,
   getOfferSavings,
+  hasActiveMonthlyOffer,
   hasMonthlyFeaturedOffer,
-  isMonthlyOfferOnlyCar,
   isOfferActive,
   MONTHLY_FEATURED_MIN_SAVINGS,
 } from '../../lib/offers'
@@ -88,9 +88,9 @@ export function AdminOffersPage() {
     [cars, listBranchId],
   )
 
-  /** سيارات العروض الشهرية — كما تظهر للعميل في قسم العروض الشهرية */
+  /** كل السيارات ذات عرض شهري نشط — بما فيها العروض القديمة */
   const featuredCars = useMemo(
-    () => branchScopedCars.filter((c) => isMonthlyOfferOnlyCar(c, listBranchId)),
+    () => branchScopedCars.filter((c) => hasActiveMonthlyOffer(c, listBranchId)),
     [branchScopedCars, listBranchId],
   )
 
@@ -170,9 +170,9 @@ export function AdminOffersPage() {
           subtitle={
             <>
               <p>
-                القائمة تعرض فقط السيارات ذات عرض شهري بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو
-                أكثر — نفس ما يظهر للعملاء في الموقع ({featuredCount} حالياً). لإضافة عرض شهري
-                جديد استخدم الزر أعلاه. لإضافة سيارة بدون عرض شهري استخدم أسطول السيارات.
+                القائمة تعرض كل السيارات ذات عرض شهري نشط ({featuredCount} حالياً). العروض
+                المميزة بخصم {MONTHLY_FEATURED_MIN_SAVINGS} ر.س أو أكثر تظهر للعملاء في قسم
+                العروض الشهرية. لإضافة عرض شهري جديد استخدم الزر أعلاه.
               </p>
               {isBranchAdmin && (
                 <p className="text-xs text-amber-700 mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">

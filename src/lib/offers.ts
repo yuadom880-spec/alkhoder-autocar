@@ -177,10 +177,15 @@ export function isOfferActive(
   rentalType: RentalPeriodType = 'daily',
   branchId?: string | null,
 ): boolean {
-  const offer = getResolvedCarOffer(car, rentalType, branchId)
-  if (!isOfferValid(offer, branchId)) return false
-  const basePrice = getCarBasePrice(car, rentalType, branchId)
-  return applyOffer(basePrice, offer, branchId) < basePrice
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  const offer = getResolvedCarOffer(car, rentalType, effectiveBranchId)
+  if (!isOfferValid(offer, effectiveBranchId)) return false
+  const basePrice = getCarBasePrice(car, rentalType, effectiveBranchId)
+  const effective = applyOffer(basePrice, offer, effectiveBranchId)
+  if (offer?.discount_type === 'custom_price') {
+    return effective < basePrice && effective >= 0
+  }
+  return effective < basePrice
 }
 
 export function hasAnyOffer(car: Car, branchId?: string | null): boolean {
@@ -202,7 +207,7 @@ export function hasMonthlyFeaturedOffer(
   return getOfferSavings(car, 'monthly', effectiveBranchId) >= minSavings
 }
 
-/** سيارة بعرض شهري فقط (بدون عرض يومي) — تُضاف من قسم العروض الشهرية */
+/** سيارة بعرض شهري فقط (بدون عرض يومي) */
 export function isMonthlyOfferOnlyCar(
   car: Car,
   branchId?: string | null,
@@ -212,12 +217,35 @@ export function isMonthlyOfferOnlyCar(
   return !isOfferActive(car, 'daily', effectiveBranchId)
 }
 
+/** أي عرض شهري نشط — لقائمة الإدارة */
+export function hasActiveMonthlyOffer(
+  car: Car,
+  branchId?: string | null,
+): boolean {
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  return isOfferActive(car, 'monthly', effectiveBranchId)
+}
+
+/**
+ * سيارات برنامج العروض الشهرية — تظهر للعميل في القسم الشهري ولا تظهر في الأسطول
+ * (عرض شهري فقط، أو سيارة مميزة بعرض شهري من لوحة العروض)
+ */
+export function isMonthlyOffersProgramCar(
+  car: Car,
+  branchId?: string | null,
+): boolean {
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  if (!isOfferActive(car, 'monthly', effectiveBranchId)) return false
+  if (!isOfferActive(car, 'daily', effectiveBranchId)) return true
+  return car.is_featured
+}
+
 /** لا تظهر في أسطول السيارات — فقط في قسم العروض الشهرية */
 export function shouldHideFromFleet(
   car: Car,
   branchId?: string | null,
 ): boolean {
-  return isMonthlyOfferOnlyCar(car, branchId)
+  return isMonthlyOffersProgramCar(car, branchId)
 }
 
 export function getEffectivePrice(
