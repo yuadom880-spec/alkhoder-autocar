@@ -3,10 +3,18 @@ import { AdminTopBar } from '../../components/admin/AdminTopBar'
 import { CarForm } from '../../components/admin/CarForm'
 import { Button } from '../../components/ui/Button'
 import { useAdminBranch } from '../../context/AdminBranchContext'
+import { buildCarBranchProfilePatch } from '../../lib/carBranchProfile'
 import { copy } from '../../lib/copy'
 import { normalizeCarOffers } from '../../lib/offers'
 import { createCar } from '../../lib/supabase'
-import type { CarFormData } from '../../lib/types'
+import type { Car, CarFormData } from '../../lib/types'
+
+const BLANK_BRANCH_CAR = {
+  branch_profiles: {},
+  branch_names: {},
+  branch_prices: {},
+  branch_offers: {},
+} as Car
 
 const OFFERS_LIST = '/admin/offers'
 
@@ -32,7 +40,12 @@ export function AdminMonthlyOfferFormPage() {
     }
 
     if (branchScopeId) {
-      await createCar({ ...payload, branch_ids: [branchScopeId] })
+      const profilePatch = buildCarBranchProfilePatch(BLANK_BRANCH_CAR, branchScopeId, payload)
+      await createCar({
+        ...payload,
+        branch_ids: [branchScopeId],
+        ...profilePatch,
+      })
     } else {
       await createCar(payload)
     }

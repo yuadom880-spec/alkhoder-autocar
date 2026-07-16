@@ -1,3 +1,4 @@
+import { inferOfferBranchId } from './branchFilter'
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { getBranchOffersOverride } from './carBranchOffers'
 import { getBranchProfile } from './carBranchProfile'
@@ -67,34 +68,48 @@ export function getCarOffer(car: Car, rentalType: RentalPeriodType): CarOffer | 
   return rentalType === 'monthly' ? offers.monthly : offers.daily
 }
 
+function pickBranchOrGlobalOffer(
+  specific: CarOffer | null | undefined,
+  global: CarOffer | null,
+  branchId: string,
+): CarOffer | null {
+  if (specific !== null && specific !== undefined) {
+    if (!specific.active && isOfferGloballyDisabled(specific)) {
+      return isOfferValid(global, branchId) ? normalizeOffer(global) : null
+    }
+    if (specific.active) return normalizeOffer(specific)
+    if (isOfferValid(global, branchId)) return normalizeOffer(global)
+    return null
+  }
+  return isOfferValid(global, branchId) ? normalizeOffer(global) : null
+}
+
 /** عرض السيارة مع احترام عروض الفرع المخصصة */
 export function getResolvedCarOffer(
   car: Car,
   rentalType: RentalPeriodType,
   branchId?: string | null,
 ): CarOffer | null {
-  if (branchId) {
-    const profile = getBranchProfile(car, branchId)
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  const globalOffer = getCarOffer(car, rentalType)
+
+  if (effectiveBranchId) {
+    const profile = getBranchProfile(car, effectiveBranchId)
     if (profile?.offer !== undefined) {
       const branchOffers = normalizeCarOffers(profile.offer)
       const specific = rentalType === 'monthly' ? branchOffers.monthly : branchOffers.daily
-      if (specific !== null && specific !== undefined) {
-        if (!specific.active && isOfferGloballyDisabled(specific)) return null
-        if (specific.active) return normalizeOffer(specific)
-        return null
-      }
+      const picked = pickBranchOrGlobalOffer(specific, globalOffer, effectiveBranchId)
+      if (picked) return picked
     }
-    const branchOffers = getBranchOffersOverride(car, branchId)
+    const branchOffers = getBranchOffersOverride(car, effectiveBranchId)
     if (branchOffers) {
       const specific = rentalType === 'monthly' ? branchOffers.monthly : branchOffers.daily
-      if (specific !== null && specific !== undefined) {
-        if (!specific.active && isOfferGloballyDisabled(specific)) return null
-        if (specific.active) return normalizeOffer(specific)
-        return null
-      }
+      const picked = pickBranchOrGlobalOffer(specific, globalOffer, effectiveBranchId)
+      if (picked) return picked
     }
   }
-  return getCarOffer(car, rentalType)
+
+  return isOfferValid(globalOffer, effectiveBranchId) ? normalizeOffer(globalOffer) : null
 }
 
 export function isOfferDisabledForBranch(
@@ -182,8 +197,9 @@ export function hasMonthlyFeaturedOffer(
   branchId?: string | null,
   minSavings: number = MONTHLY_FEATURED_MIN_SAVINGS,
 ): boolean {
-  if (!isOfferActive(car, 'monthly', branchId)) return false
-  return getOfferSavings(car, 'monthly', branchId) >= minSavings
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  if (!isOfferActive(car, 'monthly', effectiveBranchId)) return false
+  return getOfferSavings(car, 'monthly', effectiveBranchId) >= minSavings
 }
 
 export function getEffectivePrice(

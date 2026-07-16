@@ -1,3 +1,4 @@
+import { inferOfferBranchId } from './branchFilter'
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
 import { getBranchProfile, resolveCarForBranch } from './carBranchProfile'
 import type { BranchCarPrice, Car, CarBranchPrices, RentalPeriodType } from './types'
@@ -46,7 +47,8 @@ export function getCarBasePrice(
   rentalType: RentalPeriodType,
   branchId?: string | null,
 ): number {
-  const override = getBranchPriceOverride(car, branchId)
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  const override = getBranchPriceOverride(car, effectiveBranchId)
   if (rentalType === 'monthly') {
     if (override?.price_per_month != null) return override.price_per_month
     return car.price_per_month ?? defaultMonthlyPrice(car.price_per_day)

@@ -13,6 +13,17 @@ export function isCarExclusiveToBranch(car: Car, branchId: string): boolean {
   return branchListIncludes(ids, branchId)
 }
 
+/** فرع العروض والأسعار — اختيار العميل أو الفرع الوحيد للسيارة المخصصة */
+export function inferOfferBranchId(
+  car: Car,
+  branchId?: string | null,
+): string | null {
+  if (branchId) return branchId
+  const ids = car.branch_ids ?? []
+  if (ids.length === 1) return ids[0]
+  return null
+}
+
 /** سيارة بدون فروع محددة = متاحة في كل الفروع */
 export function carMatchesBranch(car: Car, branchId: string | null | undefined): boolean {
   if (!branchId) return true

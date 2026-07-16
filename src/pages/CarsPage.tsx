@@ -18,7 +18,7 @@ import { carMatchesBranch } from '../lib/branchFilter'
 import { copy } from '../lib/copy'
 import { sortFleet, type FleetSortOption } from '../lib/fleetSort'
 import { formatDate } from '../lib/utils'
-import { hasAnyOffer } from '../lib/offers'
+import { hasAnyOffer, hasMonthlyFeaturedOffer } from '../lib/offers'
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
 import type { BookingBlock, Car, CarCategory, CarClass } from '../lib/types'
 
@@ -77,8 +77,10 @@ export function CarsPage() {
   useTableRealtime('bookings', reloadBlocks)
 
   const filtered = useMemo(() => {
+    const listBranchId = hasBranch ? selectedBranch : null
     const result = cars.filter((car) => {
-      if (!carMatchesBranch(car, hasBranch ? selectedBranch : null)) return false
+      if (!carMatchesBranch(car, listBranchId)) return false
+      if (hasMonthlyFeaturedOffer(car, listBranchId)) return false
       const matchCategory = category === 'all' || car.category === category
       const matchClass = carClass === 'all' || car.car_class === carClass
       const q = search.trim().toLowerCase()

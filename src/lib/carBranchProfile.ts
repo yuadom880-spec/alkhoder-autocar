@@ -1,4 +1,5 @@
 import { normalizeBranchIdForStorage } from './carBranchAvailability'
+import { normalizeCarOffers, sanitizeCarOffers } from './offers'
 import type { CarBranchNames, CarBranchOffers, CarBranchPrices } from './types'
 import type {
   BranchCarProfile,
@@ -47,6 +48,20 @@ const defaultSpecs: CarSpecs = {
   seats: 5,
   doors: 4,
   ac: true,
+}
+
+/** دمج عروض الفرع مع العامة — null في الفرع يعني «استخدم العام» */
+function mergeBranchOffers(
+  global: CarOffers | null | undefined,
+  branch: CarOffers | null | undefined,
+): CarOffers | null {
+  const g = normalizeCarOffers(global)
+  if (branch === undefined) return sanitizeCarOffers(g)
+  const b = normalizeCarOffers(branch)
+  return sanitizeCarOffers({
+    daily: b.daily !== null && b.daily !== undefined ? b.daily : g.daily,
+    monthly: b.monthly !== null && b.monthly !== undefined ? b.monthly : g.monthly,
+  })
 }
 
 function normalizeSpecs(raw: Partial<CarSpecs> | null | undefined): CarSpecs | undefined {
@@ -148,7 +163,9 @@ export function resolveCarForBranch(car: Car, branchId?: string | null): Car {
     profile.images && profile.images.length > 0 ? profile.images : car.images
   const imageUrl = profile.image_url ?? images[0] ?? car.image_url
   const offer: CarOffers | null =
-    profile.offer !== undefined ? profile.offer : car.offer
+    profile.offer !== undefined
+      ? (mergeBranchOffers(car.offer, profile.offer) ?? car.offer)
+      : car.offer
 
   return {
     ...car,
@@ -217,8 +234,8 @@ export function getBranchFormCarData(
   const profile = getBranchProfile(car, branchId)
   const offer =
     profile?.offer !== undefined
-      ? (profile.offer ?? { daily: null, monthly: null })
-      : { daily: null, monthly: null }
+      ? (mergeBranchOffers(car.offer, profile.offer) ?? { daily: null, monthly: null })
+      : normalizeCarOffers(car.offer)
 
   return {
     name: resolved.name,
