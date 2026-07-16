@@ -207,13 +207,15 @@ export function hasMonthlyFeaturedOffer(
   return getOfferSavings(car, 'monthly', effectiveBranchId) >= minSavings
 }
 
-/** سيارة بعرض شهري فقط (بدون عرض يومي) */
+/** سيارة بعرض شهري فقط — بدون إيجار يومي (لا سعر يومي ولا عرض يومي) */
 export function isMonthlyOfferOnlyCar(
   car: Car,
   branchId?: string | null,
 ): boolean {
   const effectiveBranchId = inferOfferBranchId(car, branchId)
   if (!isOfferActive(car, 'monthly', effectiveBranchId)) return false
+  const dailyBase = getCarBasePrice(car, 'daily', effectiveBranchId)
+  if (dailyBase > 0) return false
   return !isOfferActive(car, 'daily', effectiveBranchId)
 }
 
@@ -240,7 +242,7 @@ export function isMonthlyOffersProgramCar(
   return car.is_featured
 }
 
-/** لا تظهر في أسطول السيارات — فقط سيارات بعرض شهري بدون عرض يومي */
+/** لا تظهر في أسطول السيارات — فقط سيارات بإيجار شهري فقط (بدون سعر يومي) */
 export function shouldHideFromFleet(
   car: Car,
   branchId?: string | null,
