@@ -15,7 +15,7 @@ const sectionsAr: PrivacySection[] = [
     title: 'مقدمة',
     paragraphs: [
       `مرحباً بك في تطبيق وموقع ${SITE_NAME} (${SITE_COMPANY_NAME}). نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية وفق أنظمة المملكة العربية السعودية والمعايير المعمول بها.`,
-      'توضح سياسة الخصوصية هذه كيفية جمع بياناتك واستخدامها وحمايتها عند استخدام تطبيق الجوال (Android) أو الموقع الإلكتروني alkhodercar.com لحجز وتأجير السيارات.',
+      'توضح سياسة الخصوصية هذه كيفية جمع بياناتك واستخدامها وحمايتها عند استخدام تطبيق الجوال (Android و iOS) أو الموقع الإلكتروني alkhodercar.com لحجز وتأجير السيارات.',
     ],
   },
   {
@@ -57,6 +57,7 @@ const sectionsAr: PrivacySection[] = [
       'Resend — إرسال رسائل البريد الإلكتروني المتعلقة بالحساب والحجوزات.',
       'Vercel — استضافة الموقع الإلكتروني.',
       'Google Play — عند تنزيل التطبيق من متجر Google (تخضع لسياسة خصوصية Google).',
+      'App Store — عند تنزيل التطبيق من Apple App Store (تخضع لسياسة خصوصية Apple).',
     ],
   },
   {
@@ -110,6 +111,7 @@ const sectionsAr: PrivacySection[] = [
     paragraphs: [
       'قد يخزّن التطبيق تفضيلاتك محلياً على جهازك (مثل الفرع المختار) لتسهيل الاستخدام.',
       'لا نستخدم ملفات تعريف ارتباط إعلانية طرف ثالث في التطبيق.',
+      'لا نبيع بياناتك ولا نتتبع نشاطك داخل التطبيق لأغراض إعلانية.',
       'الموقع قد يستخدم تخزيناً محلياً تقنياً لتشغيل الخدمة (مثل جلسة تسجيل الدخول).',
     ],
   },
@@ -141,7 +143,7 @@ const sectionsEn: PrivacySection[] = [
     title: 'Introduction',
     paragraphs: [
       `Welcome to the ${SITE_NAME_EN} app and website (${SITE_COMPANY_NAME_EN}). We respect your privacy and are committed to protecting your personal data in accordance with Saudi Arabian regulations and applicable standards.`,
-      'This privacy policy explains how we collect, use, and protect your data when you use our Android mobile app or the alkhodercar.com website to book and rent cars.',
+      'This privacy policy explains how we collect, use, and protect your data when you use our mobile app (Android and iOS) or the alkhodercar.com website to book and rent cars.',
     ],
   },
   {
@@ -183,6 +185,7 @@ const sectionsEn: PrivacySection[] = [
       'Resend — sending emails related to accounts and bookings.',
       'Vercel — website hosting.',
       'Google Play — when downloading the app from Google Play (subject to Google\'s privacy policy).',
+      'App Store — when downloading the app from the Apple App Store (subject to Apple\'s privacy policy).',
     ],
   },
   {
@@ -236,6 +239,7 @@ const sectionsEn: PrivacySection[] = [
     paragraphs: [
       'The app may store your preferences locally on your device (such as selected branch) for convenience.',
       'We do not use third-party advertising cookies in the app.',
+      'We do not sell your data or track your in-app activity for advertising purposes.',
       'The website may use technical local storage to operate the service (such as sign-in session).',
     ],
   },
@@ -267,5 +271,5 @@ export function getPrivacySections(locale: Locale): PrivacySection[] {
 }
 
 export function getPrivacyLastUpdated(locale: Locale): string {
-  return locale === 'en' ? 'July 13, 2026' : '13 يوليو 2026'
+  return locale === 'en' ? 'July 16, 2026' : '16 يوليو 2026'
 }
