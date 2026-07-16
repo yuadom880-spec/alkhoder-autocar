@@ -240,12 +240,12 @@ export function isMonthlyOffersProgramCar(
   return car.is_featured
 }
 
-/** لا تظهر في أسطول السيارات — فقط في قسم العروض الشهرية */
+/** لا تظهر في أسطول السيارات — فقط سيارات بعرض شهري بدون عرض يومي */
 export function shouldHideFromFleet(
   car: Car,
   branchId?: string | null,
 ): boolean {
-  return isMonthlyOffersProgramCar(car, branchId)
+  return isMonthlyOfferOnlyCar(car, branchId)
 }
 
 export function getEffectivePrice(
