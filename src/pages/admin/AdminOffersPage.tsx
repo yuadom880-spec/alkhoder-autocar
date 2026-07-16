@@ -38,6 +38,7 @@ import {
   getOfferBadge,
   getOfferSavings,
   hasMonthlyFeaturedOffer,
+  isMonthlyOfferOnlyCar,
   isOfferActive,
   MONTHLY_FEATURED_MIN_SAVINGS,
 } from '../../lib/offers'
@@ -87,9 +88,9 @@ export function AdminOffersPage() {
     [cars, listBranchId],
   )
 
-  /** فقط العروض المميزة (خصم 199+ ر.س) — كما تظهر في الموقع */
+  /** سيارات العروض الشهرية — كما تظهر للعميل في قسم العروض الشهرية */
   const featuredCars = useMemo(
-    () => branchScopedCars.filter((c) => hasMonthlyFeaturedOffer(c, listBranchId)),
+    () => branchScopedCars.filter((c) => isMonthlyOfferOnlyCar(c, listBranchId)),
     [branchScopedCars, listBranchId],
   )
 
@@ -149,12 +150,16 @@ export function AdminOffersPage() {
   const getActiveBlocks = (carId: string) =>
     getCarBlocks(carId, scopedBlocks, undefined, listBranchId).filter((b) => b.end_date >= today)
 
-  const monthlyStatusBadge = (car: Car) => (
-    <Badge variant="success">
-      <Sparkles className="h-3 w-3 inline ml-1" />
-      مميز — {formatPrice(getOfferSavings(car, 'monthly', listBranchId))}
-    </Badge>
-  )
+  const monthlyStatusBadge = (car: Car) => {
+    const featured = hasMonthlyFeaturedOffer(car, listBranchId)
+    return (
+      <Badge variant={featured ? 'success' : 'warning'}>
+        <Sparkles className="h-3 w-3 inline ml-1" />
+        {featured ? 'مميز' : 'عرض شهري'} —{' '}
+        {formatPrice(getOfferSavings(car, 'monthly', listBranchId))}
+      </Badge>
+    )
+  }
 
   return (
     <>

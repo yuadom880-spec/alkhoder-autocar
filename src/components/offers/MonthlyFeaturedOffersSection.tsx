@@ -8,7 +8,7 @@ import { PricesIncludeVatNote } from '../ui/PricesIncludeVatNote'
 import { getCarAvailability } from '../../lib/availability'
 import { carMatchesBranch } from '../../lib/branchFilter'
 import { copy } from '../../lib/copy'
-import { getOfferSavings, hasMonthlyFeaturedOffer } from '../../lib/offers'
+import { getOfferSavings, isMonthlyOfferOnlyCar } from '../../lib/offers'
 import { fetchBookingBlocks, fetchCars } from '../../lib/supabase'
 import { cn } from '../../lib/utils'
 import { useTableRealtime } from '../../hooks/useTableRealtime'
@@ -76,7 +76,7 @@ export function MonthlyFeaturedOffersSection({
   const items = useMemo(() => {
     const list = cars
       .filter((car) => carMatchesBranch(car, branchId))
-      .filter((car) => hasMonthlyFeaturedOffer(car, branchId))
+      .filter((car) => isMonthlyOfferOnlyCar(car, branchId))
       .map((car) => ({
         car,
         availability: getCarAvailability(

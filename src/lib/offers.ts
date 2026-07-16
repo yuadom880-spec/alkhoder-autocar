@@ -202,6 +202,24 @@ export function hasMonthlyFeaturedOffer(
   return getOfferSavings(car, 'monthly', effectiveBranchId) >= minSavings
 }
 
+/** سيارة بعرض شهري فقط (بدون عرض يومي) — تُضاف من قسم العروض الشهرية */
+export function isMonthlyOfferOnlyCar(
+  car: Car,
+  branchId?: string | null,
+): boolean {
+  const effectiveBranchId = inferOfferBranchId(car, branchId)
+  if (!isOfferActive(car, 'monthly', effectiveBranchId)) return false
+  return !isOfferActive(car, 'daily', effectiveBranchId)
+}
+
+/** لا تظهر في أسطول السيارات — فقط في قسم العروض الشهرية */
+export function shouldHideFromFleet(
+  car: Car,
+  branchId?: string | null,
+): boolean {
+  return isMonthlyOfferOnlyCar(car, branchId)
+}
+
 export function getEffectivePrice(
   car: Car,
   rentalType: RentalPeriodType = 'daily',

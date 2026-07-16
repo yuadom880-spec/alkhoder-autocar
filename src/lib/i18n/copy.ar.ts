@@ -396,9 +396,20 @@ export const copyAr = {
       'أضف سيارة جديدة بعرض شهري — أدخل بيانات السيارة، الصور، السعر قبل العرض، وتفاصيل الخصم',
     monthlyOfferBranchCreateHint:
       'السيارة تُضاف لفرعك وتظهر في العروض الشهرية المميزة عند تحقيق خصم 199 ر.س أو أكثر',
-    monthlyOfferPriceSection: 'السعر الشهري قبل العرض',
+    monthlyOfferPriceSection: 'أسعار العرض الشهري',
     monthlyOfferPriceHint:
-      'هذا السعر يظهر مشطوباً للعميل — حدّد الخصم في قسم العرض الشهري أدناه',
+      'السيارة تظهر للعميل في قسم العروض الشهرية فقط — وليس في أسطول السيارات',
+    monthlyOfferBasePriceLabel: 'السعر قبل الخصم (ر.س)',
+    monthlyOfferBasePriceHint: 'يظهر مشطوباً للعميل',
+    monthlyOfferFinalPriceLabel: 'سعر العرض الشهري (ر.س)',
+    monthlyOfferFinalPriceHint: 'السعر الذي يدفعه العميل شهرياً',
+    monthlyOfferBasePriceRequired: 'أدخل السعر قبل الخصم',
+    monthlyOfferPriceRequired: 'أدخل سعر العرض الشهري',
+    monthlyOfferPriceMustBeLower: 'سعر العرض يجب أن يكون أقل من السعر قبل الخصم',
+    monthlyOfferFeaturedEligible:
+      '✓ يظهر في قسم «العروض الشهرية المميزة» (خصم 199 ر.س أو أكثر)',
+    monthlyOfferFeaturedIneligible: (current: number) =>
+      `العرض يظهر في العروض الشهرية — لكن لن يُوسم «مميز» إلا بخصم 199 ر.س أو أكثر (حالياً: ${current} ر.س)`,
     addMonthlyOfferEmpty: 'لا توجد سيارات في هذا النطاق — أضف سيارة من أسطول السيارات أولاً',
     addCarInFleet: 'إضافة سيارة للأسطول',
     backToMonthlyOffers: 'العودة للعروض الشهرية',

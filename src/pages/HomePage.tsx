@@ -39,7 +39,7 @@ import { getMainBranchDisplay } from '../lib/i18n/labels'
 import { PROFILE_IMAGES } from '../lib/profile'
 import { getCarAvailability } from '../lib/availability'
 import { carMatchesBranch } from '../lib/branchFilter'
-import { hasMonthlyFeaturedOffer } from '../lib/offers'
+import { shouldHideFromFleet } from '../lib/offers'
 import { copy } from '../lib/copy'
 
 import { fetchBookingBlocks, fetchCars } from '../lib/supabase'
@@ -88,7 +88,7 @@ export function HomePage() {
     const listBranchId = hasBranch ? branchId : null
     return cars
       .filter((car) => carMatchesBranch(car, listBranchId))
-      .filter((car) => !hasMonthlyFeaturedOffer(car, listBranchId))
+      .filter((car) => !shouldHideFromFleet(car, listBranchId))
       .map((car) => ({
         car,
         availability: getCarAvailability(

@@ -396,9 +396,21 @@ export const copyEn = {
       'Add a new car with a monthly offer — enter car details, images, price before discount, and offer settings',
     monthlyOfferBranchCreateHint:
       'The car is added to your branch and appears in Monthly Featured Offers when savings reach SAR 199+',
-    monthlyOfferPriceSection: 'Monthly price before offer',
+    monthlyOfferPriceSection: 'Monthly offer pricing',
     monthlyOfferPriceHint:
-      'This price is shown struck-through to customers — set the discount in the monthly offer section below',
+      'The car appears only in Monthly Featured Offers for customers — not in the fleet section',
+    monthlyOfferBasePriceLabel: 'Price before discount (SAR)',
+    monthlyOfferBasePriceHint: 'Shown struck-through to customers',
+    monthlyOfferFinalPriceLabel: 'Monthly offer price (SAR)',
+    monthlyOfferFinalPriceHint: 'What the customer pays per month',
+    monthlyOfferBasePriceRequired: 'Enter the price before discount',
+    monthlyOfferPriceRequired: 'Enter the monthly offer price',
+    monthlyOfferPriceMustBeLower:
+      'Offer price must be lower than the price before discount',
+    monthlyOfferFeaturedEligible:
+      '✓ Appears in Monthly Featured Offers (SAR 199+ savings)',
+    monthlyOfferFeaturedIneligible: (current: number) =>
+      `Shown in monthly offers — «featured» badge requires SAR 199+ savings (currently: SAR ${current})`,
     addMonthlyOfferEmpty: 'No cars in this scope — add a car from the fleet first',
     addCarInFleet: 'Add car to fleet',
     backToMonthlyOffers: 'Back to monthly offers',

@@ -8,10 +8,14 @@ import { CAR_CATEGORIES, CAR_CLASSES, CATEGORY_LABELS, CLASS_LABELS } from '../.
 import { copy } from '../../lib/copy'
 import { CarBranchSelector } from './CarBranchSelector'
 import { CarImageUploader } from './CarImageUploader'
-import { CarOfferForm } from './CarOfferForm'
 import { CarOffersForm } from './CarOffersForm'
-import { CalendarRange } from 'lucide-react'
-import { normalizeCarOffers } from '../../lib/offers'
+import {
+  DEFAULT_OFFER,
+  MONTHLY_FEATURED_MIN_SAVINGS,
+  normalizeCarOffers,
+  previewOfferPrice,
+} from '../../lib/offers'
+import { formatPrice } from '../../lib/utils'
 import { Button } from '../ui/Button'
 
 const defaultSpecs = {
@@ -36,6 +40,28 @@ function defaultBranchIds(initial: Car | undefined, branchId: string | null): st
   if (initial) return initial.branch_ids ?? []
   if (branchId) return [branchId]
   return []
+}
+
+function readMonthlyOfferPrice(form: CarFormData): number {
+  const monthly = normalizeCarOffers(form.offer).monthly
+  if (!monthly?.active) return 0
+  if (monthly.discount_type === 'custom_price') return monthly.discount_value
+  return previewOfferPrice(form.price_per_month, monthly)
+}
+
+function buildMonthlyOfferFromPrice(
+  offerPrice: number,
+): CarFormData['offer'] {
+  return {
+    daily: null,
+    monthly: {
+      ...DEFAULT_OFFER,
+      active: true,
+      title: 'عرض شهري',
+      discount_type: 'custom_price',
+      discount_value: offerPrice,
+    },
+  }
 }
 
 function buildInitialForm(
@@ -86,9 +112,21 @@ export function CarForm({
   )
 
   const [form, setForm] = useState<CarFormData>(() => buildInitialForm(initial, branchScopeId))
+  const [monthlyOfferPrice, setMonthlyOfferPrice] = useState(() =>
+    readMonthlyOfferPrice(buildInitialForm(initial, branchScopeId)),
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showUrlInput, setShowUrlInput] = useState(false)
+
+  const syncMonthlyOfferPrice = (offerPrice: number) => {
+    setMonthlyOfferPrice(offerPrice)
+    setForm((prev) => ({
+      ...prev,
+      offer: buildMonthlyOfferFromPrice(offerPrice),
+    }))
+    setError('')
+  }
 
   const update = <K extends keyof CarFormData>(key: K, value: CarFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -110,16 +148,31 @@ export function CarForm({
       setError('ارفع صورة واحدة على الأقل للسيارة')
       return
     }
-    if (monthlyOfferCreate || (monthlyFocus && !initial)) {
-      const monthly = normalizeCarOffers(form.offer).monthly
-      if (!monthly?.active) {
-        setError(copy.admin.monthlyOfferMustBeActive)
+    if (monthlyFocus) {
+      if (form.price_per_month <= 0) {
+        setError(copy.admin.monthlyOfferBasePriceRequired)
+        return
+      }
+      if (monthlyOfferPrice <= 0) {
+        setError(copy.admin.monthlyOfferPriceRequired)
+        return
+      }
+      if (monthlyOfferPrice >= form.price_per_month) {
+        setError(copy.admin.monthlyOfferPriceMustBeLower)
         return
       }
     }
     setLoading(true)
     try {
-      await onSubmit({ ...form, is_featured: true })
+      const payload =
+        monthlyFocus
+          ? {
+              ...form,
+              is_featured: true,
+              offer: buildMonthlyOfferFromPrice(monthlyOfferPrice),
+            }
+          : { ...form, is_featured: true }
+      await onSubmit(payload)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل الحفظ')
     } finally {
@@ -253,30 +306,75 @@ export function CarForm({
       )}
 
       {monthlyFocus && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 space-y-3">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 space-y-4">
           <div>
             <p className="text-sm font-bold text-brand-dark">
-              {monthlyOfferCreate ? copy.admin.monthlyOfferPriceSection : 'السعر الشهري'}
+              {copy.admin.monthlyOfferPriceSection}
             </p>
-            <p className="text-xs text-slate-500 mt-1">
-              {monthlyOfferCreate
-                ? copy.admin.monthlyOfferPriceHint
-                : isBranchAdmin
-                  ? copy.admin.carBranchPriceHint
-                  : 'السعر قبل تطبيق العرض — يُستخدم لحساب الخصم'}
-            </p>
+            <p className="text-xs text-slate-500 mt-1">{copy.admin.monthlyOfferPriceHint}</p>
           </div>
-          <div>
-            <label className="label-field">
-              {isBranchAdmin ? copy.admin.carBranchMonthlyPrice : 'السعر الشهري قبل العرض (ر.س)'}
-            </label>
-            <input
-              type="number"
-              className="input-field"
-              value={form.price_per_month}
-              onChange={(e) => update('price_per_month', Number(e.target.value))}
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label-field">{copy.admin.monthlyOfferBasePriceLabel}</label>
+              <input
+                type="number"
+                min={1}
+                className="input-field"
+                value={form.price_per_month || ''}
+                onChange={(e) => {
+                  const base = Number(e.target.value)
+                  update('price_per_month', base)
+                  if (monthlyOfferPrice > 0 && monthlyOfferPrice < base) {
+                    syncMonthlyOfferPrice(monthlyOfferPrice)
+                  }
+                }}
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                {copy.admin.monthlyOfferBasePriceHint}
+              </p>
+            </div>
+            <div>
+              <label className="label-field">{copy.admin.monthlyOfferFinalPriceLabel}</label>
+              <input
+                type="number"
+                min={1}
+                className="input-field"
+                value={monthlyOfferPrice || ''}
+                onChange={(e) => syncMonthlyOfferPrice(Number(e.target.value))}
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                {copy.admin.monthlyOfferFinalPriceHint}
+              </p>
+            </div>
           </div>
+          {monthlyOfferPrice > 0 && form.price_per_month > monthlyOfferPrice && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+              <span className="text-slate-400 line-through">
+                {formatPrice(form.price_per_month)}
+              </span>
+              <span className="mx-2">←</span>
+              <span className="font-bold text-lg">{formatPrice(monthlyOfferPrice)}</span>
+              <span className="mx-2 text-green-700">
+                وفّر {formatPrice(form.price_per_month - monthlyOfferPrice)}
+              </span>
+            </div>
+          )}
+          {monthlyOfferPrice > 0 &&
+            form.price_per_month > monthlyOfferPrice &&
+            form.price_per_month - monthlyOfferPrice >= MONTHLY_FEATURED_MIN_SAVINGS && (
+              <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                {copy.admin.monthlyOfferFeaturedEligible}
+              </p>
+            )}
+          {monthlyOfferPrice > 0 &&
+            form.price_per_month > monthlyOfferPrice &&
+            form.price_per_month - monthlyOfferPrice < MONTHLY_FEATURED_MIN_SAVINGS && (
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                {copy.admin.monthlyOfferFeaturedIneligible(
+                  Math.round(form.price_per_month - monthlyOfferPrice),
+                )}
+              </p>
+            )}
         </div>
       )}
 
@@ -294,24 +392,7 @@ export function CarForm({
         />
       )}
 
-      {monthlyFocus ? (
-        <>
-          <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
-            <p className="text-sm font-bold text-brand-dark">العرض الشهري</p>
-            <p className="text-xs text-slate-600 mt-1">{copy.admin.carOffersSectionHint}</p>
-          </div>
-          <CarOfferForm
-            rentalType="monthly"
-            basePrice={form.price_per_month}
-            offer={normalizeCarOffers(form.offer).monthly}
-            onChange={(monthly) =>
-              update('offer', { ...normalizeCarOffers(form.offer), monthly })
-            }
-            icon={CalendarRange}
-            heading="عرض شهري"
-          />
-        </>
-      ) : (
+      {!monthlyFocus && (
         <>
           <div className="rounded-xl border border-brand-gold/25 bg-amber-50/50 px-4 py-3">
             <p className="text-sm font-bold text-brand-dark">العروض — يومي وشهري</p>
