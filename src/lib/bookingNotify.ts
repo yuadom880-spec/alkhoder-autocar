@@ -9,7 +9,7 @@ import {
 } from './constants'
 import { getSupabaseEnv } from './env'
 import { formatDisplayPhone } from './phone'
-import { fetchBranches, supabase, isSupabaseConfigured } from './supabase'
+import { fetchBranches, isSupabaseConfigured } from './supabase'
 import { DEFAULT_SITE_URL } from './seo'
 import { formatDate, formatPrice } from './utils'
 
@@ -221,25 +221,16 @@ async function sendBookingEmail(
     }
   }
 
-  if (isSupabaseConfigured && supabase) {
+  // fetch مباشر بمفتاح anon فقط — لا نستخدم functions.invoke (قد يفسد جلسة العميل عند 401)
+  if (isSupabaseConfigured) {
     const { url, anonKey } = getSupabaseEnv()
-
-    try {
-      const { data, error } = await supabase.functions.invoke('send-booking-email', { body: payload })
-      if (!error && data && typeof data === 'object' && 'ok' in data && data.ok === true) {
-        return { sent: true }
-      }
-      lastError = parseEmailApiError(data) ?? error?.message
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : 'supabase_invoke_failed'
-    }
-
     try {
       const res = await fetch(`${url}/functions/v1/send-booking-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey,
         },
         body: JSON.stringify(payload),
       })

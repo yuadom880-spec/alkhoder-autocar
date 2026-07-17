@@ -1495,6 +1495,7 @@ export async function signInAdmin(email: string, password: string) {
 export async function ensureSupabaseAdminAuth(
   email: string = ADMIN_EMAIL,
   password: string = SUPABASE_ADMIN_PASSWORD,
+  options: { allowReplaceCustomerSession?: boolean } = {},
 ): Promise<boolean> {
   if (!supabase) return false
 
@@ -1502,7 +1503,13 @@ export async function ensureSupabaseAdminAuth(
   if (sessionData.session?.user) {
     const role = await fetchProfileRole(sessionData.session.user.id)
     if (role === 'admin') return true
-    await supabase.auth.signOut()
+    // لا تطرد عميل مسجّل على الموقع العام — كان يسبب تسجيل خروج بعد الحجز
+    if (role === 'customer' && !options.allowReplaceCustomerSession) {
+      return false
+    }
+    if (role === 'customer' && options.allowReplaceCustomerSession) {
+      await supabase.auth.signOut()
+    }
   }
 
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
