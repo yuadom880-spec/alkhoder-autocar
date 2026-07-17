@@ -188,7 +188,18 @@ export function isOfferActive(
   return effective < basePrice
 }
 
-export function hasAnyOffer(car: Car, branchId?: string | null): boolean {
+/**
+ * هل للسيارة عرض نشط؟
+ * إذا مُرّر rentalType → نفحص هذا النوع فقط (مهم لفلتر «العروض فقط» مع يومي/شهري).
+ */
+export function hasAnyOffer(
+  car: Car,
+  branchId?: string | null,
+  rentalType?: RentalPeriodType | null,
+): boolean {
+  if (rentalType === 'daily' || rentalType === 'monthly') {
+    return isOfferActive(car, rentalType, branchId)
+  }
   return (
     isOfferActive(car, 'daily', branchId) || isOfferActive(car, 'monthly', branchId)
   )

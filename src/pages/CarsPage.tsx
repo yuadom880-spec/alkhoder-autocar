@@ -91,7 +91,8 @@ export function CarsPage() {
         displayCar.brand.toLowerCase().includes(q) ||
         displayCar.model.toLowerCase().includes(q)
       const matchOffer =
-        !offersOnly || hasAnyOffer(car, hasBranch ? selectedBranch : null)
+        !offersOnly ||
+        hasAnyOffer(car, hasBranch ? selectedBranch : null, rentalType)
       return matchCategory && matchClass && matchSearch && matchOffer
     })
 
