@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { Calendar, Car, LayoutDashboard, LogOut, ExternalLink, MapPin, Tag } from 'lucide-react'
+import { Calendar, Car, LayoutDashboard, LogOut, ExternalLink, MapPin, Tag, Wallet } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
@@ -15,6 +15,7 @@ const generalLinks = [
   { path: '/admin/offers', label: 'العروض الشهرية المميزة', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
   { path: '/admin/bookings', label: 'طلبات الحجز', icon: Calendar, showBadge: true },
+  { path: '/admin/revenue', label: 'الإيرادات', icon: Wallet },
 ]
 
 const branchLinks = [

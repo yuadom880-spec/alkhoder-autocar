@@ -82,6 +82,9 @@ const AdminBranchFormPage = lazy(() =>
 const AdminGeneralOnly = lazy(() =>
   import('./components/admin/AdminGeneralOnly').then((m) => ({ default: m.AdminGeneralOnly })),
 )
+const AdminRevenuePage = lazy(() =>
+  import('./pages/admin/AdminRevenuePage').then((m) => ({ default: m.AdminRevenuePage })),
+)
 
 function PageFallback() {
   return <LoadingSpinner className="min-h-[50vh]" />
@@ -117,6 +120,14 @@ export default function App() {
             <Route path="cars/new" element={<AdminCarFormPage />} />
             <Route path="cars/:id/edit" element={<AdminCarFormPage />} />
             <Route path="bookings" element={<AdminBookingsPage />} />
+            <Route
+              path="revenue"
+              element={
+                <AdminGeneralOnly>
+                  <AdminRevenuePage />
+                </AdminGeneralOnly>
+              }
+            />
             <Route path="offers/monthly/new" element={<AdminMonthlyOfferFormPage />} />
             <Route path="offers/cars/new" element={<AdminOfferCarFormPage />} />
             <Route path="offers/cars/:id/edit" element={<AdminOfferCarFormPage />} />

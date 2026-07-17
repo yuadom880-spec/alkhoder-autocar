@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTableRealtime } from '../../hooks/useTableRealtime'
 import { Link, useLocation } from 'react-router'
-import { Calendar, Car, LayoutDashboard, MapPin, Tag } from 'lucide-react'
+import { Calendar, Car, LayoutDashboard, MapPin, Tag, Wallet } from 'lucide-react'
 import { useAdminBranch } from '../../context/AdminBranchContext'
 import { filterBookingsByBranch } from '../../lib/adminBranchFilters'
 import { fetchBookings } from '../../lib/supabase'
@@ -13,6 +13,7 @@ const generalLinks = [
   { path: '/admin/offers', label: 'شهرية', icon: Tag },
   { path: '/admin/branches', label: 'الفروع', icon: MapPin },
   { path: '/admin/bookings', label: 'الحجوزات', icon: Calendar, showBadge: true },
+  { path: '/admin/revenue', label: 'الإيرادات', icon: Wallet },
 ]
 
 const branchLinks = [

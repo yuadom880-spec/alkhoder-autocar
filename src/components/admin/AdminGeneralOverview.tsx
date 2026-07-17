@@ -96,6 +96,7 @@ export function AdminGeneralOverview({ stats, branchRows }: AdminGeneralOverview
     { to: '/admin/branches/new', label: 'إضافة فرع', icon: Building2 },
     { to: '/admin/offers/monthly/new', label: 'إضافة عرض شهري', icon: Sparkles },
     { to: '/admin/bookings', label: 'مراجعة الحجوزات', icon: Calendar },
+    { to: '/admin/revenue', label: 'الإيرادات', icon: TrendingUp },
   ]
 
   const topBranches = branchRows.filter((b) => b.bookingsPending > 0 || b.bookingsTotal > 0).slice(0, 8)
