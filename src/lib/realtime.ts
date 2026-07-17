@@ -1,6 +1,7 @@
-import type { RealtimeChannel } from '@supabase/supabase-js'
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
 
-import { isSupabaseConfigured, supabase } from './supabase'
+import { isAdminSession } from './admin'
+import { isSupabaseConfigured, supabase, supabaseAdmin } from './supabase'
 
 export type RealtimeTable = 'bookings' | 'cars' | 'featured_offers'
 
@@ -12,6 +13,13 @@ function debounce(fn: () => void, ms: number): () => void {
   }
 }
 
+function resolveRealtimeClient(): SupabaseClient | null {
+  if (!isSupabaseConfigured) return null
+  // لوحة الإدارة: استخدم جلسة الأدمن المنفصلة
+  if (isAdminSession() && supabaseAdmin) return supabaseAdmin
+  return supabase
+}
+
 /**
  * يشترك في تغييرات جدول Supabase Realtime ويعيد تحميل البيانات تلقائياً.
  * يُستخدم: حجوزات (أدمن) + سيارات/عروض (عميل).
@@ -21,8 +29,8 @@ export function subscribeToTable(
   onChange: () => void,
   debounceMs = 400,
 ): () => void {
-  const client = supabase
-  if (!isSupabaseConfigured || !client) return () => {}
+  const client = resolveRealtimeClient()
+  if (!client) return () => {}
 
   const debounced = debounce(onChange, debounceMs)
   const channelName = `rt:${table}:${Math.random().toString(36).slice(2, 9)}`

@@ -140,12 +140,31 @@ const { url: supabaseUrl, anonKey: supabaseAnonKey, isValid } = getSupabaseEnv()
 
 export const isSupabaseConfigured = isValid
 
+/**
+ * عملاء الموقع (التخزين الافتراضي لـ Supabase).
+ * جلسة العميل لا تُشارك مع لوحة الإدارة.
+ */
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+      },
+    })
+  : null
+
+/**
+ * عميل الأدمن — storageKey منفصل حتى لا يطرد جلسة العميل
+ * عند فتح الموقع ولوحة الإدارة من نفس المتصفح.
+ */
+export const supabaseAdmin: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        storageKey: 'alkhoder-admin-auth',
       },
     })
   : null
@@ -175,6 +194,21 @@ function requireSupabase(): SupabaseClient {
     )
   }
   return supabase
+}
+
+function requireSupabaseAdminClient(): SupabaseClient {
+  if (!supabaseAdmin) {
+    throw new Error(
+      'Supabase غير مُعد. أضف VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY في ملف .env',
+    )
+  }
+  return supabaseAdmin
+}
+
+/** يضمن جلسة أدمن على العميل المنفصل ويرجعّه (لا يمسّ جلسة العميل) */
+export async function requireAdminClient(): Promise<SupabaseClient> {
+  await requireSupabaseAdminAuth()
+  return requireSupabaseAdminClient()
 }
 
 function getDemoCars(): Car[] {
@@ -349,9 +383,7 @@ export async function createCar(form: CarFormData): Promise<Car> {
     return car
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data: row, error } = await client.from(CARS_TABLE).insert(data).select().single()
   if (error) throw new Error(formatSupabaseMutationError(error))
   return normalizeCar(row as Car)
@@ -368,9 +400,7 @@ export async function updateCar(id: string, form: Partial<CarFormData>): Promise
     return cars[idx]
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data: row, error } = await client
     .from(CARS_TABLE)
     .update(patch)
@@ -467,17 +497,13 @@ export async function deleteCar(id: string): Promise<void> {
     return
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { error } = await client.from(CARS_TABLE).delete().eq('id', id)
   if (error) throw new Error(formatError(error))
 }
 
 export async function uploadCarImage(file: File, folder = 'cars'): Promise<string> {
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const rawExt = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
   const ext = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(rawExt) ? rawExt : 'jpg'
   const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
@@ -674,9 +700,7 @@ export async function fetchBookings(): Promise<Booking[]> {
     return bookingsWithCars(getDemoBookings())
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data, error } = await client
     .from(BOOKINGS_TABLE)
     .select('*, car:cars(*)')
@@ -852,9 +876,7 @@ export async function updateBookingStatus(
     return { ...bookings[idx], car: cars.find((c) => c.id === bookings[idx].car_id) }
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data, error } = await client
     .from(BOOKINGS_TABLE)
     .update({ status })
@@ -882,9 +904,7 @@ export async function deleteBooking(id: string): Promise<void> {
     return
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { error } = await client.from(BOOKINGS_TABLE).delete().eq('id', id)
   if (error) throw new Error(formatError(error))
   removeCachedBooking(id)
@@ -986,9 +1006,7 @@ export async function createFeaturedOffer(form: FeaturedOfferFormData): Promise<
     return offer
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data: row, error } = await client.from(OFFERS_TABLE).insert(data).select().single()
   if (error) throw new Error(formatError(error))
   return normalizeFeaturedOffer(row as FeaturedOffer)
@@ -1093,9 +1111,7 @@ export async function setFeaturedOfferBranchVisibility(
     return offers[idx]
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data: row, error } = await client
     .from(OFFERS_TABLE)
     .update({
@@ -1192,9 +1208,7 @@ export async function updateFeaturedOffer(
     return offers[idx]
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data: row, error } = await client
     .from(OFFERS_TABLE)
     .update(patch)
@@ -1229,9 +1243,7 @@ export async function deleteFeaturedOffer(
     return
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { error } = await client.from(OFFERS_TABLE).delete().eq('id', id)
   if (error) throw new Error(formatError(error))
 }
@@ -1318,11 +1330,9 @@ export async function fetchBranches(
     return branches.sort((a, b) => a.sort_order - b.sort_order)
   }
 
-  if (!activeOnly) {
-    await requireSupabaseAdminAuth()
-  }
-
-  const client = requireSupabase()
+  const client = !activeOnly
+    ? await requireAdminClient()
+    : requireSupabase()
   let query = client.from(BRANCHES_TABLE).select('*')
   if (activeOnly) query = query.eq('is_active', true)
   const { data, error } = await query.order('sort_order', { ascending: true })
@@ -1335,9 +1345,7 @@ export async function fetchBranchById(id: string): Promise<BranchRecord | null> 
     return getDemoBranches().find((b) => b.id === id) ?? null
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { data, error } = await client.from(BRANCHES_TABLE).select('*').eq('id', id).single()
   if (error) return null
   return normalizeBranch(data as BranchRecord)
@@ -1357,9 +1365,7 @@ export async function createBranch(form: BranchFormData): Promise<BranchRecord> 
     return branch
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   if (data.is_main) {
     await client.from(BRANCHES_TABLE).update({ is_main: false }).eq('is_main', true)
   }
@@ -1401,9 +1407,7 @@ export async function updateBranch(
     return updated
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   if (form.is_main) {
     await client.from(BRANCHES_TABLE).update({ is_main: false }).eq('is_main', true)
   }
@@ -1424,18 +1428,18 @@ export async function deleteBranch(id: string): Promise<void> {
     return
   }
 
-  await requireSupabaseAdminAuth()
-
-  const client = requireSupabase()
+  const client = await requireAdminClient()
   const { error } = await client.from(BRANCHES_TABLE).delete().eq('id', id)
   if (error) throw new Error(formatError(error))
 }
 
 // ─── Auth ────────────────────────────────────────────────────
 
-async function fetchProfileRole(userId: string): Promise<'customer' | 'admin' | null> {
-  if (!supabase) return null
-  const { data, error } = await supabase
+async function fetchProfileRole(
+  userId: string,
+  client: SupabaseClient = requireSupabase(),
+): Promise<'customer' | 'admin' | null> {
+  const { data, error } = await client
     .from(PROFILES_TABLE)
     .select('role')
     .eq('id', userId)
@@ -1610,50 +1614,49 @@ export async function updateCustomerProfileFromBooking(
 }
 
 export async function signInAdmin(email: string, password: string) {
-  const client = requireSupabase()
+  const client = requireSupabaseAdminClient()
   const { data, error } = await client.auth.signInWithPassword({ email, password })
   if (error) throw new Error(formatError(error))
   return data
 }
 
-/** محاولة تسجيل دخول Supabase للأدمن — مطلوب لتعديل السيارات والحجوزات */
+/**
+ * تسجيل دخول الأدمن على عميل منفصل (alkhoder-admin-auth).
+ * لا يمسّ جلسة العميل على الموقع.
+ */
 export async function ensureSupabaseAdminAuth(
   email: string = ADMIN_EMAIL,
   password: string = SUPABASE_ADMIN_PASSWORD,
-  options: { allowReplaceCustomerSession?: boolean } = {},
+  _options: { allowReplaceCustomerSession?: boolean } = {},
 ): Promise<boolean> {
-  if (!supabase) return false
+  if (!supabaseAdmin) return false
 
-  const { data: sessionData } = await supabase.auth.getSession()
+  const client = supabaseAdmin
+  const { data: sessionData } = await client.auth.getSession()
   if (sessionData.session?.user) {
-    const role = await fetchProfileRole(sessionData.session.user.id)
+    const role = await fetchProfileRole(sessionData.session.user.id, client)
     if (role === 'admin') return true
-    // لا تطرد عميل مسجّل على الموقع العام — كان يسبب تسجيل خروج بعد الحجز
-    if (role === 'customer' && !options.allowReplaceCustomerSession) {
-      return false
-    }
-    if (role === 'customer' && options.allowReplaceCustomerSession) {
-      await supabase.auth.signOut()
-    }
+    // جلسة قديمة غير أدمن على تخزين الأدمن فقط
+    await client.auth.signOut()
   }
 
-  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+  const { error: signInError } = await client.auth.signInWithPassword({ email, password })
   if (!signInError) return true
 
-  const { error: signUpError } = await supabase.auth.signUp({ email, password })
+  const { error: signUpError } = await client.auth.signUp({ email, password })
   if (signUpError) {
     console.warn('Supabase admin auth:', signUpError.message)
     return false
   }
 
-  const { error: retryError } = await supabase.auth.signInWithPassword({ email, password })
+  const { error: retryError } = await client.auth.signInWithPassword({ email, password })
   if (retryError) return false
 
-  const { data: afterSignIn } = await supabase.auth.getSession()
+  const { data: afterSignIn } = await client.auth.getSession()
   const userId = afterSignIn.session?.user?.id
   if (!userId) return false
 
-  await supabase
+  await client
     .from(PROFILES_TABLE)
     .upsert(
       { id: userId, email, role: 'admin', updated_at: new Date().toISOString() },
@@ -1672,8 +1675,8 @@ export async function requireSupabaseAdminAuth(): Promise<void> {
 }
 
 export async function signOutAdmin() {
-  if (!supabase) return
-  const { error } = await supabase.auth.signOut()
+  if (!supabaseAdmin) return
+  const { error } = await supabaseAdmin.auth.signOut()
   if (error) throw new Error(formatError(error))
 }
 

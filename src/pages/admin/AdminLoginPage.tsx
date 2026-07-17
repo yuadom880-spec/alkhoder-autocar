@@ -39,9 +39,7 @@ export function AdminLoginPage() {
         }
 
         if (isSupabaseConfigured) {
-          await ensureSupabaseAdminAuth(undefined, undefined, {
-            allowReplaceCustomerSession: true,
-          })
+          await ensureSupabaseAdminAuth()
         }
 
         const branchId = await resolveBranchIdForAccount(account)
@@ -54,9 +52,7 @@ export function AdminLoginPage() {
       }
 
       if (isSupabaseConfigured) {
-        await ensureSupabaseAdminAuth(undefined, undefined, {
-            allowReplaceCustomerSession: true,
-          })
+        await ensureSupabaseAdminAuth()
       }
 
       await refresh()
