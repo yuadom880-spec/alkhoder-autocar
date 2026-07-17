@@ -455,7 +455,7 @@ export const copyEn = {
   },
   myBookings: {
     title: 'My bookings',
-    sub: 'Track the status of your submitted booking requests',
+    sub: 'Track your booking requests — cancel or remove them from your list',
     empty: 'No bookings yet',
     emptyHint: 'When you complete a car booking, it will appear here with its status',
     browseCars: 'Browse cars',
@@ -468,6 +468,20 @@ export const copyEn = {
     rentalTypeDaily: 'Daily rental',
     rentalTypeMonthly: 'Monthly rental',
     contactBranch: 'Contact branch',
+    cancel: 'Cancel booking',
+    cancelConfirmTitle: 'Cancel this booking?',
+    cancelConfirm:
+      'Do you want to cancel this booking? It will no longer count as an active booking.',
+    cancelSuccess: 'Booking cancelled successfully',
+    cancelWorking: 'Cancelling...',
+    delete: 'Remove from list',
+    deleteConfirmTitle: 'Remove booking from your list?',
+    deleteConfirm:
+      'This booking will be removed from your list only. This cannot be undone.',
+    deleteSuccess: 'Booking removed from your list',
+    deleteWorking: 'Removing...',
+    actionFailed: 'Action failed — please try again',
+    keepBooking: 'Keep booking',
   },
   customerAuth: {
     headerTitle: 'Your Alkhoder account',

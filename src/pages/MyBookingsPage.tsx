@@ -6,13 +6,14 @@ import { CustomerBookingCard } from '../components/booking/CustomerBookingCard'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { copy } from '../lib/copy'
-import { fetchMyBookings } from '../lib/supabase'
+import { cancelMyBooking, deleteMyBooking, fetchMyBookings } from '../lib/supabase'
 import type { Booking } from '../lib/types'
 
 function MyBookingsContent() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -30,6 +31,24 @@ function MyBookingsContent() {
   useEffect(() => {
     void load()
   }, [load])
+
+  useEffect(() => {
+    if (!toast) return
+    const t = window.setTimeout(() => setToast(''), 3500)
+    return () => window.clearTimeout(t)
+  }, [toast])
+
+  const handleCancel = async (id: string) => {
+    const updated = await cancelMyBooking(id)
+    setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)))
+    setToast(copy.myBookings.cancelSuccess)
+  }
+
+  const handleDelete = async (id: string) => {
+    await deleteMyBooking(id)
+    setBookings((prev) => prev.filter((b) => b.id !== id))
+    setToast(copy.myBookings.deleteSuccess)
+  }
 
   return (
     <div className="container-main py-8 sm:py-10">
@@ -55,6 +74,12 @@ function MyBookingsContent() {
         </Button>
       </div>
 
+      {toast && (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
+          {toast}
+        </div>
+      )}
+
       {loading && <LoadingSpinner className="py-16" />}
 
       {!loading && error && (
@@ -78,7 +103,12 @@ function MyBookingsContent() {
       {!loading && !error && bookings.length > 0 && (
         <div className="space-y-4 max-w-3xl">
           {bookings.map((b) => (
-            <CustomerBookingCard key={b.id} booking={b} />
+            <CustomerBookingCard
+              key={b.id}
+              booking={b}
+              onCancel={handleCancel}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       )}

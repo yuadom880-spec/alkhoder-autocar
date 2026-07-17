@@ -454,7 +454,7 @@ export const copyAr = {
   },
   myBookings: {
     title: 'الحجوزات',
-    sub: 'تابع حالة طلبات الحجز التي أرسلتها',
+    sub: 'تابع حالة طلبات الحجز التي أرسلتها — يمكنك الإلغاء أو الحذف',
     empty: 'لا توجد حجوزات حتى الآن',
     emptyHint: 'عند إتمام حجز سيارة ستظهر هنا مع حالتها',
     browseCars: 'تصفح السيارات',
@@ -467,6 +467,20 @@ export const copyAr = {
     rentalTypeDaily: 'إيجار يومي',
     rentalTypeMonthly: 'إيجار شهري',
     contactBranch: 'تواصل مع الفرع',
+    cancel: 'إلغاء الحجز',
+    cancelConfirmTitle: 'إلغاء الحجز؟',
+    cancelConfirm:
+      'هل تريد إلغاء هذا الحجز؟ لن يُحسب ضمن الحجوزات النشطة بعد الإلغاء.',
+    cancelSuccess: 'تم إلغاء الحجز بنجاح',
+    cancelWorking: 'جاري الإلغاء...',
+    delete: 'حذف من القائمة',
+    deleteConfirmTitle: 'حذف الحجز من قائمتك؟',
+    deleteConfirm:
+      'سيُحذف هذا الحجز من قائمتك فقط. لا يمكن التراجع بعد الحذف.',
+    deleteSuccess: 'تم حذف الحجز من قائمتك',
+    deleteWorking: 'جاري الحذف...',
+    actionFailed: 'تعذّر تنفيذ العملية — حاول مرة أخرى',
+    keepBooking: 'الإبقاء',
   },
   customerAuth: {
     headerTitle: 'حسابك في الخضر',

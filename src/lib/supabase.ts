@@ -713,6 +713,131 @@ export async function fetchMyBookings(): Promise<Booking[]> {
   return ((data as Booking[]) ?? []).map(normalizeBooking)
 }
 
+/** العميل يلغي حجزه (pending / confirmed → cancelled) */
+export async function cancelMyBooking(id: string): Promise<Booking> {
+  if (!isSupabaseConfigured) {
+    const bookings = getDemoBookings()
+    const idx = bookings.findIndex((b) => b.id === id)
+    if (idx === -1) throw new Error('الحجز غير موجود')
+    const current = bookings[idx]
+    if (current.status !== 'pending' && current.status !== 'confirmed') {
+      throw new Error('لا يمكن إلغاء هذا الحجز')
+    }
+    bookings[idx] = {
+      ...current,
+      status: 'cancelled',
+      updated_at: new Date().toISOString(),
+    }
+    saveDemoBookings(bookings)
+    const rows = await bookingsWithCars([bookings[idx]])
+    return rows[0]
+  }
+
+  const client = requireSupabase()
+  const { data: sessionData } = await client.auth.getSession()
+  const userId = sessionData.session?.user?.id
+  if (!userId) throw new Error('يجب تسجيل الدخول لإلغاء الحجز')
+
+  const { error: rpcError } = await client.rpc('cancel_my_booking', {
+    p_booking_id: id,
+  })
+
+  if (rpcError) {
+    const msg = formatError(rpcError)
+    // إن لم تُشغَّل الـ RPC بعد — جرّب التحديث المباشر مع RLS
+    if (
+      msg.includes('cancel_my_booking') ||
+      msg.includes('schema cache') ||
+      msg.includes('Could not find') ||
+      msg.includes('function')
+    ) {
+      const { data, error } = await client
+        .from(BOOKINGS_TABLE)
+        .update({ status: 'cancelled' })
+        .eq('id', id)
+        .eq('user_id', userId)
+        .in('status', ['pending', 'confirmed'])
+        .select('*, car:cars(*)')
+        .maybeSingle()
+
+      if (error) throw new Error(formatError(error))
+      if (!data) {
+        throw new Error(
+          'تعذّر الإلغاء — تأكد من تشغيل supabase/migrations/007_customer_booking_control.sql في Supabase',
+        )
+      }
+      const updated = normalizeBooking(data as Booking)
+      cacheBooking(updated)
+      return updated
+    }
+    if (msg.includes('cannot_cancel') || msg.includes('cannot_cancel_booking')) {
+      throw new Error('لا يمكن إلغاء هذا الحجز — ربما أُلغي مسبقاً أو اكتمل')
+    }
+    throw new Error(msg)
+  }
+
+  const { data, error } = await client
+    .from(BOOKINGS_TABLE)
+    .select('*, car:cars(*)')
+    .eq('id', id)
+    .single()
+
+  if (error) throw new Error(formatError(error))
+  const updated = normalizeBooking(data as Booking)
+  cacheBooking(updated)
+  return updated
+}
+
+/** العميل يحذف حجزاً منتهي/ملغى/مرفوض من قائمته */
+export async function deleteMyBooking(id: string): Promise<void> {
+  if (!isSupabaseConfigured) {
+    removeCachedBooking(id)
+    return
+  }
+
+  const client = requireSupabase()
+  const { data: sessionData } = await client.auth.getSession()
+  const userId = sessionData.session?.user?.id
+  if (!userId) throw new Error('يجب تسجيل الدخول')
+
+  const { error: rpcError } = await client.rpc('delete_my_booking', {
+    p_booking_id: id,
+  })
+
+  if (rpcError) {
+    const msg = formatError(rpcError)
+    if (
+      msg.includes('delete_my_booking') ||
+      msg.includes('schema cache') ||
+      msg.includes('Could not find') ||
+      msg.includes('function')
+    ) {
+      const { data, error } = await client
+        .from(BOOKINGS_TABLE)
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId)
+        .in('status', ['cancelled', 'rejected', 'completed'])
+        .select('id')
+
+      if (error) throw new Error(formatError(error))
+      if (!data?.length) {
+        throw new Error(
+          'تعذّر الحذف — يمكن حذف الحجوزات الملغاة أو المرفوضة أو المكتملة فقط. شغّل 007_customer_booking_control.sql إن لزم',
+        )
+      }
+      removeCachedBooking(id)
+      return
+    }
+    if (msg.includes('cannot_delete')) {
+      throw new Error('لا يمكن حذف هذا الحجز — ألغِه أولاً إن كان قيد المراجعة أو مؤكداً')
+    }
+    throw new Error(msg)
+  }
+
+  removeCachedBooking(id)
+}
+
 export async function updateBookingStatus(
   id: string,
   status: BookingStatus,

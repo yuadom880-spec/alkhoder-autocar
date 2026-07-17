@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { Calendar, Car, ChevronUp, CreditCard, MapPin, MessageCircle, Phone } from 'lucide-react'
+import {
+  Calendar,
+  Car,
+  ChevronUp,
+  CreditCard,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Trash2,
+  XCircle,
+} from 'lucide-react'
 import { Link } from 'react-router'
 import type { Booking, BookingStatus } from '../../lib/types'
 import { BOOKING_STATUS_LABELS } from '../../lib/constants'
@@ -24,9 +34,31 @@ function whatsappMessage(b: Booking): string {
   return `السلام عليكم، بخصوص حجزي لـ ${car} من ${b.start_date} إلى ${b.end_date}${branch} — عبدالمجيد الخضر لتأجير السيارات`
 }
 
-export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
+function canCancel(status: string): boolean {
+  return status === 'pending' || status === 'confirmed'
+}
+
+function canDelete(status: string): boolean {
+  return status === 'cancelled' || status === 'rejected' || status === 'completed'
+}
+
+interface CustomerBookingCardProps {
+  booking: Booking
+  onCancel?: (id: string) => Promise<void>
+  onDelete?: (id: string) => Promise<void>
+}
+
+export function CustomerBookingCard({
+  booking: b,
+  onCancel,
+  onDelete,
+}: CustomerBookingCardProps) {
   const { locale } = useLocale()
   const [expanded, setExpanded] = useState(b.status === 'pending' || b.status === 'confirmed')
+  const [confirm, setConfirm] = useState<'cancel' | 'delete' | null>(null)
+  const [working, setWorking] = useState(false)
+  const [actionError, setActionError] = useState('')
+
   const branchName = b.branch_name ? translateBranchName(b.branch_name, locale) : null
   const branchCity = b.branch_city ? translateBranchCity(b.branch_city, locale) : null
 
@@ -34,6 +66,21 @@ export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
     b.rental_type === 'monthly'
       ? copy.myBookings.rentalTypeMonthly
       : copy.myBookings.rentalTypeDaily
+
+  const handleConfirm = async () => {
+    if (!confirm) return
+    setWorking(true)
+    setActionError('')
+    try {
+      if (confirm === 'cancel' && onCancel) await onCancel(b.id)
+      if (confirm === 'delete' && onDelete) await onDelete(b.id)
+      setConfirm(null)
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : copy.myBookings.actionFailed)
+    } finally {
+      setWorking(false)
+    }
+  }
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -128,6 +175,90 @@ export function CustomerBookingCard({ booking: b }: { booking: Booking }) {
                   </a>
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {(canCancel(b.status) || canDelete(b.status)) && (
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
+            {canCancel(b.status) && onCancel && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-red-200 text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  setConfirm('cancel')
+                  setActionError('')
+                }}
+                disabled={working}
+              >
+                <XCircle className="h-4 w-4" />
+                {copy.myBookings.cancel}
+              </Button>
+            )}
+            {canDelete(b.status) && onDelete && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                onClick={() => {
+                  setConfirm('delete')
+                  setActionError('')
+                }}
+                disabled={working}
+              >
+                <Trash2 className="h-4 w-4" />
+                {copy.myBookings.delete}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {confirm && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 space-y-2">
+            <p className="font-bold text-sm text-brand-dark">
+              {confirm === 'cancel'
+                ? copy.myBookings.cancelConfirmTitle
+                : copy.myBookings.deleteConfirmTitle}
+            </p>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {confirm === 'cancel'
+                ? copy.myBookings.cancelConfirm
+                : copy.myBookings.deleteConfirm}
+            </p>
+            {actionError && (
+              <p className="text-xs text-red-600 font-semibold">{actionError}</p>
+            )}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button
+                size="sm"
+                onClick={() => void handleConfirm()}
+                disabled={working}
+                className={
+                  confirm === 'cancel'
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : undefined
+                }
+              >
+                {working
+                  ? confirm === 'cancel'
+                    ? copy.myBookings.cancelWorking
+                    : copy.myBookings.deleteWorking
+                  : confirm === 'cancel'
+                    ? copy.myBookings.cancel
+                    : copy.myBookings.delete}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setConfirm(null)
+                  setActionError('')
+                }}
+                disabled={working}
+              >
+                {copy.myBookings.keepBooking}
+              </Button>
             </div>
           </div>
         )}
