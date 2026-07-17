@@ -74,7 +74,14 @@ export default defineConfig({
           '**/*.{png,jpg,jpeg,webp,mp4,pdf}',
         ],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/admin/],
+        // لا تحوّل ملفات SEO/API لـ SPA (كانت تسبب 404 على sitemap.xml في المتصفح)
+        navigateFallbackDenylist: [
+          /^\/admin/,
+          /^\/api\//,
+          /^\/sitemap\.xml$/i,
+          /^\/robots\.txt$/i,
+          /\.(?:xml|txt|json|webmanifest|ico)$/i,
+        ],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
