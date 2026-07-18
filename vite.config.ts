@@ -21,7 +21,7 @@ export default defineConfig({
         name: 'الخضر لتأجير السيارات',
         short_name: 'الخضر',
         description:
-          'شركة عبدالمجيد الخضر لتأجير السيارات — ايجار سيارات يومي وشهري في السعودية. احجز أونلاين.',
+          'عبدالمجيد الخضر لتأجير السيارات - يومي وشهري. احجز أونلاين.',
         theme_color: '#0d7a4a',
         background_color: '#f8fafc',
         display: 'standalone',

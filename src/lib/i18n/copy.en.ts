@@ -17,7 +17,7 @@ export const copyEn = {
   site: {
     logoTitle: 'Alkhoder',
     logoSubtitle: 'Car Rental',
-    tagline: 'Daily & monthly car rental in Saudi Arabia',
+    tagline: 'Abdulmjeed Alkhoder Car Rental - Daily & Monthly',
     heroTitle: 'Your first choice for car rental',
     heroSubtitle:
       'Daily and monthly car rental across the Kingdom — competitive rates and a modern fleet',
