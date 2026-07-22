@@ -14,9 +14,40 @@ export function formatPrice(amount: number, locale?: Locale): string {
   return `${rounded.toLocaleString('ar-SA')} ر.س`
 }
 
+/** تحليل تاريخ YYYY-MM-DD أو ISO بدون إزاحة يوم بسبب UTC */
+function parseDateInput(date: string): Date {
+  const dayOnly = /^(\d{4})-(\d{2})-(\d{2})/.exec(date.trim())
+  if (dayOnly && !date.includes('T')) {
+    const y = Number(dayOnly[1])
+    const m = Number(dayOnly[2]) - 1
+    const d = Number(dayOnly[3])
+    return new Date(y, m, d, 12, 0, 0)
+  }
+  // created_at ISO — نستخدم التاريخ المحلي للعرض
+  const parsed = new Date(date)
+  return parsed
+}
+
+/**
+ * تنسيق التاريخ للعرض.
+ * العربية: هجري (أم القرى) دائماً — ar-SA وحده يتبع إعدادات المتصفح فيتذبذب ميلادي/هجري.
+ * الإنجليزية: ميلادي.
+ */
 export function formatDate(date: string, locale?: Locale): string {
   const loc = locale ?? getActiveLocale()
-  return new Date(date).toLocaleDateString(loc === 'en' ? 'en-US' : 'ar-SA', {
+  const d = parseDateInput(date)
+  if (Number.isNaN(d.getTime())) return date
+
+  if (loc === 'en') {
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
+  // islamic-umalqura = تقويم أم القرى المعتمد في السعودية
+  return d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
