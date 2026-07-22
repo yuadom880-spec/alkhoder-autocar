@@ -29,9 +29,8 @@ function parseDateInput(date: string): Date {
 }
 
 /**
- * تنسيق التاريخ للعرض.
- * العربية: هجري (أم القرى) دائماً — ar-SA وحده يتبع إعدادات المتصفح فيتذبذب ميلادي/هجري.
- * الإنجليزية: ميلادي.
+ * تنسيق التاريخ للعرض — ميلادي دائماً (عربي أو إنجليزي).
+ * ar-SA بدون calendar يتبع إعدادات المتصفح فيظهر هجري أحياناً وميلادي أحياناً.
  */
 export function formatDate(date: string, locale?: Locale): string {
   const loc = locale ?? getActiveLocale()
@@ -46,8 +45,8 @@ export function formatDate(date: string, locale?: Locale): string {
     })
   }
 
-  // islamic-umalqura = تقويم أم القرى المعتمد في السعودية
-  return d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', {
+  // gregory = ميلادي دائماً — أسماء الأشهر عربية (يوليو، أغسطس…)
+  return d.toLocaleDateString('ar-SA-u-ca-gregory', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
