@@ -19,6 +19,7 @@ import { translateBranchCity, translateBranchName } from '../../lib/i18n/branche
 import { formatDate, formatPrice, toPhoneLink, toWhatsAppLink } from '../../lib/utils'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
+import { BookingStatusTimeline } from './BookingStatusTimeline'
 
 const statusVariant = {
   pending: 'warning' as const,
@@ -83,50 +84,52 @@ export function CustomerBookingCard({
   }
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-4 py-4 sm:px-5 space-y-3">
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="space-y-3 px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h3 className="font-bold text-brand-dark text-lg">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <h3 className="text-lg font-bold text-brand-dark dark:text-slate-50">
                 {b.car?.name ?? 'سيارة'}
               </h3>
               <Badge variant={statusVariant[b.status as BookingStatus]}>
                 {BOOKING_STATUS_LABELS[b.status]}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600">{rentalLabel}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">{rentalLabel}</p>
             {branchName && (
-              <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+              <p className="mt-1 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                 <MapPin className="h-3 w-3 shrink-0" />
                 {branchName}
                 {branchCity ? ` — ${branchCity}` : ''}
               </p>
             )}
           </div>
-          <p className="text-lg font-bold text-brand-green shrink-0">
+          <p className="shrink-0 text-lg font-bold text-brand-green">
             {formatPrice(b.total_price)}
           </p>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 text-sm">
-          <div className="rounded-lg bg-slate-50 px-3 py-2 flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-brand-green shrink-0" />
+        <BookingStatusTimeline status={b.status} />
+
+        <div className="grid gap-2 text-sm sm:grid-cols-2">
+          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/70">
+            <Calendar className="h-4 w-4 shrink-0 text-brand-green" />
             <div>
               <p className="text-[10px] text-slate-400">{copy.myBookings.rentalPeriod}</p>
-              <p className="font-semibold text-brand-dark" dir="ltr">
+              <p className="font-semibold text-brand-dark dark:text-slate-100" dir="ltr">
                 {b.start_date} → {b.end_date}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {b.total_days}{' '}
                 {b.total_days === 1 ? copy.booking.dayUnit : copy.booking.daysUnit}
               </p>
             </div>
           </div>
           {b.pickup_time && (
-            <div className="rounded-lg bg-slate-50 px-3 py-2">
+            <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/70">
               <p className="text-[10px] text-slate-400">{copy.myBookings.pickupTime}</p>
-              <p className="font-semibold text-brand-dark">{b.pickup_time}</p>
+              <p className="font-semibold text-brand-dark dark:text-slate-100">{b.pickup_time}</p>
             </div>
           )}
         </div>

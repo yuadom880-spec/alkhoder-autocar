@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowLeft, Clock, ExternalLink, MapPin, Phone } from 'lucide-react'
+import { ArrowLeft, Clock, MapPin, Phone } from 'lucide-react'
 import { BranchImage } from '../components/branches/BranchImage'
 import { Button } from '../components/ui/Button'
+import { GoogleMapsLink } from '../components/ui/GoogleMapsLink'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { OptimizedImage } from '../components/ui/OptimizedImage'
 import { copy } from '../lib/copy'
@@ -53,9 +54,11 @@ export function BranchesPage() {
           {branchRegions.map((region) => (
             <div
               key={region.region}
-              className="rounded-2xl bg-white p-5 shadow-sm border border-slate-100"
+              className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
             >
-              <h3 className="font-bold text-brand-dark mb-3">{region.region}</h3>
+              <h3 className="mb-3 font-bold text-brand-dark dark:text-slate-50">
+                {region.region}
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {region.cities.map((city) => (
                   <span
@@ -73,8 +76,8 @@ export function BranchesPage() {
         {loading ? (
           <LoadingSpinner />
         ) : branches.length === 0 ? (
-          <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
-            <p className="text-slate-500">{copy.branches.noBranches}</p>
+          <div className="rounded-2xl bg-white py-16 text-center shadow-sm dark:bg-slate-900">
+            <p className="text-slate-500 dark:text-slate-400">{copy.branches.noBranches}</p>
           </div>
         ) : (
           <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">
@@ -83,7 +86,7 @@ export function BranchesPage() {
               return (
               <div
                 key={branch.id}
-                className="overflow-hidden rounded-2xl bg-white shadow-md card-hover"
+                className="card-hover overflow-hidden rounded-2xl bg-white shadow-md dark:bg-slate-900 dark:ring-1 dark:ring-slate-700"
               >
                 <div className="relative flex min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] items-center justify-center overflow-hidden bg-slate-100 px-4 py-5 sm:px-5 sm:py-6">
                   <BranchImage src={branch.image_url} alt={display.name} />
@@ -93,50 +96,44 @@ export function BranchesPage() {
                   </h2>
                 </div>
 
-                <div className="p-4 space-y-4 sm:p-6">
-                  <div className="flex items-start gap-3 text-sm text-slate-600">
-                    <MapPin className="h-5 w-5 shrink-0 text-brand-green mt-0.5" />
+                <div className="space-y-4 p-4 sm:p-6">
+                  <div className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" />
                     <div>
-                      <p className="font-medium text-brand-dark">{display.city}</p>
+                      <p className="font-medium text-brand-dark dark:text-slate-50">
+                        {display.city}
+                      </p>
                       <p>{display.address}</p>
                     </div>
                   </div>
 
                   {branch.phone && (
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                       <Phone className="h-5 w-5 shrink-0 text-brand-green" />
                       <a
                         href={toPhoneLink(branch.phone)}
                         dir="ltr"
-                        className="hover:text-brand-green transition-colors"
+                        className="transition-colors hover:text-brand-green"
                       >
                         {branch.phone}
                       </a>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                     <Clock className="h-5 w-5 shrink-0 text-brand-green" />
                     <span>{formatBranchHours(branch.hours, locale)}</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
-                    <Link to={`/cars?branch=${branch.id}`}>
-                      <Button size="sm">
+                  <div className="space-y-3 pt-1">
+                    <Link to={`/cars?branch=${branch.id}`} className="block w-full">
+                      <Button size="sm" className="w-full sm:w-auto">
                         {copy.branches.bookFromBranch}
                         <ArrowLeft className="h-4 w-4" />
                       </Button>
                     </Link>
                     {branch.map_url && branch.map_url !== '#' && (
-                      <a
-                        href={branch.map_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-green hover:underline"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        {copy.branches.openMap}
-                      </a>
+                      <GoogleMapsLink href={branch.map_url} />
                     )}
                   </div>
                 </div>

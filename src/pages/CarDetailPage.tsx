@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTableRealtime } from '../hooks/useTableRealtime'
 import { Link, useParams, useSearchParams } from 'react-router'
-import { ArrowRight, Calendar, Fuel, Settings2, Snowflake, Users } from 'lucide-react'
+import { ArrowRight, Calendar, Fuel, Settings2, Share2, Snowflake, Users } from 'lucide-react'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -26,6 +26,7 @@ import { CarImage } from '../components/cars/CarImage'
 import { CarPrice, OfferBadge } from '../components/cars/CarPrice'
 import { RentalPeriodToggle } from '../components/cars/RentalPeriodToggle'
 import { useRentalPeriod } from '../hooks/useRentalPeriod'
+import { buildCarShareText, shareContent } from '../lib/share'
 import { formatDate, formatPrice } from '../lib/utils'
 
 export function CarDetailPage() {
@@ -37,6 +38,7 @@ export function CarDetailPage() {
   const [blocks, setBlocks] = useState<BookingBlock[]>([])
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState(0)
+  const [shareNote, setShareNote] = useState<string | null>(null)
 
   const promoId = searchParams.get('promo') ?? ''
   const start = searchParams.get('start') ?? ''
@@ -215,8 +217,43 @@ export function CarDetailPage() {
                 )}
               </div>
 
-              <h1 className="text-2xl font-bold text-brand-dark sm:text-3xl mb-2">{displayName}</h1>
-              <p className="text-slate-500 mb-4">
+              <div className="mb-2 flex items-start gap-2">
+                <h1 className="min-w-0 flex-1 text-2xl font-bold text-brand-dark sm:text-3xl dark:text-slate-50">
+                  {displayName}
+                </h1>
+                <button
+                  type="button"
+                  title={copy.detail.shareCar}
+                  aria-label={copy.detail.shareCar}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-brand-green/40 hover:text-brand-green dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                  onClick={() => {
+                    void (async () => {
+                      const payload = buildCarShareText(
+                        displayName,
+                        locale,
+                        displayCar.id,
+                      )
+                      const result = await shareContent(payload)
+                      if (result === 'copied') {
+                        setShareNote(copy.detail.shareCopied)
+                      } else if (result === 'failed') {
+                        setShareNote(copy.detail.shareFailed)
+                      } else {
+                        setShareNote(null)
+                      }
+                      if (result === 'copied' || result === 'failed') {
+                        window.setTimeout(() => setShareNote(null), 3200)
+                      }
+                    })()
+                  }}
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+              </div>
+              {shareNote && (
+                <p className="mb-2 text-xs font-semibold text-brand-green">{shareNote}</p>
+              )}
+              <p className="mb-4 text-slate-500 dark:text-slate-400">
                 {displayCar.brand} {displayCar.model} · {displayCar.year}
               </p>
 

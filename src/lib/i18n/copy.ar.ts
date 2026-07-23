@@ -183,6 +183,10 @@ export const copyAr = {
     featured: 'مميزة',
     availability: 'حالة التوفر',
     seatsUnit: 'مقاعد',
+    share: 'مشاركة',
+    shareCar: 'مشاركة السيارة',
+    shareCopied: 'تم نسخ رابط المشاركة',
+    shareFailed: 'تعذّرت المشاركة — انسخ الرابط يدوياً',
   },
   booking: {
     title: 'حجز السيارة',
@@ -313,10 +317,17 @@ export const copyAr = {
   branches: {
     title: 'فروعنا',
     subtitle: 'أكثر من 35 فرعاً في أنحاء المملكة — خدمة ايجار السيارات أينما كنت',
-    openMap: 'افتح في خرائط جوجل',
+    openMap: 'فتح في خرائط Google',
+    mapsDirections: 'احصل على الاتجاهات للموقع',
     bookFromBranch: 'احجز من هذا الفرع',
     mapAlt: 'فروع شركة عبدالمجيد الخضر في المملكة',
     noBranches: 'لا توجد فروع متاحة حالياً',
+  },
+  theme: {
+    mode: 'المظهر',
+    light: 'فاتح',
+    dark: 'داكن',
+    system: 'تلقائي (النظام)',
   },
   notFound: {
     title: 'الصفحة غير موجودة',
@@ -481,6 +492,13 @@ export const copyAr = {
     deleteWorking: 'جاري الحذف...',
     actionFailed: 'تعذّر تنفيذ العملية — حاول مرة أخرى',
     keepBooking: 'الإبقاء',
+    timelineTitle: 'مسار الحجز',
+    timelineSubmitted: 'مُرسل',
+    timelineReview: 'قيد المراجعة',
+    timelineConfirmed: 'مؤكد',
+    timelineRejected: 'مرفوض',
+    timelineCancelled: 'ملغي',
+    timelineCompleted: 'مكتمل',
   },
   customerAuth: {
     headerTitle: 'حسابك في الخضر',
