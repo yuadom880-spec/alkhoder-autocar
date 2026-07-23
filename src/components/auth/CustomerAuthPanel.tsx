@@ -77,7 +77,10 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
         await signIn(trimmedEmail, password)
         onSuccess?.()
       } else {
-        if (pendingVerifyEmail && trimmedEmail === pendingVerifyEmail) {
+        if (
+          pendingVerifyEmail &&
+          trimmedEmail.toLowerCase() === pendingVerifyEmail.toLowerCase()
+        ) {
           setVerifyStep(true)
           setOtp('')
           setError(copy.customerAuth.errors.pendingVerify)
@@ -86,10 +89,10 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
 
         const needsVerify = await signUp(trimmedEmail, password, fullName.trim())
         if (needsVerify) {
-          setPendingVerifyEmail(trimmedEmail)
+          setPendingVerifyEmail(trimmedEmail.toLowerCase())
           setVerifyStep(true)
           setOtp('')
-          setResendSeconds(120)
+          setResendSeconds(60)
           setError('')
         } else {
           onSuccess?.()
@@ -103,15 +106,31 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
           : copy.customerAuth.errors.registerFailed)
       setError(message)
 
+      const raw = err instanceof Error ? err.message : String(err)
+      const needsEmailVerify =
+        raw.includes('Email not confirmed') ||
+        raw.toLowerCase().includes('not confirmed') ||
+        message.includes('تأكيد بريدك') ||
+        message.toLowerCase().includes('verify your email')
+
       if (mode === 'register' && message.includes('مسجّل بالفعل')) {
         setMode('login')
         setVerifyStep(false)
         setPendingVerifyEmail(null)
         setOtp('')
-      } else if (mode === 'login' && message.includes('تأكيد بريدك')) {
-        setPendingVerifyEmail(trimmedEmail)
+      } else if (mode === 'login' && needsEmailVerify) {
+        // حساب موجود من التطبيق/الموقع لكن الإيميل غير مؤكد → شاشة الكود + إعادة إرسال
+        setPendingVerifyEmail(trimmedEmail.toLowerCase())
         setVerifyStep(true)
         setOtp('')
+        setResendSeconds(0)
+        try {
+          await resendEmailOtp(trimmedEmail)
+          setResendSeconds(60)
+          setError(copy.customerAuth.errors.emailNotConfirmed)
+        } catch (resendErr) {
+          setError(formatAuthErrorMessage(resendErr) || message)
+        }
       }
     } finally {
       setLoading(false)
@@ -143,7 +162,7 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
     setLoading(true)
     try {
       await resendEmailOtp(email.trim())
-      setResendSeconds(120)
+      setResendSeconds(60)
     } catch (err) {
       setError(formatAuthErrorMessage(err))
     } finally {
@@ -212,7 +231,7 @@ export function CustomerAuthPanel({ variant = 'booking', onSuccess }: CustomerAu
               className="input-field text-center text-lg tracking-widest"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
-              placeholder="12345678"
+              placeholder="123456"
               maxLength={8}
               autoComplete="one-time-code"
               required

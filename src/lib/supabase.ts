@@ -1448,21 +1448,79 @@ async function fetchProfileRole(
   return (data?.role as 'customer' | 'admin' | undefined) ?? null
 }
 
+/** توحيد الإيميل — يمنع فشل الدخول بين التطبيق والموقع بسبب الأحرف الكبيرة */
+function normalizeAuthEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
+function authEmailRedirectTo(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+  return `${window.location.origin}/`
+}
+
+/** يضمن صف profiles للعميل بعد الدخول (لو التريغر ما اشتغل) */
+async function ensureCustomerProfileRow(
+  client: SupabaseClient,
+  userId: string,
+  email: string,
+  fullName?: string | null,
+) {
+  const role = await fetchProfileRole(userId, client)
+  if (role === 'admin') return
+
+  const now = new Date().toISOString()
+  const name = fullName?.trim()
+  const emailNorm = normalizeAuthEmail(email)
+
+  if (role === 'customer') {
+    const patch: Record<string, unknown> = {
+      email: emailNorm,
+      updated_at: now,
+    }
+    if (name) patch.full_name = name
+    const { error } = await client
+      .from(PROFILES_TABLE)
+      .update(patch)
+      .eq('id', userId)
+    if (error) console.warn('ensureCustomerProfileRow update:', formatError(error))
+    return
+  }
+
+  const { error } = await client.from(PROFILES_TABLE).upsert(
+    {
+      id: userId,
+      email: emailNorm,
+      role: 'customer',
+      ...(name ? { full_name: name } : {}),
+      updated_at: now,
+    },
+    { onConflict: 'id' },
+  )
+  if (error) {
+    console.warn('ensureCustomerProfileRow upsert:', formatError(error))
+  }
+}
+
 export async function signUpCustomer(
   email: string,
   password: string,
   fullName: string,
 ): Promise<boolean> {
   const client = requireSupabase()
-  const trimmedEmail = email.trim()
+  const trimmedEmail = normalizeAuthEmail(email)
   const trimmedName = fullName.trim()
   if (!trimmedName) throw new Error('الاسم مطلوب')
+  if (!trimmedEmail || !trimmedEmail.includes('@')) {
+    throw new Error('أدخل بريداً إلكترونياً صالحاً')
+  }
 
+  const redirectTo = authEmailRedirectTo()
   const { data, error } = await client.auth.signUp({
     email: trimmedEmail,
     password,
     options: {
       data: { full_name: trimmedName },
+      ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
     },
   })
   if (error) throw new Error(formatError(error))
@@ -1473,61 +1531,84 @@ export async function signUpCustomer(
     throw new Error('User already registered')
   }
 
-  // الملف يُنشأ تلقائياً عبر trigger handle_new_user — لا upsert قبل تأكيد الإيميل
-
+  // الملف يُنشأ تلقائياً عبر trigger — لا upsert قبل تأكيد الإيميل
+  // needsVerify = true إذا مفيش جلسة (لازم كود الإيميل)
   return !data.session
 }
 
 export async function verifySignupEmailOtp(email: string, code: string) {
   const client = requireSupabase()
+  const trimmedEmail = normalizeAuthEmail(email)
   const token = code.replace(/\D/g, '')
   if (token.length < 4) throw new Error('أدخل كود التحقق المرسل إلى بريدك')
 
-  const { data, error } = await client.auth.verifyOtp({
-    email: email.trim(),
+  // signup أولاً، ثم email (لبعض إعدادات Supabase)
+  let result = await client.auth.verifyOtp({
+    email: trimmedEmail,
     token,
     type: 'signup',
   })
-  if (error) throw new Error(formatError(error))
-  if (!data.user) throw new Error('تعذّر التحقق — جرّب مرة أخرى')
-
-  const fullName = (data.user.user_metadata?.full_name as string | undefined)?.trim()
-  if (fullName) {
-    await client
-      .from(PROFILES_TABLE)
-      .update({
-        full_name: fullName,
-        email: email.trim(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', data.user.id)
+  if (result.error) {
+    result = await client.auth.verifyOtp({
+      email: trimmedEmail,
+      token,
+      type: 'email',
+    })
   }
+  if (result.error) throw new Error(formatError(result.error))
+  if (!result.data.user) throw new Error('تعذّر التحقق — جرّب مرة أخرى')
 
-  const role = await fetchProfileRole(data.user.id)
+  const user = result.data.user
+  const fullName = (user.user_metadata?.full_name as string | undefined)?.trim()
+  await ensureCustomerProfileRow(client, user.id, trimmedEmail, fullName)
+
+  const role = await fetchProfileRole(user.id)
   if (role === 'admin') {
     await client.auth.signOut()
     throw new Error('هذا الحساب للإدارة — استخدم لوحة الإدارة')
   }
 
-  return data
+  return result.data
 }
 
 export async function resendSignupEmailOtp(email: string) {
   const client = requireSupabase()
+  const trimmedEmail = normalizeAuthEmail(email)
+  const redirectTo = authEmailRedirectTo()
   const { error } = await client.auth.resend({
     type: 'signup',
-    email: email.trim(),
+    email: trimmedEmail,
+    ...(redirectTo ? { options: { emailRedirectTo: redirectTo } } : {}),
   })
   if (error) throw new Error(formatError(error))
 }
 
 export async function signInCustomer(email: string, password: string) {
   const client = requireSupabase()
+  const trimmedEmail = normalizeAuthEmail(email)
   const { data, error } = await client.auth.signInWithPassword({
-    email: email.trim(),
+    email: trimmedEmail,
     password,
   })
-  if (error) throw new Error(formatError(error))
+  if (error) {
+    const msg = formatError(error)
+    // رسالة أوضح لحالة عدم التأكيد
+    if (
+      msg.toLowerCase().includes('email not confirmed') ||
+      msg.includes('not confirmed')
+    ) {
+      throw new Error('Email not confirmed')
+    }
+    throw new Error(msg)
+  }
+
+  const fullName = (data.user.user_metadata?.full_name as string | undefined)?.trim()
+  await ensureCustomerProfileRow(
+    client,
+    data.user.id,
+    data.user.email ?? trimmedEmail,
+    fullName,
+  )
 
   const role = await fetchProfileRole(data.user.id)
   if (role === 'admin') {

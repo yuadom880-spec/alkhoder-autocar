@@ -508,7 +508,7 @@ export const copyAr = {
     emailVerifyTitle: 'تأكيد البريد الإلكتروني',
     emailVerifySub:
       'أرسلنا كود تحقق (٨ أرقام) إلى بريدك — راجع الوارد ومجلد السبام (Spam) ثم أدخل الكود أدناه',
-    otpCode: 'كود التحقق (٨ أرقام)',
+    otpCode: 'كود التحقق (٦ أرقام عادةً)',
     verifyEmailBtn: 'تأكيد الحساب',
     resendOtp: 'إعادة إرسال الكود',
     resendIn: 'إعادة الإرسال بعد',

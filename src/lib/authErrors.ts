@@ -18,13 +18,21 @@ export function formatAuthErrorMessage(error: unknown): string {
     ) {
       return copy.customerAuth.errors.deleteNotEnabled
     }
-    if (msg.includes('Invalid login credentials')) {
+    if (
+      msg.includes('Invalid login credentials') ||
+      msg.toLowerCase().includes('invalid login')
+    ) {
       return copy.customerAuth.errors.loginFailed
     }
     if (msg.includes('User already registered')) {
       return copy.customerAuth.errors.alreadyRegistered
     }
-    if (msg.includes('Email not confirmed')) {
+    if (
+      msg.includes('Email not confirmed') ||
+      msg.toLowerCase().includes('email not confirmed') ||
+      msg.toLowerCase().includes('not confirmed') ||
+      msg.includes('تأكيد بريدك')
+    ) {
       return copy.customerAuth.errors.emailNotConfirmed
     }
     if (

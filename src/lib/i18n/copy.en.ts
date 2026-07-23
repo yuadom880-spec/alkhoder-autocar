@@ -509,7 +509,7 @@ export const copyEn = {
     emailVerifyTitle: 'Verify your email',
     emailVerifySub:
       'We sent an 8-digit verification code to your email — check inbox and spam folder, then enter the code below',
-    otpCode: 'Verification code (8 digits)',
+    otpCode: 'Verification code (usually 6 digits)',
     verifyEmailBtn: 'Verify account',
     resendOtp: 'Resend code',
     resendIn: 'Resend in',
