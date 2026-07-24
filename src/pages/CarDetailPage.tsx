@@ -218,14 +218,14 @@ export function CarDetailPage() {
               </div>
 
               <div className="mb-2 flex items-start gap-2">
-                <h1 className="min-w-0 flex-1 text-2xl font-bold text-brand-dark sm:text-3xl dark:text-slate-50">
+                <h1 className="min-w-0 flex-1 text-2xl font-bold text-brand-dark sm:text-3xl">
                   {displayName}
                 </h1>
                 <button
                   type="button"
                   title={copy.detail.shareCar}
                   aria-label={copy.detail.shareCar}
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-brand-green/40 hover:text-brand-green dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-brand-green/40 hover:text-brand-green"
                   onClick={() => {
                     void (async () => {
                       const payload = buildCarShareText(
@@ -253,7 +253,7 @@ export function CarDetailPage() {
               {shareNote && (
                 <p className="mb-2 text-xs font-semibold text-brand-green">{shareNote}</p>
               )}
-              <p className="mb-4 text-slate-500 dark:text-slate-400">
+              <p className="mb-4 text-slate-500">
                 {displayCar.brand} {displayCar.model} · {displayCar.year}
               </p>
 

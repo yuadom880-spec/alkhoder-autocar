@@ -54,9 +54,9 @@ export function BranchesPage() {
           {branchRegions.map((region) => (
             <div
               key={region.region}
-              className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+              className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
             >
-              <h3 className="mb-3 font-bold text-brand-dark dark:text-slate-50">
+              <h3 className="mb-3 font-bold text-brand-dark">
                 {region.region}
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -76,8 +76,8 @@ export function BranchesPage() {
         {loading ? (
           <LoadingSpinner />
         ) : branches.length === 0 ? (
-          <div className="rounded-2xl bg-white py-16 text-center shadow-sm dark:bg-slate-900">
-            <p className="text-slate-500 dark:text-slate-400">{copy.branches.noBranches}</p>
+          <div className="rounded-2xl bg-white py-16 text-center shadow-sm">
+            <p className="text-slate-500">{copy.branches.noBranches}</p>
           </div>
         ) : (
           <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">
@@ -86,7 +86,7 @@ export function BranchesPage() {
               return (
               <div
                 key={branch.id}
-                className="card-hover overflow-hidden rounded-2xl bg-white shadow-md dark:bg-slate-900 dark:ring-1 dark:ring-slate-700"
+                className="card-hover overflow-hidden rounded-2xl bg-white shadow-md"
               >
                 <div className="relative flex min-h-[260px] sm:min-h-[300px] lg:min-h-[340px] items-center justify-center overflow-hidden bg-slate-100 px-4 py-5 sm:px-5 sm:py-6">
                   <BranchImage src={branch.image_url} alt={display.name} />
@@ -97,10 +97,10 @@ export function BranchesPage() {
                 </div>
 
                 <div className="space-y-4 p-4 sm:p-6">
-                  <div className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="flex items-start gap-3 text-sm text-slate-600">
                     <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" />
                     <div>
-                      <p className="font-medium text-brand-dark dark:text-slate-50">
+                      <p className="font-medium text-brand-dark">
                         {display.city}
                       </p>
                       <p>{display.address}</p>
@@ -108,7 +108,7 @@ export function BranchesPage() {
                   </div>
 
                   {branch.phone && (
-                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center gap-3 text-sm text-slate-600">
                       <Phone className="h-5 w-5 shrink-0 text-brand-green" />
                       <a
                         href={toPhoneLink(branch.phone)}
@@ -120,7 +120,7 @@ export function BranchesPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center gap-3 text-sm text-slate-600">
                     <Clock className="h-5 w-5 shrink-0 text-brand-green" />
                     <span>{formatBranchHours(branch.hours, locale)}</span>
                   </div>

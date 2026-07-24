@@ -323,12 +323,6 @@ export const copyEn = {
     mapAlt: 'Abdulmjeed Alkhoder Car Rental branches across Saudi Arabia',
     noBranches: 'No branches available at the moment',
   },
-  theme: {
-    mode: 'Appearance',
-    light: 'Light',
-    dark: 'Dark',
-    system: 'System',
-  },
   notFound: {
     title: 'Page not found',
     message: 'Sorry, the page you are looking for is not available',

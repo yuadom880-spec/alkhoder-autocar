@@ -47,24 +47,23 @@ export function GoogleMapsLink({ href, className, subtitle }: Props) {
       className={cn(
         'group flex w-full items-center gap-3 rounded-xl border border-[#DADCE0] bg-[#EAEEF5] px-3.5 py-3 transition-colors',
         'hover:border-[#4285F4]/40 hover:bg-[#E8F0FE]',
-        'dark:border-slate-600 dark:bg-slate-800/80 dark:hover:bg-slate-800',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4285F4]/50',
         className,
       )}
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-black/5 dark:bg-slate-900 dark:ring-white/10">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-black/5">
         <GoogleGMark />
       </span>
       <span className="min-w-0 flex-1 text-start">
-        <span className="block text-sm font-extrabold text-[#202124] dark:text-slate-100">
+        <span className="block text-sm font-extrabold text-[#202124]">
           {copy.branches.openMap}
         </span>
-        <span className="mt-0.5 block text-xs text-slate-600 dark:text-slate-400">
+        <span className="mt-0.5 block text-xs text-slate-600">
           {subtitle ?? copy.branches.mapsDirections}
         </span>
       </span>
       <ExternalLink
-        className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-[#4285F4] dark:text-slate-400"
+        className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-[#4285F4]"
         aria-hidden
       />
     </a>

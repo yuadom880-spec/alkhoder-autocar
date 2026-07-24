@@ -40,8 +40,8 @@ export function BookingStatusTimeline({ status }: Props) {
         : 1
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/90 px-3 py-3 sm:px-4 dark:border-slate-700 dark:bg-slate-900/60">
-      <p className="mb-3 text-[11px] font-extrabold tracking-wide text-slate-500 dark:text-slate-400">
+    <div className="rounded-xl border border-slate-200 bg-slate-50/90 px-3 py-3 sm:px-4">
+      <p className="mb-3 text-[11px] font-extrabold tracking-wide text-slate-500">
         {copy.myBookings.timelineTitle}
       </p>
       <div className="flex items-start">
@@ -70,7 +70,7 @@ export function BookingStatusTimeline({ status }: Props) {
                       ? isFailNode && i === level
                         ? 'bg-red-500'
                         : 'bg-brand-green'
-                      : 'bg-slate-200 dark:bg-slate-700',
+                      : 'bg-slate-200',
                   )}
                   aria-hidden
                 />
@@ -80,12 +80,12 @@ export function BookingStatusTimeline({ status }: Props) {
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-full border-2',
                     isFailNode
-                      ? 'border-red-500 bg-red-50 dark:bg-red-950/40'
+                      ? 'border-red-500 bg-red-50'
                       : done
                         ? 'border-brand-green bg-brand-green/10'
                         : current
                           ? 'border-brand-green bg-brand-green/10 ring-2 ring-brand-green/25'
-                          : 'border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-800',
+                          : 'border-slate-200 bg-white',
                   )}
                 >
                   <Icon

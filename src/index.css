@@ -19,46 +19,6 @@
     min-width: 0;
   }
 
-  html.dark body {
-    @apply bg-slate-950 text-slate-100;
-  }
-
-  html.dark .section-title {
-    @apply text-slate-50;
-  }
-
-  html.dark .section-subtitle {
-    @apply text-slate-400;
-  }
-
-  html.dark .input-field {
-    @apply border-slate-600 bg-slate-900 text-slate-100;
-    color-scheme: dark;
-  }
-
-  html.dark .input-field::placeholder {
-    @apply text-slate-500;
-  }
-
-  html.dark select.input-field,
-  html.dark select.input-field option {
-    @apply text-slate-100;
-  }
-
-  html.dark .input-field[type='date'],
-  html.dark .input-field[type='date']::-webkit-datetime-edit,
-  html.dark .input-field[type='date']::-webkit-datetime-edit-fields-wrapper,
-  html.dark .input-field[type='date']::-webkit-datetime-edit-text,
-  html.dark .input-field[type='date']::-webkit-datetime-edit-month-field,
-  html.dark .input-field[type='date']::-webkit-datetime-edit-day-field,
-  html.dark .input-field[type='date']::-webkit-datetime-edit-year-field {
-    @apply text-slate-100;
-  }
-
-  html.dark .label-field {
-    @apply text-slate-200;
-  }
-
   #root {
     width: 100%;
     min-width: 0;

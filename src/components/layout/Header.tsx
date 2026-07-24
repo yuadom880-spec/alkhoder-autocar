@@ -18,7 +18,6 @@ import { formatAuthErrorMessage } from '../../lib/authErrors'
 
 import { Logo } from '../ui/Logo'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { ThemeSwitcher } from './ThemeSwitcher'
 import { copy } from '../../lib/copy'
 import { cn } from '../../lib/utils'
 import { Button } from '../ui/Button'
@@ -77,7 +76,7 @@ export function Header() {
 
   return (
     <>
-      <header className="safe-top sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95">
+      <header className="safe-top sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
         <div className="container-main flex min-h-[3.5rem] items-center justify-between gap-2 py-2 sm:h-16 sm:gap-4 sm:py-0">
           <Logo size="sm" showText compact className="min-w-0 flex-1 sm:flex-none sm:max-w-none" />
 
@@ -90,7 +89,7 @@ export function Header() {
                   'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
                   pathname === link.path
                     ? 'bg-brand-green/10 text-brand-green'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-brand-dark dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white',
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-brand-dark',
                 )}
               >
                 {link.label}
@@ -99,12 +98,11 @@ export function Header() {
           </nav>
 
           <div className="hidden items-center gap-2 lg:flex">
-            <ThemeSwitcher />
             <LanguageSwitcher />
             <a
               href={PHONE_LINK}
               title={mainBranch.phoneLabel}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-brand-green dark:text-slate-300"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-brand-green"
             >
               <Phone className="h-4 w-4" />
               <span dir="ltr">{PHONE}</span>
@@ -197,7 +195,6 @@ export function Header() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1 lg:hidden">
-            <ThemeSwitcher />
             <LanguageSwitcher compact />
 
             {!isLoading &&
@@ -235,7 +232,7 @@ export function Header() {
         </div>
 
         {open && (
-          <div className="border-t border-slate-100 bg-white px-4 py-3 pb-4 shadow-lg dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+          <div className="border-t border-slate-100 bg-white px-4 py-3 pb-4 shadow-lg lg:hidden">
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -246,7 +243,7 @@ export function Header() {
                     'flex min-h-[48px] items-center rounded-xl px-4 py-3.5 text-base font-medium',
                     pathname === link.path
                       ? 'bg-brand-green/10 text-brand-green'
-                      : 'text-slate-600 active:bg-slate-50 dark:text-slate-300 dark:active:bg-slate-800',
+                      : 'text-slate-600 active:bg-slate-50',
                   )}
                 >
                   {link.label}

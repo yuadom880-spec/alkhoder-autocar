@@ -84,21 +84,21 @@ export function CustomerBookingCard({
   }
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="space-y-3 px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-bold text-brand-dark dark:text-slate-50">
+              <h3 className="text-lg font-bold text-brand-dark">
                 {b.car?.name ?? 'سيارة'}
               </h3>
               <Badge variant={statusVariant[b.status as BookingStatus]}>
                 {BOOKING_STATUS_LABELS[b.status]}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600 dark:text-slate-300">{rentalLabel}</p>
+            <p className="text-sm text-slate-600">{rentalLabel}</p>
             {branchName && (
-              <p className="mt-1 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
                 <MapPin className="h-3 w-3 shrink-0" />
                 {branchName}
                 {branchCity ? ` — ${branchCity}` : ''}
@@ -113,23 +113,23 @@ export function CustomerBookingCard({
         <BookingStatusTimeline status={b.status} />
 
         <div className="grid gap-2 text-sm sm:grid-cols-2">
-          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/70">
+          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
             <Calendar className="h-4 w-4 shrink-0 text-brand-green" />
             <div>
               <p className="text-[10px] text-slate-400">{copy.myBookings.rentalPeriod}</p>
-              <p className="font-semibold text-brand-dark dark:text-slate-100" dir="ltr">
+              <p className="font-semibold text-brand-dark" dir="ltr">
                 {b.start_date} → {b.end_date}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500">
                 {b.total_days}{' '}
                 {b.total_days === 1 ? copy.booking.dayUnit : copy.booking.daysUnit}
               </p>
             </div>
           </div>
           {b.pickup_time && (
-            <div className="rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800/70">
+            <div className="rounded-lg bg-slate-50 px-3 py-2">
               <p className="text-[10px] text-slate-400">{copy.myBookings.pickupTime}</p>
-              <p className="font-semibold text-brand-dark dark:text-slate-100">{b.pickup_time}</p>
+              <p className="font-semibold text-brand-dark">{b.pickup_time}</p>
             </div>
           )}
         </div>
